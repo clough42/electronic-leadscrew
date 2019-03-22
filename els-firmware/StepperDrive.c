@@ -20,7 +20,6 @@ void StepperDrive_Init(void)
     //
     _stepperdrive_state.currentPosition = 0;
     _stepperdrive_state.desiredPosition = 0;
-    _stepperdrive_state.enabled = 1;
 
     //
     // Configure GPIO pins for output
@@ -50,7 +49,6 @@ void StepperDrive_Init(void)
 
 void StepperDrive_Service_ISR(void)
 {
-
     switch( _stepperdrive_state.state ) {
 
     case 0:
@@ -91,7 +89,6 @@ void StepperDrive_Service_ISR(void)
         _stepperdrive_state.state = 1;
         break;
     }
-
 }
 
 
