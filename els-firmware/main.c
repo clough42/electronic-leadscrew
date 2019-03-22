@@ -131,6 +131,10 @@ void main(void)
     ERTM;   // Enable Global realtime interrupt DBGM
 
     //
+    // Start up
+    //
+
+    //
     // Step 6. IDLE loop. Just sit and loop forever (optional)
     //
 
