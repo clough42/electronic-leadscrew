@@ -45,7 +45,7 @@ struct CONTROL_PANEL_STATE {
     Uint16 rpm;
 
     // Current displayed setting value, 4 digits max
-    Uint16 value;
+    float value;
 
     // Current LED states
     union LED_REG leds;
@@ -53,27 +53,33 @@ struct CONTROL_PANEL_STATE {
     // current key states
     union KEY_REG keys;
 
+    //
+    // Derived state, calculated internally
+    //
+    Uint16 sevenSegmentData[8];
+
 };
 
 extern struct CONTROL_PANEL_STATE _controlpanel_state;
 
 
 void ControlPanel_Init(void);
-void ControlPanel_Refresh(void);
+union KEY_REG ControlPanel_Refresh();
+
 
 inline void ControlPanel_SetRPM(Uint16 rpm)
 {
     _controlpanel_state.rpm = rpm;
 }
 
-inline void ControlPanel_SetValue(Uint16 value)
+inline void ControlPanel_SetValue(float value)
 {
     _controlpanel_state.value = value;
 }
 
-inline union KEY_REG ControlPanel_GetKeys()
+inline void ControlPanel_SetLEDs(Uint16 leds)
 {
-    return _controlpanel_state.keys;
+    _controlpanel_state.leds.all = leds;
 }
 
 

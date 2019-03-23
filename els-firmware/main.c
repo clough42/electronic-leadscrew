@@ -4,8 +4,9 @@
 // Included Files
 //
 #include "DSP28x_Project.h"     // Device Headerfile and Examples Include File
-#include "SPI_ControlPanel.h"
+#include "ControlPanel.h"
 #include "StepperDrive.h"
+#include "Encoder.h"
 
 //
 // Function Prototypes statements for functions found within this file.
@@ -96,18 +97,26 @@ void main(void)
     //
     // Set up SPI for control panel
     //
-    InitControlPanel();
+    ControlPanel_Init();
 
     //
     // Set up GPIO and state machine for stepper drive
     //
     StepperDrive_Init();
 
+    //
+    // Set up Encoder input
+    //
+    Encoder_Init();
+
     // GPIO 9 as an indicator
     EALLOW;
     GpioCtrlRegs.GPAMUX1.bit.GPIO9 = 0;
     GpioCtrlRegs.GPADIR.bit.GPIO9 = 1;
     GpioDataRegs.GPACLEAR.bit.GPIO9 = 1;
+    GpioCtrlRegs.GPAMUX1.bit.GPIO10 = 0;
+    GpioCtrlRegs.GPADIR.bit.GPIO10 = 1;
+    GpioDataRegs.GPACLEAR.bit.GPIO10 = 1;
     EDIS;
 
     //
@@ -137,51 +146,49 @@ void main(void)
     //
     // Step 6. IDLE loop. Just sit and loop forever (optional)
     //
-
-    Uint16 data[] = {
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-    };
-    Uint16 keys = 0xff;
+    union KEY_REG keys;
+    keys.all = 0xff;
+    int16 rpm = 0;
+    float feed = 0.999;
 
     for(;;) {
-        SendControlPanelData(data, keys);
+        ControlPanel_SetLEDs(keys.all);
+        ControlPanel_SetValue(feed);
 
-        keys = ReadKeys();
+        keys = ControlPanel_Refresh();
 
         //
         // Respond to keypresses
         //
-        if( keys & 0x01 ) {
+        if( keys.all & 0x01 ) {
             StepperDrive_SetDesiredPosition(4);
+            feed += 0.001;
         }
-        if( keys & 0x02 ) {
+        if( keys.all & 0x02 ) {
             StepperDrive_SetDesiredPosition(3);
         }
-        if( keys & 0x04 ) {
+        if( keys.all & 0x04 ) {
             StepperDrive_SetDesiredPosition(2);
         }
-        if( keys & 0x08 ) {
+        if( keys.all & 0x08 ) {
             StepperDrive_SetDesiredPosition(1);
+            feed -= 0.001;
         }
-        if( keys & 0x10 ) {
+        if( keys.all & 0x10 ) {
             StepperDrive_SetDesiredPosition(0);
         }
-        if( keys & 0x20 ) {
+        if( keys.all & 0x20 ) {
             StepperDrive_SetDesiredPosition(-1);
         }
-        if( keys & 0x40 ) {
+        if( keys.all & 0x40 ) {
             StepperDrive_SetDesiredPosition(-2);
         }
-        if( keys & 0x80 ) {
+        if( keys.all & 0x80 ) {
             StepperDrive_SetDesiredPosition(-3);
         }
+
+        if( feed > 0.9999 ) feed = 0.9999;
+        if( feed < 0.0 ) feed = 0.0;
 
         DELAY_US(10000); // update at 100Hz-ish
 
@@ -204,6 +211,8 @@ cpu_timer0_isr(void)
     // Service the stepper driver
     //
     StepperDrive_Service_ISR();
+
+    ControlPanel_SetRPM(Encoder_GetRPM());
 
     // flag exit from ISR for timing
     GpioDataRegs.GPACLEAR.bit.GPIO9 = 1;
