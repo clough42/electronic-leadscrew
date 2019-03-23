@@ -207,6 +207,13 @@ cpu_timer0_isr(void)
     GpioDataRegs.GPASET.bit.GPIO9 = 1;
 
     //
+    // Calculate the correct stepper position
+    //
+    Uint32 spindlePosition = Encoder_GetPosition();
+    int32 desiredSteps = spindlePosition * 0.25;
+    StepperDrive_SetDesiredPosition(desiredSteps);
+
+    //
     // Service the stepper driver
     //
     StepperDrive_Service_ISR();
