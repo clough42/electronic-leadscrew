@@ -7,6 +7,7 @@
 #include "ControlPanel.h"
 #include "StepperDrive.h"
 #include "Encoder.h"
+#include <stdio.h>
 
 //
 // Function Prototypes statements for functions found within this file.
@@ -18,6 +19,13 @@ __interrupt void cpu_timer0_isr(void);
 //
 void main(void)
 {
+#ifdef _FLASH
+    // Copy time critical code and Flash setup code to RAM
+    // The RamfuncsLoadStart, RamfuncsLoadEnd, and RamfuncsRunStart
+    // symbols are created by the linker. Refer to the linker files.
+    memcpy(&RamfuncsRunStart, &RamfuncsLoadStart, (size_t)&RamfuncsLoadSize);
+#endif
+
     //
     // Step 1. Initialize System Control:
     // PLL, WatchDog, enable Peripheral Clocks
