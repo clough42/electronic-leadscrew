@@ -134,7 +134,7 @@ void DecomposeRPM()
     int i;
 
     for(i=3; i>=0; i--) {
-        _controlpanel_state.sevenSegmentData[i] = lcd_char(rpm % 10);
+        _controlpanel_state.sevenSegmentData[i] = (rpm == 0 && i != 3) ? 0 : lcd_char(rpm % 10);
         rpm = rpm / 10;
     }
 }

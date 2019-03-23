@@ -148,7 +148,6 @@ void main(void)
     //
     union KEY_REG keys;
     keys.all = 0xff;
-    int16 rpm = 0;
     float feed = 0.999;
 
     for(;;) {
