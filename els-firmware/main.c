@@ -230,11 +230,11 @@ cpu_timer0_isr(void)
     int32 desiredSteps = spindlePosition * feed;
 
     // overflow
-    if( spindlePosition < previousSpindlePosition && previousSpindlePosition - spindlePosition > ENCODER_MAX_COUNT/2 ) {
+    if( spindlePosition < previousSpindlePosition && previousSpindlePosition - spindlePosition > Encoder_GetMaxCount()/2 ) {
         StepperDrive_IncrementCurrentPosition(-1 * (int32)Encoder_GetMaxCount() * feed);
     }
     // underflow
-    if( spindlePosition > previousSpindlePosition && spindlePosition - previousSpindlePosition > ENCODER_MAX_COUNT/2 ) {
+    if( spindlePosition > previousSpindlePosition && spindlePosition - previousSpindlePosition > Encoder_GetMaxCount()/2 ) {
         StepperDrive_IncrementCurrentPosition(Encoder_GetMaxCount() * feed);
     }
 

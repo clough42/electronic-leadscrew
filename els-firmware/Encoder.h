@@ -4,7 +4,7 @@
 #include "DSP28x_Project.h"
 
 
-#define ENCODER_MAX_COUNT 0x00ffffff
+#define _ENCODER_MAX_COUNT 0x00ffffff
 
 
 void Encoder_Init(void);
@@ -17,7 +17,7 @@ inline Uint32 Encoder_GetPosition(void)
 
 inline Uint32 Encoder_GetMaxCount(void)
 {
-    return ENCODER_MAX_COUNT;
+    return _ENCODER_MAX_COUNT;
 }
 
 #endif // __ENCODER_H
