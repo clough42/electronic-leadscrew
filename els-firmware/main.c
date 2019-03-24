@@ -24,6 +24,10 @@ void main(void)
     // The RamfuncsLoadStart, RamfuncsLoadEnd, and RamfuncsRunStart
     // symbols are created by the linker. Refer to the linker files.
     memcpy(&RamfuncsRunStart, &RamfuncsLoadStart, (size_t)&RamfuncsLoadSize);
+
+    // Initialize the flash instruction fetch pipeline
+    // This configures the MCU to pre-fetch instructions from flash.
+    InitFlash();
 #endif
 
     //
