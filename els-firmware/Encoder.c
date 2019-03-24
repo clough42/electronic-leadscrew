@@ -1,4 +1,5 @@
 #include "Encoder.h"
+#include "Configuration.h"
 
 
 
@@ -27,7 +28,7 @@ void Encoder_Init(void)
     EQep1Regs.QDECCTL.bit.QIP = 1;          // invert index input
     EQep1Regs.QEPCTL.bit.FREE_SOFT = 2;     // unaffected by emulation suspend
     EQep1Regs.QEPCTL.bit.PCRM = 1;          // position count reset on maximum position
-    EQep1Regs.QPOSMAX = 0xffffffff;         // Max position count
+    EQep1Regs.QPOSMAX = ENCODER_MAX_COUNT;  // Max position count
 
     EQep1Regs.QUPRD = 80000000 / RPM_CALC_RATE_HZ; // Unit Timer latch at RPM_CALC_RATE_HZ Hz
     EQep1Regs.QEPCTL.bit.UTE=1;             // Unit Timeout Enable
@@ -48,8 +49,8 @@ Uint16 Encoder_GetRPM(void)
         Uint32 count = (new > previous) ? new - previous : previous - new;
 
         // deal with over/underflow
-        if( count > 0x0fffffff ) {
-            count = 0xffffffff - count; // just subtract from max value
+        if( count > ENCODER_MAX_COUNT/2 ) {
+            count = ENCODER_MAX_COUNT - count; // just subtract from max value
         }
 
         rpm = count * 60 * RPM_CALC_RATE_HZ / 4096;

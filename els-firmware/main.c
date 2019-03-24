@@ -7,12 +7,15 @@
 #include "ControlPanel.h"
 #include "StepperDrive.h"
 #include "Encoder.h"
+#include "Configuration.h"
 #include <stdio.h>
 
 //
 // Function Prototypes statements for functions found within this file.
 //
 __interrupt void cpu_timer0_isr(void);
+
+long double feed = 200.0 * 8.0 / 4096.0;
 
 //
 // Main
@@ -160,7 +163,6 @@ void main(void)
     //
     union KEY_REG keys;
     keys.all = 0xff;
-    float feed = 0.999;
 
     for(;;) {
         ControlPanel_SetLEDs(keys.all);
@@ -198,7 +200,7 @@ void main(void)
             StepperDrive_SetDesiredPosition(-3);
         }
 
-        if( feed > 0.9999 ) feed = 0.9999;
+        if( feed > 0.999 ) feed = 0.999;
         if( feed < 0.0 ) feed = 0.0;
 
         DELAY_US(10000); // update at 100Hz-ish
@@ -206,6 +208,9 @@ void main(void)
     };
 }
 
+
+Uint32 previousSpindlePosition = 0;
+long double previousFeed = 0;
 
 //
 // cpu_timer0_isr -
@@ -222,8 +227,26 @@ cpu_timer0_isr(void)
     // Calculate the correct stepper position
     //
     Uint32 spindlePosition = Encoder_GetPosition();
-    int32 desiredSteps = spindlePosition * 0.25;
+    int32 desiredSteps = spindlePosition * feed;
+
+    // overflow
+    if( spindlePosition < previousSpindlePosition && previousSpindlePosition - spindlePosition > ENCODER_MAX_COUNT/2 ) {
+        StepperDrive_IncrementCurrentPosition(-1 * (int32)Encoder_GetMaxCount() * feed);
+    }
+    // underflow
+    if( spindlePosition > previousSpindlePosition && spindlePosition - previousSpindlePosition > ENCODER_MAX_COUNT/2 ) {
+        StepperDrive_IncrementCurrentPosition(Encoder_GetMaxCount() * feed);
+    }
+
     StepperDrive_SetDesiredPosition(desiredSteps);
+
+    // if the feed changed, we want to reset and avoid a big step
+    if( feed != previousFeed ) {
+        StepperDrive_SetCurrentPosition(desiredSteps);
+    }
+
+    previousSpindlePosition = spindlePosition;
+    previousFeed = feed;
 
     //
     // Service the stepper driver

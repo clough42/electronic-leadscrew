@@ -3,7 +3,7 @@
 
 #include "DSP28x_Project.h"
 
-#define STEPPER_CYCLE_US 50
+
 
 struct STEPPERDRIVE_STATE {
 
@@ -35,6 +35,16 @@ void StepperDrive_Service_ISR(void);
 inline void StepperDrive_SetDesiredPosition(int32 steps)
 {
     _stepperdrive_state.desiredPosition = steps;
+}
+
+inline void StepperDrive_IncrementCurrentPosition(int32 increment)
+{
+    _stepperdrive_state.currentPosition += increment;
+}
+
+inline void StepperDrive_SetCurrentPosition(int32 position)
+{
+    _stepperdrive_state.currentPosition = position;
 }
 
 

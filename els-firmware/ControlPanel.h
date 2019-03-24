@@ -45,7 +45,7 @@ struct CONTROL_PANEL_STATE {
     Uint16 rpm;
 
     // Current displayed setting value, 4 digits max
-    float value;
+    long double value;
 
     // Current LED states
     union LED_REG leds;
@@ -72,7 +72,7 @@ inline void ControlPanel_SetRPM(Uint16 rpm)
     _controlpanel_state.rpm = rpm;
 }
 
-inline void ControlPanel_SetValue(float value)
+inline void ControlPanel_SetValue(long double value)
 {
     _controlpanel_state.value = value;
 }
