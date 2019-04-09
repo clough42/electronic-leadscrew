@@ -21,11 +21,21 @@ void ControlPanel_Init(void)
     SpibRegs.SPICCR.bit.SPISWRESET = 1;         // clear reset state; ready to transmit
 
     // Set up muxing for SPIB pins
-    GpioCtrlRegs.GPAMUX2.bit.GPIO24 = 3;        // select SPISIMOB
-    GpioCtrlRegs.GPAMUX2.bit.GPIO26 = 3;        // select SPICLKB
-    GpioCtrlRegs.GPAMUX2.bit.GPIO27 = 0;        // just use GPIO27 so we can control it ourselves
-    GpioCtrlRegs.GPADIR.bit.GPIO27 = 1;         // output
-    GpioDataRegs.GPASET.bit.GPIO27 = 1;         // set it to high
+    GpioCtrlRegs.GPAMUX2.bit.GPIO24 = 0x2;      // select SPIB_SIMO
+    GpioCtrlRegs.GPAGMUX2.bit.GPIO24 = 0x1;
+    GpioCtrlRegs.GPBMUX1.bit.GPIO32 = 0x3;      // select SPIB_CLK
+    GpioCtrlRegs.GPBGMUX1.bit.GPIO32 = 0x0;
+
+    // just use GPIO33 as the chip select so we can control it ourselves
+    GpioCtrlRegs.GPBMUX1.bit.GPIO33 = 0x0;      // SELECT GPIO33
+    GpioCtrlRegs.GPBDIR.bit.GPIO33 = 1;         // output
+    GpioCtrlRegs.GPBDIR.bit.GPIO33 = 1;         // set it to high
+
+//    GpioCtrlRegs.GPAMUX2.bit.GPIO24 = 3;        // select SPISIMOB
+//    GpioCtrlRegs.GPAMUX2.bit.GPIO26 = 3;        // select SPICLKB
+//    GpioCtrlRegs.GPAMUX2.bit.GPIO27 = 0;        // just use GPIO27 so we can control it ourselves
+//    GpioCtrlRegs.GPADIR.bit.GPIO27 = 1;         // output
+//    GpioDataRegs.GPASET.bit.GPIO27 = 1;         // set it to high
 
     EDIS;
 }
@@ -109,22 +119,22 @@ void SendControlPanelData()
 
     SpibRegs.SPICTL.bit.TALK = 1;
 
-    GpioDataRegs.GPACLEAR.bit.GPIO27 = 1;
+    GpioDataRegs.GPBCLEAR.bit.GPIO33 = 1;
     SendByte(reverse_byte(0x8a));           // brightness
-    GpioDataRegs.GPASET.bit.GPIO27 = 1;
+    GpioDataRegs.GPBSET.bit.GPIO33 = 1;
 
-    GpioDataRegs.GPACLEAR.bit.GPIO27 = 1;
+    GpioDataRegs.GPBCLEAR.bit.GPIO33 = 1;
     SendByte(reverse_byte(0x40));           // auto-increment
-    GpioDataRegs.GPASET.bit.GPIO27 = 1;
+    GpioDataRegs.GPBSET.bit.GPIO33 = 1;
 
-    GpioDataRegs.GPACLEAR.bit.GPIO27 = 1;
+    GpioDataRegs.GPBCLEAR.bit.GPIO33 = 1;
     SendByte(reverse_byte(0xc0));           // display data
     for( i=0; i < 8; i++ ) {
         SendByte(_controlpanel_state.sevenSegmentData[i]);
         SendByte( (ledMask & 0x80) ? 0xff00 : 0x0000 );
         ledMask <<= 1;
     }
-    GpioDataRegs.GPASET.bit.GPIO27 = 1;
+    GpioDataRegs.GPBSET.bit.GPIO33 = 1;
 
     SpibRegs.SPICTL.bit.TALK = 0;
 }
@@ -158,7 +168,7 @@ union KEY_REG ReadKeys(void)
 {
     SpibRegs.SPICTL.bit.TALK = 1;
 
-    GpioDataRegs.GPACLEAR.bit.GPIO27 = 1;
+    GpioDataRegs.GPBCLEAR.bit.GPIO33 = 1;
     SendByte(reverse_byte(0x42));
 
     SpibRegs.SPICTL.bit.TALK = 0;
@@ -177,7 +187,7 @@ union KEY_REG ReadKeys(void)
             (byte3 & 0x88) >> 2 |
             (byte4 & 0x88) >> 3;
 
-    GpioDataRegs.GPASET.bit.GPIO27 = 1;
+    GpioDataRegs.GPBSET.bit.GPIO33 = 1;
 
     return keyMask;
 }
