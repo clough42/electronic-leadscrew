@@ -1,6 +1,8 @@
 eclipse.preferences.version=1
 encoding//Debug/device_support_f28004x/common/source/subdir_rules.mk=UTF-8
 encoding//Debug/device_support_f28004x/common/source/subdir_vars.mk=UTF-8
+encoding//Debug/device_support_f28004x/headers/cmd/subdir_rules.mk=UTF-8
+encoding//Debug/device_support_f28004x/headers/cmd/subdir_vars.mk=UTF-8
 encoding//Debug/device_support_f28004x/headers/source/subdir_rules.mk=UTF-8
 encoding//Debug/device_support_f28004x/headers/source/subdir_vars.mk=UTF-8
 encoding//Debug/makefile=UTF-8
