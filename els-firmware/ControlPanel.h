@@ -5,15 +5,28 @@
 
 #define CONTROL_PANEL_REFRESH_US 10000
 
+#define ZERO    0b1111110000000000 // 0
+#define ONE     0b0110000000000000 // 1
+#define TWO     0b1101101000000000 // 2
+#define THREE   0b1111001000000000 // 3
+#define FOUR    0b0110011000000000 // 4
+#define FIVE    0b1011011000000000 // 5
+#define SIX     0b1011111000000000 // 6
+#define SEVEN   0b1110000000000000 // 7
+#define EIGHT   0b1111111000000000 // 8
+#define NINE    0b1111011000000000 // 9
+#define POINT   0b0000000100000000 // .
+#define BLANK   0b0000000000000000
+
 struct LED_BITS
 {
     Uint16 TPI:1;
     Uint16 INCH:1;
     Uint16 MM:1;
-    Uint16 reservedA:1;
     Uint16 THREAD:1;
     Uint16 FEED:1;
-    Uint16 reservedB:1;
+    Uint16 REVERSE:1;
+    Uint16 FORWARD:1;
     Uint16 POWER:1;
 };
 
