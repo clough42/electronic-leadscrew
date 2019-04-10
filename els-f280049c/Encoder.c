@@ -7,17 +7,20 @@ void Encoder_Init(void)
 {
     EALLOW;
 
-    GpioCtrlRegs.GPAPUD.bit.GPIO20 = 0;     // Enable pull-up on GPIO20 (EQEP1A)
-    GpioCtrlRegs.GPAPUD.bit.GPIO21 = 0;     // Enable pull-up on GPIO21 (EQEP1B)
-    GpioCtrlRegs.GPAPUD.bit.GPIO23 = 0;     // Enable pull-up on GPIO23 (EQEP1I)
+    GpioCtrlRegs.GPBPUD.bit.GPIO35 = 0;     // Enable pull-up on GPIO20 (EQEP1A)
+    GpioCtrlRegs.GPBPUD.bit.GPIO37 = 0;     // Enable pull-up on GPIO21 (EQEP1B)
+    GpioCtrlRegs.GPBPUD.bit.GPIO59 = 0;     // Enable pull-up on GPIO23 (EQEP1I)
 
-    GpioCtrlRegs.GPAQSEL2.bit.GPIO20 = 0;   // Sync to SYSCLKOUT GPIO20 (EQEP1A)
-    GpioCtrlRegs.GPAQSEL2.bit.GPIO21 = 0;   // Sync to SYSCLKOUT GPIO21 (EQEP1B)
-    GpioCtrlRegs.GPAQSEL2.bit.GPIO23 = 0;   // Sync to SYSCLKOUT GPIO23 (EQEP1I)
+    GpioCtrlRegs.GPBQSEL1.bit.GPIO35 = 0;   // Sync to SYSCLKOUT GPIO20 (EQEP1A)
+    GpioCtrlRegs.GPBQSEL1.bit.GPIO37 = 0;   // Sync to SYSCLKOUT GPIO21 (EQEP1B)
+    GpioCtrlRegs.GPBQSEL2.bit.GPIO59 = 0;   // Sync to SYSCLKOUT GPIO23 (EQEP1I)
 
-    GpioCtrlRegs.GPAMUX2.bit.GPIO20 = 1;    // Configure GPIO20 as EQEP1A
-    GpioCtrlRegs.GPAMUX2.bit.GPIO21 = 1;    // Configure GPIO21 as EQEP1B
-    GpioCtrlRegs.GPAMUX2.bit.GPIO23 = 1;    // Configure GPIO23 as EQEP1I
+    GpioCtrlRegs.GPBMUX1.bit.GPIO35 = 1;    // Configure GPIO20 as EQEP1A
+    GpioCtrlRegs.GPBGMUX1.bit.GPIO35 = 2;
+    GpioCtrlRegs.GPBMUX1.bit.GPIO37 = 1;    // Configure GPIO20 as EQEP1A
+    GpioCtrlRegs.GPBGMUX1.bit.GPIO37 = 2;
+    GpioCtrlRegs.GPBMUX2.bit.GPIO59 = 3;    // Configure GPIO20 as EQEP1A
+    GpioCtrlRegs.GPBGMUX2.bit.GPIO59 = 2;
 
     EDIS;
 

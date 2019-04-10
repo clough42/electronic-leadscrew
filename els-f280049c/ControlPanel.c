@@ -20,7 +20,7 @@ void ControlPanel_Init(void)
     SpibRegs.SPICCR.bit.CLKPOLARITY = 1;        // data latched on rising edge
     SpibRegs.SPICTL.bit.CLK_PHASE=0;            // normal clocking scheme
     SpibRegs.SPICTL.bit.MASTER_SLAVE=1;         // master
-    SpibRegs.SPIBRR.bit.SPI_BIT_RATE = 90;		// baud rate
+    SpibRegs.SPIBRR.bit.SPI_BIT_RATE = ((25000000 / 250000) - 1); // baud rate = 250k LSPCLK
     SpibRegs.SPIPRI.bit.TRIWIRE=1;              // 3-wire mode
     SpibRegs.SPICCR.bit.SPISWRESET = 1;         // clear reset state; ready to transmit
 
@@ -192,12 +192,12 @@ union KEY_REG ReadKeys(void)
 
 union KEY_REG ControlPanel_Refresh()
 {
-    GpioDataRegs.GPASET.bit.GPIO10 = 1;
+    GpioDataRegs.GPASET.bit.GPIO2 = 1;
 
     DecomposeRPM();
     DecomposeValue();
 
-    GpioDataRegs.GPACLEAR.bit.GPIO10 = 1;
+    GpioDataRegs.GPACLEAR.bit.GPIO2 = 1;
 
     SendControlPanelData();
 

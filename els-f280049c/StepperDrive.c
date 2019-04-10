@@ -5,9 +5,9 @@ struct STEPPERDRIVE_STATE _stepperdrive_state;
 
 #define DESIRED _stepperdrive_state.desiredPosition
 #define CURRENT _stepperdrive_state.currentPosition
-#define STEP_PIN GPIO6
-#define DIR_PIN GPIO7
-#define ISR_PIN GPIO9
+#define STEP_PIN GPIO0
+#define DIR_PIN GPIO1
+#define ISR_PIN GPIO6
 
 #define GPIO_SET(pin) GpioDataRegs.GPASET.bit.pin = 1
 #define GPIO_CLEAR(pin) GpioDataRegs.GPACLEAR.bit.pin = 1
@@ -23,22 +23,22 @@ void StepperDrive_Init(void)
 
     //
     // Configure GPIO pins for output
-    // GPIO6 = Step
-    // GPIO7 = Direction
-    // GPIO8 - Enable
+    // GPIO0 = Step
+    // GPIO1 = Direction
+    // GPIO6 - Enable
     //
     EALLOW;
+    GpioCtrlRegs.GPAMUX1.bit.GPIO0 = 0;
+    GpioCtrlRegs.GPAMUX1.bit.GPIO1 = 0;
     GpioCtrlRegs.GPAMUX1.bit.GPIO6 = 0;
-    GpioCtrlRegs.GPAMUX1.bit.GPIO7 = 0;
-    GpioCtrlRegs.GPAMUX1.bit.GPIO8 = 0;
 
+    GpioCtrlRegs.GPADIR.bit.GPIO0 = 1;
+    GpioCtrlRegs.GPADIR.bit.GPIO1 = 1;
     GpioCtrlRegs.GPADIR.bit.GPIO6 = 1;
-    GpioCtrlRegs.GPADIR.bit.GPIO7 = 1;
-    GpioCtrlRegs.GPADIR.bit.GPIO8 = 1;
 
-    GpioDataRegs.GPACLEAR.bit.GPIO6 = 1; // step active-high
-    GpioDataRegs.GPACLEAR.bit.GPIO7 = 1; // direction active high
-    GpioDataRegs.GPACLEAR.bit.GPIO8 = 1; // enable active low
+    GpioDataRegs.GPACLEAR.bit.GPIO0 = 1; // step active-high
+    GpioDataRegs.GPACLEAR.bit.GPIO1 = 1; // direction active high
+    GpioDataRegs.GPACLEAR.bit.GPIO6 = 1; // enable active low
     EDIS;
 
     //

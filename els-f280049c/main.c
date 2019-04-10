@@ -14,6 +14,8 @@
 __interrupt void cpu_timer0_isr(void);
 
 long double feed = 200.0 * 8.0 / 4096.0;
+//Uint32 numerator = (Uint32)250 * 10 * 12 * 200 * 8;
+//Uint32 denominator = (Uint32)4096 * 254 * 100;
 
 //
 // Main
@@ -124,12 +126,12 @@ void main(void)
 
     // GPIO 9 as an indicator
     EALLOW;
-    GpioCtrlRegs.GPAMUX1.bit.GPIO9 = 0;
-    GpioCtrlRegs.GPADIR.bit.GPIO9 = 1;
-    GpioDataRegs.GPACLEAR.bit.GPIO9 = 1;
-    GpioCtrlRegs.GPAMUX1.bit.GPIO10 = 0;
-    GpioCtrlRegs.GPADIR.bit.GPIO10 = 1;
-    GpioDataRegs.GPACLEAR.bit.GPIO10 = 1;
+    GpioCtrlRegs.GPAMUX1.bit.GPIO7 = 0;
+    GpioCtrlRegs.GPADIR.bit.GPIO7 = 1;
+    GpioDataRegs.GPACLEAR.bit.GPIO7 = 1;
+    GpioCtrlRegs.GPAMUX1.bit.GPIO2 = 0;
+    GpioCtrlRegs.GPADIR.bit.GPIO2 = 1;
+    GpioDataRegs.GPACLEAR.bit.GPIO2 = 1;
     EDIS;
 
     //
@@ -210,6 +212,13 @@ void main(void)
 Uint32 previousSpindlePosition = 0;
 long double previousFeed = 0;
 
+
+inline int32 Apply_Ratio(Uint32 count)
+{
+    //return ((long long)count) * numerator / denominator;
+    return count * feed;
+}
+
 //
 // cpu_timer0_isr -
 //
@@ -219,21 +228,21 @@ cpu_timer0_isr(void)
     CpuTimer0.InterruptCount++;
 
     // flag entrance to ISR for timing
-    GpioDataRegs.GPASET.bit.GPIO9 = 1;
+    GpioDataRegs.GPASET.bit.GPIO7 = 1;
 
     //
     // Calculate the correct stepper position
     //
     Uint32 spindlePosition = Encoder_GetPosition();
-    int32 desiredSteps = spindlePosition * feed;
+    int32 desiredSteps = Apply_Ratio(spindlePosition);
 
     // overflow
     if( spindlePosition < previousSpindlePosition && previousSpindlePosition - spindlePosition > Encoder_GetMaxCount()/2 ) {
-        StepperDrive_IncrementCurrentPosition(-1 * (int32)Encoder_GetMaxCount() * feed);
+        StepperDrive_IncrementCurrentPosition(-1 * Apply_Ratio(Encoder_GetMaxCount()));
     }
     // underflow
     if( spindlePosition > previousSpindlePosition && spindlePosition - previousSpindlePosition > Encoder_GetMaxCount()/2 ) {
-        StepperDrive_IncrementCurrentPosition(Encoder_GetMaxCount() * feed);
+        StepperDrive_IncrementCurrentPosition(Apply_Ratio(Encoder_GetMaxCount()));
     }
 
     StepperDrive_SetDesiredPosition(desiredSteps);
@@ -254,7 +263,7 @@ cpu_timer0_isr(void)
     ControlPanel_SetRPM(Encoder_GetRPM());
 
     // flag exit from ISR for timing
-    GpioDataRegs.GPACLEAR.bit.GPIO9 = 1;
+    GpioDataRegs.GPACLEAR.bit.GPIO7 = 1;
 
     //
     // Acknowledge this interrupt to receive more interrupts from group 1
