@@ -18,6 +18,15 @@
 #define POINT   0b0000000100000000 // .
 #define BLANK   0b0000000000000000
 
+#define LED_TPI 1
+#define LED_INCH (1<<1)
+#define LED_MM (1<<2)
+#define LED_THREAD (1<<3)
+#define LED_FEED (1<<4)
+#define LED_REVERSE (1<<5)
+#define LED_FORWARD (1<<6)
+#define LED_POWER (1<<7)
+
 struct LED_BITS
 {
     Uint16 TPI:1;
