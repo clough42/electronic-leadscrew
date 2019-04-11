@@ -16,5 +16,13 @@
 //
 #define RPM_CALC_RATE_HZ 10
 
+//
+// Microprocessor system clock
+// This is used to set up the eQEP timers for RPM
+// calculations.
+//
+#define MCU_CLOCK_RATE_HZ 100000000
+
+
 
 #endif // __CONFIGURATION_H

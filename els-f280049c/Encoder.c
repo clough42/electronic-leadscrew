@@ -33,7 +33,7 @@ void Encoder_Init(void)
     EQep1Regs.QEPCTL.bit.PCRM = 1;          // position count reset on maximum position
     EQep1Regs.QPOSMAX = _ENCODER_MAX_COUNT;  // Max position count
 
-    EQep1Regs.QUPRD = 80000000 / RPM_CALC_RATE_HZ; // Unit Timer latch at RPM_CALC_RATE_HZ Hz
+    EQep1Regs.QUPRD = MCU_CLOCK_RATE_HZ / RPM_CALC_RATE_HZ; // Unit Timer latch at RPM_CALC_RATE_HZ Hz
     EQep1Regs.QEPCTL.bit.UTE=1;             // Unit Timeout Enable
     EQep1Regs.QEPCTL.bit.QCLM=1;            // Latch on unit time out
 
