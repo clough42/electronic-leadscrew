@@ -49,11 +49,10 @@ void UserInterface :: loop( void )
         newFeed = loadFeedTable();
     }
 
+    // read keypresses from the control panel
     keys = controlPanel->getKeys();
 
-    //
-    // Respond to keys
-    //
+    // respond to keypresses
     if( keys.bit.IN_MM )
     {
         this->metric = ! this->metric;
@@ -67,7 +66,8 @@ void UserInterface :: loop( void )
     if( keys.bit.FWD_REV )
     {
         this->reverse = ! this->reverse;
-        newFeed = loadFeedTable(); // uhh...not really needed, but this will update the LEDs
+        // feed table hasn't changed, but we need to trigger an update
+        newFeed = loadFeedTable();
     }
     if( keys.bit.UP )
     {
@@ -78,15 +78,21 @@ void UserInterface :: loop( void )
         newFeed = feedTable->previous();
     }
 
+    // if we have changed the feed
     if( newFeed != NULL ) {
+        // update the display
         LED_REG leds = this->calculateLEDs(newFeed);
         controlPanel->setLEDs(leds);
         controlPanel->setValue(newFeed->display);
+
+        // update the core
         core->setFeed(newFeed);
         core->setReverse(this->reverse);
     }
 
+    // update the RPM display
     controlPanel->setRPM(core->getRPM());
 
+    // write data out to the display
     controlPanel->refresh();
 }

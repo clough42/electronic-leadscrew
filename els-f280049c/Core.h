@@ -16,9 +16,12 @@ private:
     const FEED_THREAD *feed;
     const FEED_THREAD *previousFeed;
 
+    int16 feedDirection;
+    int16 previousFeedDirection;
+
     Uint32 previousSpindlePosition;
 
-    int32 Apply_Ratio(Uint32 count);
+    int32 feedRatio(Uint32 count);
 
 public:
     Core( Encoder *encoder, StepperDrive *stepperDrive );
@@ -33,48 +36,45 @@ inline void Core :: setFeed(const FEED_THREAD *feed)
     this->feed = feed;
 }
 
-
 inline Uint16 Core :: getRPM(void)
 {
     return encoder->getRPM();
 }
 
-inline int32 Core :: Apply_Ratio(Uint32 count)
+inline int32 Core :: feedRatio(Uint32 count)
 {
-    return ((long long)count) * feed->numerator / feed->denominator;
+    return ((long long)count) * feed->numerator / feed->denominator * feedDirection;
 }
 
 inline void Core :: ISR( void )
 {
     if( this->feed != NULL ) {
-        //
-        // Calculate the correct stepper position
-        //
+        // read the encoder
         Uint32 spindlePosition = encoder->getPosition();
-        int32 desiredSteps = Apply_Ratio(spindlePosition);
 
-        // overflow
-        if( spindlePosition < previousSpindlePosition && previousSpindlePosition - spindlePosition > encoder->getMaxCount()/2 ) {
-            stepperDrive->incrementCurrentPosition(-1 * Apply_Ratio(encoder->getMaxCount()));
-        }
-        // underflow
-        if( spindlePosition > previousSpindlePosition && spindlePosition - previousSpindlePosition > encoder->getMaxCount()/2 ) {
-            stepperDrive->incrementCurrentPosition(Apply_Ratio(encoder->getMaxCount()));
-        }
-
+        // calculate the desired stepper position
+        int32 desiredSteps = feedRatio(spindlePosition);
         stepperDrive->setDesiredPosition(desiredSteps);
 
-        // if the feed changed, we want to reset and avoid a big step
-        if( feed != previousFeed ) {
+        // compensate for encoder overflow/underflow
+        if( spindlePosition < previousSpindlePosition && previousSpindlePosition - spindlePosition > encoder->getMaxCount()/2 ) {
+            stepperDrive->incrementCurrentPosition(-1 * feedRatio(encoder->getMaxCount()));
+        }
+        if( spindlePosition > previousSpindlePosition && spindlePosition - previousSpindlePosition > encoder->getMaxCount()/2 ) {
+            stepperDrive->incrementCurrentPosition(feedRatio(encoder->getMaxCount()));
+        }
+
+        // if the feed or direction changed, reset sync to avoid a big step
+        if( feed != previousFeed || feedDirection != previousFeedDirection) {
             stepperDrive->setCurrentPosition(desiredSteps);
         }
 
+        // remember values for next time
         previousSpindlePosition = spindlePosition;
+        previousFeedDirection = feedDirection;
         previousFeed = feed;
 
-        //
-        // Service the stepper driver
-        //
+        // service the stepper drive state machine
         stepperDrive->ISR();
     }
 }

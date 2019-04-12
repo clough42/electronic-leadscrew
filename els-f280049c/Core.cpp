@@ -10,14 +10,23 @@ Core :: Core( Encoder *encoder, StepperDrive *stepperDrive )
     this->stepperDrive = stepperDrive;
 
     this->feed = NULL;
+    this->feedDirection = 0;
 
     this->previousSpindlePosition = 0;
-    this->previousFeed = 0;
+    this->previousFeedDirection = 0;
+    this->previousFeed = NULL;
 }
 
 void Core :: setReverse(bool reverse)
 {
-    this->stepperDrive->setReverse(reverse);
+    if( reverse )
+    {
+        this->feedDirection = -1;
+    }
+    else
+    {
+        this->feedDirection = 1;
+    }
 }
 
 

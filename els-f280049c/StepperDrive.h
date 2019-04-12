@@ -32,16 +32,13 @@ private:
     //
     Uint16 state;
 
-    bool reverse;
-
 public:
     StepperDrive();
-
     void init(void);
+
     void setDesiredPosition(int32 steps);
     void incrementCurrentPosition(int32 increment);
     void setCurrentPosition(int32 position);
-    void setReverse(bool reverse);
 
     void ISR(void);
 };
@@ -59,11 +56,6 @@ inline void StepperDrive :: incrementCurrentPosition(int32 increment)
 inline void StepperDrive :: setCurrentPosition(int32 position)
 {
     this->currentPosition = position;
-}
-
-inline void StepperDrive :: setReverse(bool reverse)
-{
-    this->reverse = reverse;
 }
 
 

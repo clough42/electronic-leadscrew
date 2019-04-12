@@ -6,17 +6,20 @@
 
 StepperDrive :: StepperDrive(void)
 {
-    this->reverse = false;
-}
-
-void StepperDrive :: init(void)
-{
     //
     // Set up global state variables
     //
     this->currentPosition = 0;
     this->desiredPosition = 0;
 
+    //
+    // State machine starts at state zero
+    //
+    this->state = 0;
+}
+
+void StepperDrive :: init(void)
+{
     //
     // Configure GPIO pins for output
     // GPIO0 = Step
@@ -36,11 +39,6 @@ void StepperDrive :: init(void)
     GpioDataRegs.GPACLEAR.bit.GPIO1 = 1; // direction active high
     GpioDataRegs.GPACLEAR.bit.GPIO6 = 1; // enable active low
     EDIS;
-
-    //
-    // State machine starts at state zero
-    //
-    this->state = 0;
 }
 
 
