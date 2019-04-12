@@ -23,6 +23,7 @@ private:
 public:
     Core( Encoder *encoder, StepperDrive *stepperDrive );
     void setFeed(const FEED_THREAD *feed);
+    void setReverse(bool reverse);
     Uint16 getRPM(void);
     void ISR( void );
 };

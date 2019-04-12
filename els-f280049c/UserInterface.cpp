@@ -83,6 +83,7 @@ void UserInterface :: loop( void )
         controlPanel->setLEDs(leds);
         controlPanel->setValue(newFeed->display);
         core->setFeed(newFeed);
+        core->setReverse(this->reverse);
     }
 
     controlPanel->setRPM(core->getRPM());

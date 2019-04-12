@@ -6,7 +6,7 @@
 
 StepperDrive :: StepperDrive(void)
 {
-
+    this->reverse = false;
 }
 
 void StepperDrive :: init(void)
