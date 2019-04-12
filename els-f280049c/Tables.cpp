@@ -178,11 +178,11 @@ const FEED_THREAD metric_feed_table[] =
 
 
 
-FeedTable::FeedTable(const FEED_THREAD *table, Uint16 numRows)
+FeedTable::FeedTable(const FEED_THREAD *table, Uint16 numRows, Uint16 defaultSelection)
 {
     this->table = table;
     this->numRows = numRows;
-    this->selectedRow = 0;
+    this->selectedRow = defaultSelection;
 }
 
 const FEED_THREAD *FeedTable :: current(void)
@@ -209,10 +209,10 @@ const FEED_THREAD *FeedTable :: previous(void)
 }
 
 FeedTableFactory::FeedTableFactory(void):
-        inchThreads(inch_thread_table, sizeof(inch_thread_table)/sizeof(inch_thread_table[0])),
-        inchFeeds(inch_feed_table, sizeof(inch_feed_table)/sizeof(inch_feed_table[0])),
-        metricThreads(metric_thread_table, sizeof(metric_thread_table)/sizeof(metric_thread_table[0])),
-        metricFeeds(metric_feed_table, sizeof(metric_feed_table)/sizeof(metric_feed_table[0]))
+        inchThreads(inch_thread_table, sizeof(inch_thread_table)/sizeof(inch_thread_table[0]), 12),
+        inchFeeds(inch_feed_table, sizeof(inch_feed_table)/sizeof(inch_feed_table[0]), 4),
+        metricThreads(metric_thread_table, sizeof(metric_thread_table)/sizeof(metric_thread_table[0]), 6),
+        metricFeeds(metric_feed_table, sizeof(metric_feed_table)/sizeof(metric_feed_table[0]), 4)
 {
 }
 

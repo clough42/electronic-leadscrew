@@ -50,7 +50,7 @@ private:
     Uint16 numRows;
 
 public:
-    FeedTable(const FEED_THREAD *table, Uint16 numRows);
+    FeedTable(const FEED_THREAD *table, Uint16 numRows, Uint16 defaultSelection);
 
     const FEED_THREAD *current(void);
     const FEED_THREAD *next(void);
