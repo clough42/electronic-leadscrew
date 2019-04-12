@@ -82,6 +82,7 @@ void UserInterface :: loop( void )
         LED_REG leds = this->calculateLEDs(newFeed);
         controlPanel->setLEDs(leds);
         controlPanel->setValue(newFeed->display);
+        core->setFeed(newFeed);
     }
 
     controlPanel->setRPM(core->getRPM());

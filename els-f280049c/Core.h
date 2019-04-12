@@ -4,6 +4,7 @@
 #include "StepperDrive.h"
 #include "Encoder.h"
 #include "ControlPanel.h"
+#include "Tables.h"
 
 
 class Core
@@ -12,20 +13,21 @@ private:
     Encoder *encoder;
     StepperDrive *stepperDrive;
 
-    long double feed;
+    const FEED_THREAD *feed;
+    const FEED_THREAD *previousFeed;
+
     Uint32 previousSpindlePosition;
-    long double previousFeed;
 
     int32 Apply_Ratio(Uint32 count);
 
 public:
     Core( Encoder *encoder, StepperDrive *stepperDrive );
-    void setFeed(long double feed);
+    void setFeed(const FEED_THREAD *feed);
     Uint16 getRPM(void);
     void ISR( void );
 };
 
-inline void Core :: setFeed(long double feed)
+inline void Core :: setFeed(const FEED_THREAD *feed)
 {
     this->feed = feed;
 }
@@ -38,41 +40,42 @@ inline Uint16 Core :: getRPM(void)
 
 inline int32 Core :: Apply_Ratio(Uint32 count)
 {
-    //return ((long long)count) * numerator / denominator;
-    return count * feed;
+    return ((long long)count) * feed->numerator / feed->denominator;
 }
 
 inline void Core :: ISR( void )
 {
-    //
-    // Calculate the correct stepper position
-    //
-    Uint32 spindlePosition = encoder->getPosition();
-    int32 desiredSteps = Apply_Ratio(spindlePosition);
+    if( this->feed != NULL ) {
+        //
+        // Calculate the correct stepper position
+        //
+        Uint32 spindlePosition = encoder->getPosition();
+        int32 desiredSteps = Apply_Ratio(spindlePosition);
 
-    // overflow
-    if( spindlePosition < previousSpindlePosition && previousSpindlePosition - spindlePosition > encoder->getMaxCount()/2 ) {
-        stepperDrive->incrementCurrentPosition(-1 * Apply_Ratio(encoder->getMaxCount()));
+        // overflow
+        if( spindlePosition < previousSpindlePosition && previousSpindlePosition - spindlePosition > encoder->getMaxCount()/2 ) {
+            stepperDrive->incrementCurrentPosition(-1 * Apply_Ratio(encoder->getMaxCount()));
+        }
+        // underflow
+        if( spindlePosition > previousSpindlePosition && spindlePosition - previousSpindlePosition > encoder->getMaxCount()/2 ) {
+            stepperDrive->incrementCurrentPosition(Apply_Ratio(encoder->getMaxCount()));
+        }
+
+        stepperDrive->setDesiredPosition(desiredSteps);
+
+        // if the feed changed, we want to reset and avoid a big step
+        if( feed != previousFeed ) {
+            stepperDrive->setCurrentPosition(desiredSteps);
+        }
+
+        previousSpindlePosition = spindlePosition;
+        previousFeed = feed;
+
+        //
+        // Service the stepper driver
+        //
+        stepperDrive->ISR();
     }
-    // underflow
-    if( spindlePosition > previousSpindlePosition && spindlePosition - previousSpindlePosition > encoder->getMaxCount()/2 ) {
-        stepperDrive->incrementCurrentPosition(Apply_Ratio(encoder->getMaxCount()));
-    }
-
-    stepperDrive->setDesiredPosition(desiredSteps);
-
-    // if the feed changed, we want to reset and avoid a big step
-    if( feed != previousFeed ) {
-        stepperDrive->setCurrentPosition(desiredSteps);
-    }
-
-    previousSpindlePosition = spindlePosition;
-    previousFeed = feed;
-
-    //
-    // Service the stepper driver
-    //
-    stepperDrive->ISR();
 }
 
 
