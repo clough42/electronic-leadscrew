@@ -136,7 +136,8 @@ void main(void)
         // mark end of loop for debugging
         debug.clear2();
 
-        DELAY_US(10000); // update at 100Hz-ish
+        // delay
+        DELAY_US(1000000 / UI_REFRESH_RATE_HZ);
     }
 }
 
