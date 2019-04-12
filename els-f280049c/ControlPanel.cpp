@@ -6,7 +6,10 @@
 
 ControlPanel :: ControlPanel(void)
 {
-
+    this->rpm = 0;
+    this->value = NULL;
+    this->leds.all = 0;
+    this->keys.all = 0;
 }
 
 void ControlPanel :: init(void)
@@ -149,16 +152,14 @@ void ControlPanel :: decomposeRPM()
 
 void ControlPanel :: decomposeValue()
 {
-    int i;
-    Uint16 digit;
-    long double value = (long double)this->value;
-
-    for(i=4; i<8; i++) {
-        digit = ((Uint16)value)%10;
-        this->sevenSegmentData[i] = lcd_char(digit);
-        value = value * 10;
+    if( this->value != NULL )
+    {
+        int i;
+        for( i=0; i < 4; i++ )
+        {
+            this->sevenSegmentData[i+4] = this->value[i];
+        }
     }
-    this->sevenSegmentData[4] = lcd_char(10);
 }
 
 KEY_REG ControlPanel :: readKeys(void)
@@ -189,7 +190,20 @@ KEY_REG ControlPanel :: readKeys(void)
     return keyMask;
 }
 
-KEY_REG ControlPanel :: refresh()
+KEY_REG ControlPanel :: getKeys()
+{
+    KEY_REG newKeys;
+    static KEY_REG noKeys;
+
+    newKeys = readKeys();
+    if( newKeys.all != this->keys.all ) {
+        this->keys = newKeys;
+        return newKeys;
+    }
+    return noKeys;
+}
+
+void ControlPanel :: refresh()
 {
     GpioDataRegs.GPASET.bit.GPIO2 = 1;
 
@@ -199,8 +213,6 @@ KEY_REG ControlPanel :: refresh()
     GpioDataRegs.GPACLEAR.bit.GPIO2 = 1;
 
     sendData();
-
-    return readKeys();
 }
 
 

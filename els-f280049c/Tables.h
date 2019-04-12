@@ -26,9 +26,9 @@ private:
 public:
     FeedTable(const FEED_THREAD *table, Uint16 numRows);
 
-    FEED_THREAD current(void);
-    FEED_THREAD next(void);
-    FEED_THREAD previous(void);
+    const FEED_THREAD *current(void);
+    const FEED_THREAD *next(void);
+    const FEED_THREAD *previous(void);
 };
 
 
@@ -43,10 +43,7 @@ private:
 public:
     FeedTableFactory(void);
 
-    FeedTable getInchThreads(void);
-    FeedTable getInchFeeds(void);
-    FeedTable getMetricThreads(void);
-    FeedTable getMetricFeeds(void);
+    FeedTable *getFeedTable(bool metric, bool thread);
 };
 
 

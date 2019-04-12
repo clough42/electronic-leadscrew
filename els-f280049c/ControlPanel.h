@@ -70,8 +70,8 @@ private:
     // Current RPM value; 4 decimal digits
     Uint16 rpm;
 
-    // Current displayed setting value, 4 digits max
-    long double value;
+    // Current displayed setting value, 4 digits
+    const Uint16 *value;
 
     // Current LED states
     LED_REG leds;
@@ -99,10 +99,11 @@ private:
 public:
     ControlPanel(void);
     void init(void);
-    KEY_REG refresh(void);
+    KEY_REG getKeys(void);
     void setRPM(Uint16 rpm);
-    void setValue(long double value);
-    void setLEDs(Uint16 leds);
+    void setValue(const Uint16 *value);
+    void setLEDs(LED_REG leds);
+    void refresh(void);
 
 };
 
@@ -112,14 +113,14 @@ inline void ControlPanel :: setRPM(Uint16 rpm)
     this->rpm = rpm;
 }
 
-inline void ControlPanel :: setValue(long double value)
+inline void ControlPanel :: setValue(const Uint16 *value)
 {
     this->value = value;
 }
 
-inline void ControlPanel :: setLEDs(Uint16 leds)
+inline void ControlPanel :: setLEDs(LED_REG leds)
 {
-    this->leds.all = leds;
+    this->leds = leds;
 }
 
 

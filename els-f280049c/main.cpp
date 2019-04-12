@@ -16,9 +16,13 @@
 __interrupt void cpu_timer0_isr(void);
 
 
-//////////////////////////////////////////////////////////////////
+
+//
 // DEPENDENCY INJECTION
-//////////////////////////////////////////////////////////////////
+//
+
+// Feed table factory
+FeedTableFactory feedTableFactory;
 
 // Control Panel driver
 ControlPanel controlPanel;
@@ -33,7 +37,8 @@ StepperDrive stepperDrive;
 Core core(&encoder, &stepperDrive);
 
 // User interface
-UserInterface userInterface(&controlPanel, &core);
+UserInterface userInterface(&controlPanel, &core, &feedTableFactory);
+
 
 
 //

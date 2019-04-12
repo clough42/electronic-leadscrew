@@ -160,11 +160,60 @@ FeedTable::FeedTable(const FEED_THREAD *table, Uint16 numRows)
     this->selectedRow = 0;
 }
 
+const FEED_THREAD *FeedTable :: current(void)
+{
+    return &table[selectedRow];
+}
+
+const FEED_THREAD *FeedTable :: next(void)
+{
+    if( this->selectedRow < this->numRows - 1 )
+    {
+        this->selectedRow++;
+    }
+    return this->current();
+}
+
+const FEED_THREAD *FeedTable :: previous(void)
+{
+    if( this->selectedRow > 0 )
+    {
+        this->selectedRow--;
+    }
+    return this->current();
+}
+
 FeedTableFactory::FeedTableFactory(void):
         inchThreads(inch_thread_table, sizeof(inch_thread_table)/sizeof(inch_thread_table[0])),
         inchFeeds(inch_feed_table, sizeof(inch_feed_table)/sizeof(inch_feed_table[0])),
         metricThreads(metric_thread_table, sizeof(metric_thread_table)/sizeof(metric_thread_table[0])),
         metricFeeds(metric_feed_table, sizeof(metric_feed_table)/sizeof(metric_feed_table[0]))
 {
+}
+
+FeedTable *FeedTableFactory::getFeedTable(bool metric, bool thread)
+{
+    if( metric )
+    {
+        if( thread )
+        {
+            return &this->metricThreads;
+        }
+        else
+        {
+            return &this->metricFeeds;
+        }
+    }
+    else
+    {
+        if( thread )
+        {
+            return &this->inchThreads;
+        }
+        else
+        {
+            return &this->inchFeeds;
+        }
+    }
 
 }

@@ -3,18 +3,29 @@
 
 #include "ControlPanel.h"
 #include "Core.h"
+#include "Tables.h"
 
 class UserInterface
 {
 private:
     ControlPanel *controlPanel;
     Core *core;
+    FeedTableFactory *feedTableFactory;
+
+    bool metric;
+    bool thread;
+    bool reverse;
+
+    FeedTable *feedTable;
 
     long double feed;
     KEY_REG keys;
 
+    const FEED_THREAD *loadFeedTable();
+    LED_REG calculateLEDs(const FEED_THREAD *selectedFeed);
+
 public:
-    UserInterface(ControlPanel *controlPanel, Core *core);
+    UserInterface(ControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory);
     void init( void );
 
     void loop( void );
