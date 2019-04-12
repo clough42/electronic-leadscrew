@@ -26,6 +26,12 @@ replace the lathe change gears or quick-change gearbox with an electronic virtua
 set to almost any ratio.  The lathe will continue to operate normally, with the operator closing and opening
 the half-nuts to control feeding and threading.
 
+## Future Goals
+While this project is starting out as a simple gearbox replacement, some features seem attractive, even for
+that simple case:
+* Threading/feeding up to a hard shoulder with automatic stop
+* Automatic recall and resync with hybrid threads (e.g. metric threads on an imperial leadscrew)
+
 ## Hardware Configuration
 If you want to get this running on your own LaunchXL-F280049C board, here are the settings you will need:
 
