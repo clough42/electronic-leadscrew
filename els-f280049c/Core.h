@@ -21,12 +21,19 @@ private:
 public:
     Core( Encoder *encoder, StepperDrive *stepperDrive );
     void setFeed(long double feed);
+    Uint16 getRPM(void);
     void ISR( void );
 };
 
 inline void Core :: setFeed(long double feed)
 {
     this->feed = feed;
+}
+
+
+inline Uint16 Core :: getRPM(void)
+{
+    return encoder->getRPM();
 }
 
 inline int32 Core :: Apply_Ratio(Uint32 count)

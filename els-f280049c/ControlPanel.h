@@ -47,12 +47,14 @@ typedef union LED_REG
 
 struct KEY_BITS
 {
-    Uint16 UP:2;
-    Uint16 DOWN:2;
-    Uint16 reservedA:1;
-    Uint16 UNIT:1;
-    Uint16 MODE:1;
+    Uint16 UP:1;
+    Uint16 reserved1:1;
+    Uint16 DOWN:1;
+    Uint16 FEED_THREAD:1;
+    Uint16 FWD_REV:1;
+    Uint16 IN_MM:1;
     Uint16 SET:1;
+    Uint16 POWER:1;
 };
 
 typedef union KEY_REG

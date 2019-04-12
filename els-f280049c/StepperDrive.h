@@ -36,11 +36,11 @@ public:
     StepperDrive();
 
     void init(void);
-    void ISR(void);
     void setDesiredPosition(int32 steps);
     void incrementCurrentPosition(int32 increment);
     void setCurrentPosition(int32 position);
 
+    void ISR(void);
 };
 
 inline void StepperDrive :: setDesiredPosition(int32 steps)

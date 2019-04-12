@@ -7,6 +7,7 @@
 #include "Encoder.h"
 #include "Configuration.h"
 #include "Core.h"
+#include "UserInterface.h"
 #include <stdio.h>
 
 //
@@ -21,10 +22,8 @@ ControlPanel controlPanel;
 Encoder encoder;
 StepperDrive stepperDrive;
 Core core(&encoder, &stepperDrive);
+UserInterface userInterface(&controlPanel, &core);
 
-long double feed = 200.0 * 8.0 / 4096.0;
-//Uint32 numerator = (Uint32)250 * 10 * 12 * 200 * 8;
-//Uint32 denominator = (Uint32)4096 * 254 * 100;
 
 //
 // Main
@@ -120,21 +119,14 @@ void main(void)
     CpuTimer0Regs.TCR.all = 0x4001;
 
     //
-    // Set up SPI for control panel
+    // Initialize the system
     //
     controlPanel.init();
-
-    //
-    // Set up GPIO and state machine for stepper drive
-    //
     stepperDrive.init();
-
-    //
-    // Set up Encoder input
-    //
     encoder.init();
+    userInterface.init();
 
-    // GPIO 9 as an indicator
+    // GPIO 7 as an indicator
     EALLOW;
     GpioCtrlRegs.GPAMUX1.bit.GPIO7 = 0;
     GpioCtrlRegs.GPADIR.bit.GPIO7 = 1;
@@ -171,64 +163,13 @@ void main(void)
     //
     // Step 6. IDLE loop. Just sit and loop forever (optional)
     //
-    union KEY_REG keys;
-    keys.all = 0xff;
-
     for(;;) {
-        controlPanel.setLEDs(keys.all);
-        controlPanel.setValue(feed);
-        controlPanel.setRPM(encoder.getRPM());
-
-        keys = controlPanel.refresh();
-
-        //
-        // Respond to keypresses
-        //
-        if( keys.all & 0x01 ) {
-            stepperDrive.setDesiredPosition(4);
-            feed += 0.001;
-        }
-        if( keys.all & 0x02 ) {
-            stepperDrive.setDesiredPosition(3);
-        }
-        if( keys.all & 0x04 ) {
-            stepperDrive.setDesiredPosition(2);
-        }
-        if( keys.all & 0x08 ) {
-            stepperDrive.setDesiredPosition(1);
-            feed -= 0.001;
-        }
-        if( keys.all & 0x10 ) {
-            stepperDrive.setDesiredPosition(0);
-        }
-        if( keys.all & 0x20 ) {
-            stepperDrive.setDesiredPosition(-1);
-        }
-        if( keys.all & 0x40 ) {
-            stepperDrive.setDesiredPosition(-2);
-        }
-        if( keys.all & 0x80 ) {
-            stepperDrive.setDesiredPosition(-3);
-        }
-
-        if( feed > 0.999 ) feed = 0.999;
-        if( feed < 0.0 ) feed = 0.0;
-
-        core.setFeed(feed);
+        userInterface.loop();
 
         DELAY_US(10000); // update at 100Hz-ish
     };
 }
 
-
-
-
-
-inline int32 Apply_Ratio(Uint32 count)
-{
-    //return ((long long)count) * numerator / denominator;
-    return count * feed;
-}
 
 //
 // cpu_timer0_isr -
