@@ -13,12 +13,23 @@ The project is still in the early stages of development.  The current hardware l
 * Use an inexpensive SPI "LED&Key" import display and keypad for the user interface
 * Read the spindle position using a rotary encoder with a 3D-printed gear
 * Use a standard stepper motor and driver on the lathe leadscrew
+* Make as few modifications to the lathe as possible:
+  * Use the original leadscrew and halfnuts without machining
+  * Drive the leadscrew through the factory input shaft
+  * Drive the encoder from the factory spindle gear train
+  * Make it easy to restore the lathe to the original change gear configuration  
 
 The current plan is to support the following operations:
 * Multiple feeds in thousandths of an inch per revolution
 * Multiple feeds in hundredths of a millimeter per revolution
 * Multiple imperial thread pitches (in threads-per-inch)
-* Multiple metric thread piches (in millimeters)
+* Multiple metric thread pitches (in millimeters)
+
+## Future Goals
+While this project is starting out as a simple gearbox replacement, some features seem attractive, even for
+that simple case:
+* Threading/feeding up to a hard shoulder with automatic stop
+* Automatic recall and resync with hybrid threads (e.g. metric threads on an imperial leadscrew)
 
 ## Non-Goals
 This is not a CNC project.  The goal is not to control the lathe automatically, but rather to transparently
