@@ -24,7 +24,8 @@ extern "C" {
 // This is used to set up the eQEP timers for RPM
 // calculations.
 //
-#define MCU_CLOCK_RATE_HZ 100000000
+#define CPU_CLOCK_MHZ 100
+#define CPU_CLOCK_HZ (CPU_CLOCK_MHZ * 1000000)
 
 #ifdef __cplusplus
 }

@@ -15,13 +15,24 @@
 //
 __interrupt void cpu_timer0_isr(void);
 
-//
+
+//////////////////////////////////////////////////////////////////
 // DEPENDENCY INJECTION
-//
+//////////////////////////////////////////////////////////////////
+
+// Control Panel driver
 ControlPanel controlPanel;
+
+// Encoder driver
 Encoder encoder;
+
+// Stepper driver
 StepperDrive stepperDrive;
+
+// Core engine
 Core core(&encoder, &stepperDrive);
+
+// User interface
 UserInterface userInterface(&controlPanel, &core);
 
 
@@ -104,7 +115,7 @@ void main(void)
     // Configure CPU-Timer 0 to interrupt every 500 milliseconds:
     // 80MHz CPU Freq, 50 millisecond Period (in uSeconds)
     //
-    ConfigCpuTimer(&CpuTimer0, 90, STEPPER_CYCLE_US);
+    ConfigCpuTimer(&CpuTimer0, CPU_CLOCK_MHZ, STEPPER_CYCLE_US);
 
     //
     // To ensure precise timing, use write-only instructions to write to the
