@@ -1,16 +1,15 @@
 #include "ControlPanel.h"
 
 
-struct CONTROL_PANEL_STATE _controlpanel_state;
-
-
 #define CS_SET GpioDataRegs.GPBSET.bit.GPIO33 = 1
 #define CS_CLEAR GpioDataRegs.GPBCLEAR.bit.GPIO33 = 1
 
+ControlPanel :: ControlPanel(void)
+{
 
-Uint16 dummy;
+}
 
-void ControlPanel_Init(void)
+void ControlPanel :: init(void)
 {
     EALLOW;
 
@@ -38,7 +37,7 @@ void ControlPanel_Init(void)
     EDIS;
 }
 
-Uint16 reverse_byte(Uint16 x)
+Uint16 ControlPanel :: reverse_byte(Uint16 x)
 {
     static const Uint16 table[] = {
         0x0000, 0x8000, 0x4000, 0xc000, 0x2000, 0xa000, 0x6000, 0xe000,
@@ -77,7 +76,7 @@ Uint16 reverse_byte(Uint16 x)
     return table[x];
 }
 
-Uint16 lcd_char(Uint16 x)
+Uint16 ControlPanel :: lcd_char(Uint16 x)
 {
     static const Uint16 table[] = {
         0b1111110000000000, // 0
@@ -98,38 +97,38 @@ Uint16 lcd_char(Uint16 x)
     return table[sizeof(table)-1];
 }
 
-void SendByte(Uint16 data) {
+void ControlPanel :: sendByte(Uint16 data) {
     SpibRegs.SPITXBUF = data;
     while(SpibRegs.SPISTS.bit.INT_FLAG !=1) {}
     dummy = SpibRegs.SPIRXBUF;
 }
 
-Uint16 ReceiveByte(void) {
+Uint16 ControlPanel :: receiveByte(void) {
     SpibRegs.SPITXBUF = dummy;
     while(SpibRegs.SPISTS.bit.INT_FLAG !=1) {}
     return SpibRegs.SPIRXBUF;
 }
 
-void SendControlPanelData()
+void ControlPanel :: sendData()
 {
     int i;
-    Uint16 ledMask = _controlpanel_state.leds.all;
+    Uint16 ledMask = this->leds.all;
 
     SpibRegs.SPICTL.bit.TALK = 1;
 
     CS_CLEAR;
-    SendByte(reverse_byte(0x8a));           // brightness
+    sendByte(reverse_byte(0x8a));           // brightness
     CS_SET;
 
     CS_CLEAR;
-    SendByte(reverse_byte(0x40));           // auto-increment
+    sendByte(reverse_byte(0x40));           // auto-increment
     CS_SET;
 
     CS_CLEAR;
-    SendByte(reverse_byte(0xc0));           // display data
+    sendByte(reverse_byte(0xc0));           // display data
     for( i=0; i < 8; i++ ) {
-        SendByte(_controlpanel_state.sevenSegmentData[i]);
-        SendByte( (ledMask & 0x80) ? 0xff00 : 0x0000 );
+        sendByte(this->sevenSegmentData[i]);
+        sendByte( (ledMask & 0x80) ? 0xff00 : 0x0000 );
         ledMask <<= 1;
     }
     CS_SET;
@@ -137,48 +136,48 @@ void SendControlPanelData()
     SpibRegs.SPICTL.bit.TALK = 0;
 }
 
-void DecomposeRPM()
+void ControlPanel :: decomposeRPM()
 {
-    Uint16 rpm = _controlpanel_state.rpm;
+    Uint16 rpm = this->rpm;
     int i;
 
     for(i=3; i>=0; i--) {
-        _controlpanel_state.sevenSegmentData[i] = (rpm == 0 && i != 3) ? 0 : lcd_char(rpm % 10);
+        this->sevenSegmentData[i] = (rpm == 0 && i != 3) ? 0 : lcd_char(rpm % 10);
         rpm = rpm / 10;
     }
 }
 
-void DecomposeValue()
+void ControlPanel :: decomposeValue()
 {
     int i;
     Uint16 digit;
-    long double value = (long double)_controlpanel_state.value;
+    long double value = (long double)this->value;
 
     for(i=4; i<8; i++) {
         digit = ((Uint16)value)%10;
-        _controlpanel_state.sevenSegmentData[i] = lcd_char(digit);
+        this->sevenSegmentData[i] = lcd_char(digit);
         value = value * 10;
     }
-    _controlpanel_state.sevenSegmentData[4] = lcd_char(10);
+    this->sevenSegmentData[4] = lcd_char(10);
 }
 
-union KEY_REG ReadKeys(void)
+KEY_REG ControlPanel :: readKeys(void)
 {
     SpibRegs.SPICTL.bit.TALK = 1;
 
     CS_CLEAR;
-    SendByte(reverse_byte(0x42));
+    sendByte(reverse_byte(0x42));
 
     SpibRegs.SPICTL.bit.TALK = 0;
 
     DELAY_US(1);
 
-    Uint16 byte1 = ReceiveByte();
-    Uint16 byte2 = ReceiveByte();
-    Uint16 byte3 = ReceiveByte();
-    Uint16 byte4 = ReceiveByte();
+    Uint16 byte1 = receiveByte();
+    Uint16 byte2 = receiveByte();
+    Uint16 byte3 = receiveByte();
+    Uint16 byte4 = receiveByte();
 
-    union KEY_REG keyMask;
+    KEY_REG keyMask;
     keyMask.all =
             (byte1 & 0x88) |
             (byte2 & 0x88) >> 1 |
@@ -190,18 +189,18 @@ union KEY_REG ReadKeys(void)
     return keyMask;
 }
 
-union KEY_REG ControlPanel_Refresh()
+KEY_REG ControlPanel :: refresh()
 {
     GpioDataRegs.GPASET.bit.GPIO2 = 1;
 
-    DecomposeRPM();
-    DecomposeValue();
+    decomposeRPM();
+    decomposeValue();
 
     GpioDataRegs.GPACLEAR.bit.GPIO2 = 1;
 
-    SendControlPanelData();
+    sendData();
 
-    return ReadKeys();
+    return readKeys();
 }
 
 

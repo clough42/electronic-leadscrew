@@ -3,10 +3,6 @@
 
 #include "F28x_Project.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define CONTROL_PANEL_REFRESH_US 10000
 
 #define ZERO    0b1111110000000000 // 0
@@ -43,11 +39,11 @@ struct LED_BITS
     Uint16 POWER:1;
 };
 
-union LED_REG
+typedef union LED_REG
 {
     Uint16 all;
     struct LED_BITS bit;
-};
+} LED_REG;
 
 struct KEY_BITS
 {
@@ -59,14 +55,16 @@ struct KEY_BITS
     Uint16 SET:1;
 };
 
-union KEY_REG
+typedef union KEY_REG
 {
     Uint16 all;
     struct KEY_BITS bit;
-};
+} KEY_REG;
 
-struct CONTROL_PANEL_STATE {
 
+class ControlPanel
+{
+private:
     // Current RPM value; 4 decimal digits
     Uint16 rpm;
 
@@ -74,42 +72,53 @@ struct CONTROL_PANEL_STATE {
     long double value;
 
     // Current LED states
-    union LED_REG leds;
+    LED_REG leds;
 
     // current key states
-    union KEY_REG keys;
+    KEY_REG keys;
 
     //
     // Derived state, calculated internally
     //
     Uint16 sevenSegmentData[8];
 
+    // dummy register, for SPI
+    Uint16 dummy;
+
+    void decomposeRPM(void);
+    void decomposeValue(void);
+    KEY_REG readKeys(void);
+    Uint16 lcd_char(Uint16 x);
+    void sendByte(Uint16 data);
+    Uint16 receiveByte(void);
+    void sendData(void);
+    Uint16 reverse_byte(Uint16 x);
+
+public:
+    ControlPanel(void);
+    void init(void);
+    KEY_REG refresh(void);
+    void setRPM(Uint16 rpm);
+    void setValue(long double value);
+    void setLEDs(Uint16 leds);
+
 };
 
-extern struct CONTROL_PANEL_STATE _controlpanel_state;
 
-
-void ControlPanel_Init(void);
-union KEY_REG ControlPanel_Refresh();
-
-
-inline void ControlPanel_SetRPM(Uint16 rpm)
+inline void ControlPanel :: setRPM(Uint16 rpm)
 {
-    _controlpanel_state.rpm = rpm;
+    this->rpm = rpm;
 }
 
-inline void ControlPanel_SetValue(long double value)
+inline void ControlPanel :: setValue(long double value)
 {
-    _controlpanel_state.value = value;
+    this->value = value;
 }
 
-inline void ControlPanel_SetLEDs(Uint16 leds)
+inline void ControlPanel :: setLEDs(Uint16 leds)
 {
-    _controlpanel_state.leds.all = leds;
+    this->leds.all = leds;
 }
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif // __STEPPERDRIVE_H

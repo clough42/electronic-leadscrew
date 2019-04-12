@@ -20,9 +20,14 @@ private:
 
 public:
     Core( Encoder *encoder, StepperDrive *stepperDrive );
-
+    void setFeed(long double feed);
     void ISR( void );
 };
+
+inline void Core :: setFeed(long double feed)
+{
+    this->feed = feed;
+}
 
 inline int32 Core :: Apply_Ratio(Uint32 count)
 {
@@ -61,8 +66,6 @@ inline void Core :: ISR( void )
     // Service the stepper driver
     //
     stepperDrive->ISR();
-
-    ControlPanel_SetRPM(encoder->getRPM());
 }
 
 

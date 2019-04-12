@@ -17,6 +17,7 @@ __interrupt void cpu_timer0_isr(void);
 //
 // DEPENDENCY INJECTION
 //
+ControlPanel controlPanel;
 Encoder encoder;
 StepperDrive stepperDrive;
 Core core(&encoder, &stepperDrive);
@@ -121,7 +122,7 @@ void main(void)
     //
     // Set up SPI for control panel
     //
-    ControlPanel_Init();
+    controlPanel.init();
 
     //
     // Set up GPIO and state machine for stepper drive
@@ -174,10 +175,11 @@ void main(void)
     keys.all = 0xff;
 
     for(;;) {
-        ControlPanel_SetLEDs(keys.all);
-        ControlPanel_SetValue(feed);
+        controlPanel.setLEDs(keys.all);
+        controlPanel.setValue(feed);
+        controlPanel.setRPM(encoder.getRPM());
 
-        keys = ControlPanel_Refresh();
+        keys = controlPanel.refresh();
 
         //
         // Respond to keypresses
@@ -212,8 +214,9 @@ void main(void)
         if( feed > 0.999 ) feed = 0.999;
         if( feed < 0.0 ) feed = 0.0;
 
-        DELAY_US(10000); // update at 100Hz-ish
+        core.setFeed(feed);
 
+        DELAY_US(10000); // update at 100Hz-ish
     };
 }
 
