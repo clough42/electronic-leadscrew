@@ -5,6 +5,7 @@
 #include "ControlPanel.h"
 
 
+
 typedef struct FEED_THREAD
 {
     Uint16 display[4];
@@ -13,11 +14,40 @@ typedef struct FEED_THREAD
     Uint32 denominator;
 } FEED_THREAD;
 
-typedef struct FEED_TABLE
+
+
+class FeedTable
 {
-    FEED_THREAD *table;
+private:
+    const FEED_THREAD *table;
     Uint16 selectedRow;
     Uint16 numRows;
-} FEED_TABLE;
+
+public:
+    FeedTable(const FEED_THREAD *table, Uint16 numRows);
+
+    FEED_THREAD current(void);
+    FEED_THREAD next(void);
+    FEED_THREAD previous(void);
+};
+
+
+class FeedTableFactory
+{
+private:
+    FeedTable inchThreads;
+    FeedTable inchFeeds;
+    FeedTable metricThreads;
+    FeedTable metricFeeds;
+
+public:
+    FeedTableFactory(void);
+
+    FeedTable getInchThreads(void);
+    FeedTable getInchFeeds(void);
+    FeedTable getMetricThreads(void);
+    FeedTable getMetricFeeds(void);
+};
+
 
 #endif // __TABLES_H

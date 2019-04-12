@@ -2,12 +2,17 @@
 #include "Tables.h"
 
 
-// Fraction definitions for Threads per Inch
+//
+// INCH THREAD DEFINITIONS
+//
+// Each row in the table defines a standard imperial thread, with the display data,
+// LED indicator states and gear ratio fraction to use.
+//
 #define TPI_NUMERATOR(tpi) ((Uint32)12*200*8)
 #define TPI_DENOMINATOR(tpi) ((Uint32)tpi*4096)
 #define TPI_FRACTION(tpi) .numerator = TPI_NUMERATOR(tpi), .denominator = TPI_DENOMINATOR(tpi)
 
-struct FEED_THREAD inch_threads[] =
+const FEED_THREAD inch_thread_table[] =
 {
  { .display = {BLANK, BLANK, BLANK, EIGHT}, .leds = LED_THREAD | LED_TPI, TPI_FRACTION(8) },
  { .display = {BLANK, BLANK, BLANK, NINE},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(9) },
@@ -33,12 +38,19 @@ struct FEED_THREAD inch_threads[] =
 };
 
 
-// Fraction definitions for Thousandths of an Inch
+
+//
+// INCH FEED DEFINITIONS
+//
+// Each row in the table defines a standard imperial feed rate, with the display data,
+// LED indicator states and gear ratio fraction to use.
+//
+
 #define THOU_IN_NUMERATOR(thou) ((Uint32)thou*12*200*8)
 #define THOU_IN_DENOMINATOR(thou) ((Uint32)4096*1000)
 #define THOU_IN_FRACTION(thou) .numerator = THOU_IN_NUMERATOR(thou), .denominator = THOU_IN_DENOMINATOR(thou)
 
-struct FEED_THREAD inch_feeds[] =
+const FEED_THREAD inch_feed_table[] =
 {
  { .display = {POINT, ZERO, ZERO,  ONE},    .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(1) },
  { .display = {POINT, ZERO, ZERO,  TWO},    .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(2) },
@@ -64,12 +76,19 @@ struct FEED_THREAD inch_feeds[] =
 };
 
 
-// Fraction definitions for Hundredths of a Millimeter
+
+
+//
+// METRIC THREAD DEFINITIONS
+//
+// Each row in the table defines a standard metric thread, with the display data,
+// LED indicator states and gear ratio fraction to use.
+//
 #define HMM_NUMERATOR(hmm) ((Uint32)hmm*10*12*200*8)
 #define HMM_DENOMINATOR(hmm) ((Uint32)4096*254*100)
 #define HMM_FRACTION(hmm) .numerator = HMM_NUMERATOR(hmm), .denominator = HMM_DENOMINATOR(hmm)
 
-struct FEED_THREAD metric_threads[] =
+const FEED_THREAD metric_thread_table[] =
 {
  { .display = {BLANK, POINT,         TWO,   BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(20) },
  { .display = {BLANK, POINT,         TWO,   FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(25) },
@@ -97,7 +116,15 @@ struct FEED_THREAD metric_threads[] =
  { .display = {BLANK, SIX,           BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(600) },
 };
 
-struct FEED_THREAD metric_feeds[] =
+
+
+//
+// METRIC FEED DEFINITIONS
+//
+// Each row in the table defines a standard metric feed, with the display data,
+// LED indicator states and gear ratio fraction to use.
+//
+const FEED_THREAD metric_feed_table[] =
 {
  { .display = {BLANK, POINT,       ZERO,  TWO},   .leds = LED_FEED | LED_MM, HMM_FRACTION(2) },
  { .display = {BLANK, POINT,       ZERO,  FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION(5) },
@@ -122,32 +149,22 @@ struct FEED_THREAD metric_feeds[] =
  { .display = {BLANK, ONE | POINT, ZERO,  ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION(100) },
 };
 
-struct FEED_TABLE inch_thread_table =
+
+
+
+
+FeedTable::FeedTable(const FEED_THREAD *table, Uint16 numRows)
 {
- .table = inch_threads,
- .numRows = sizeof(inch_threads)/sizeof(inch_threads[0]),
- .selectedRow = 0
-};
+    this->table = table;
+    this->numRows = numRows;
+    this->selectedRow = 0;
+}
 
-struct FEED_TABLE inch_feed_table =
+FeedTableFactory::FeedTableFactory(void):
+        inchThreads(inch_thread_table, sizeof(inch_thread_table)/sizeof(inch_thread_table[0])),
+        inchFeeds(inch_feed_table, sizeof(inch_feed_table)/sizeof(inch_feed_table[0])),
+        metricThreads(metric_thread_table, sizeof(metric_thread_table)/sizeof(metric_thread_table[0])),
+        metricFeeds(metric_feed_table, sizeof(metric_feed_table)/sizeof(metric_feed_table[0]))
 {
- .table = inch_feeds,
- .numRows = sizeof(inch_feeds)/sizeof(inch_feeds[0]),
- .selectedRow = 0
-};
 
-struct FEED_TABLE metric_thread_table =
-{
- .table = metric_threads,
- .numRows = sizeof(metric_threads)/sizeof(metric_threads[0]),
- .selectedRow = 0
-};
-
-struct FEED_TABLE metric_feed_table =
-{
- .table = metric_feeds,
- .numRows = sizeof(metric_feeds)/sizeof(metric_feeds[0]),
- .selectedRow = 0
-};
-
-
+}
