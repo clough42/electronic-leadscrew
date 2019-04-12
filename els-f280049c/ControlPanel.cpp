@@ -167,6 +167,10 @@ KEY_REG ControlPanel :: readKeys(void)
     SpibRegs.SPICTL.bit.TALK = 1;
 
     CS_CLEAR;
+    sendByte(reverse_byte(0x40));           // auto-increment
+    CS_SET;
+
+    CS_CLEAR;
     sendByte(reverse_byte(0x42));
 
     SpibRegs.SPICTL.bit.TALK = 0;

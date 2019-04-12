@@ -18,7 +18,6 @@ private:
 
     FeedTable *feedTable;
 
-    long double feed;
     KEY_REG keys;
 
     const FEED_THREAD *loadFeedTable();

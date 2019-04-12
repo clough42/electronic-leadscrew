@@ -11,7 +11,8 @@ UserInterface :: UserInterface(ControlPanel *controlPanel, Core *core, FeedTable
     this->thread = false; // start out with feeds
     this->reverse = false; // start out going forward
 
-    this->feed = 200.0 * 8.0 / 4096.0;
+    this->feedTable = NULL;
+
     this->keys.all = 0xff;
 }
 
@@ -42,6 +43,12 @@ LED_REG UserInterface::calculateLEDs(const FEED_THREAD *selectedFeed)
 void UserInterface :: loop( void )
 {
     const FEED_THREAD *newFeed = NULL;
+
+    // just in case, initialize the first time through
+    if( feedTable == NULL ) {
+        newFeed = loadFeedTable();
+    }
+
     keys = controlPanel->getKeys();
 
     //
