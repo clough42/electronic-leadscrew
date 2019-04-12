@@ -23,7 +23,7 @@ The current plan is to support the following operations:
 * Multiple feeds in thousandths of an inch per revolution
 * Multiple feeds in hundredths of a millimeter per revolution
 * Multiple imperial thread pitches (in threads-per-inch)
-* Multiple metric thread piches (in millimeters)
+* Multiple metric thread pitches (in millimeters)
 
 ## Future Goals
 While this project is starting out as a simple gearbox replacement, some features seem attractive, even for
