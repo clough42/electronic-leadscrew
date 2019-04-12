@@ -75,9 +75,9 @@ struct KEY_BITS
     Uint16 UP:1;
     Uint16 reserved1:1;
     Uint16 DOWN:1;
+    Uint16 IN_MM:1;
     Uint16 FEED_THREAD:1;
     Uint16 FWD_REV:1;
-    Uint16 IN_MM:1;
     Uint16 SET:1;
     Uint16 POWER:1;
 };
