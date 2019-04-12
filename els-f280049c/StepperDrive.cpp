@@ -41,7 +41,7 @@ StepperDrive :: StepperDrive(void)
     this->state = 0;
 }
 
-void StepperDrive :: init(void)
+void StepperDrive :: initHardware(void)
 {
     //
     // Configure GPIO pins for output

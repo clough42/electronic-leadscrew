@@ -24,36 +24,43 @@
 // SOFTWARE.
 
 
-#ifndef __USERINTERFACE_H
-#define __USERINTERFACE_H
+#ifndef __DEBUG_H
+#define __DEBUG_H
 
-#include "ControlPanel.h"
-#include "Core.h"
-#include "Tables.h"
+#include "F28x_Project.h"
 
-class UserInterface
+class Debug
 {
-private:
-    ControlPanel *controlPanel;
-    Core *core;
-    FeedTableFactory *feedTableFactory;
-
-    bool metric;
-    bool thread;
-    bool reverse;
-
-    FeedTable *feedTable;
-
-    KEY_REG keys;
-
-    const FEED_THREAD *loadFeedTable();
-    LED_REG calculateLEDs(const FEED_THREAD *selectedFeed);
-
 public:
-    UserInterface(ControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory);
-    void initHardware( void );
+    Debug(void);
+    void initHardware(void);
 
-    void loop( void );
+    void set1( void );
+    void clear1( void );
+    void set2( void );
+    void clear2( void );
 };
 
-#endif // __USERINTERFACE_H
+
+inline void Debug :: set1( void )
+{
+    GpioDataRegs.GPASET.bit.GPIO7 = 1;
+}
+
+inline void Debug :: clear1( void )
+{
+    GpioDataRegs.GPACLEAR.bit.GPIO7 = 1;
+}
+
+inline void Debug :: set2( void )
+{
+    GpioDataRegs.GPASET.bit.GPIO2 = 1;
+}
+
+inline void Debug :: clear2( void )
+{
+    GpioDataRegs.GPACLEAR.bit.GPIO2 = 1;
+}
+
+
+#endif // __DEBUG_H

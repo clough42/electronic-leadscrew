@@ -60,7 +60,7 @@ private:
 
 public:
     StepperDrive();
-    void init(void);
+    void initHardware(void);
 
     void setDesiredPosition(int32 steps);
     void incrementCurrentPosition(int32 increment);

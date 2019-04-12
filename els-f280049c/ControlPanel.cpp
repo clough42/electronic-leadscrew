@@ -38,7 +38,7 @@ ControlPanel :: ControlPanel(void)
     this->keys.all = 0;
 }
 
-void ControlPanel :: init(void)
+void ControlPanel :: initHardware(void)
 {
     EALLOW;
 

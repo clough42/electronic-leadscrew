@@ -34,7 +34,7 @@ Encoder :: Encoder( void )
     this->rpm = 0;
 }
 
-void Encoder :: init(void)
+void Encoder :: initHardware(void)
 {
     EALLOW;
 

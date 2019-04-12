@@ -24,36 +24,24 @@
 // SOFTWARE.
 
 
-#ifndef __USERINTERFACE_H
-#define __USERINTERFACE_H
+#include "Debug.h"
 
-#include "ControlPanel.h"
-#include "Core.h"
-#include "Tables.h"
 
-class UserInterface
+Debug :: Debug( void )
 {
-private:
-    ControlPanel *controlPanel;
-    Core *core;
-    FeedTableFactory *feedTableFactory;
 
-    bool metric;
-    bool thread;
-    bool reverse;
+}
 
-    FeedTable *feedTable;
 
-    KEY_REG keys;
-
-    const FEED_THREAD *loadFeedTable();
-    LED_REG calculateLEDs(const FEED_THREAD *selectedFeed);
-
-public:
-    UserInterface(ControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory);
-    void initHardware( void );
-
-    void loop( void );
-};
-
-#endif // __USERINTERFACE_H
+void Debug :: initHardware( void )
+{
+    // set up GPIO pins as output for debugging
+    EALLOW;
+    GpioCtrlRegs.GPAMUX1.bit.GPIO7 = 0;
+    GpioCtrlRegs.GPADIR.bit.GPIO7 = 1;
+    GpioDataRegs.GPACLEAR.bit.GPIO7 = 1;
+    GpioCtrlRegs.GPAMUX1.bit.GPIO2 = 0;
+    GpioCtrlRegs.GPADIR.bit.GPIO2 = 1;
+    GpioDataRegs.GPACLEAR.bit.GPIO2 = 1;
+    EDIS;
+}

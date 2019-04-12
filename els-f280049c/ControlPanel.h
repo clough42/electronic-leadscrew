@@ -123,7 +123,7 @@ private:
 
 public:
     ControlPanel(void);
-    void init(void);
+    void initHardware(void);
 
     KEY_REG getKeys(void);
     void setRPM(Uint16 rpm);

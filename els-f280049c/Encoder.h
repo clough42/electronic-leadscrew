@@ -40,7 +40,8 @@ private:
 
 public:
     Encoder( void );
-    void init( void );
+    void initHardware( void );
+
     Uint16 getRPM( void );
     Uint32 getPosition( void );
     Uint32 getMaxCount( void );

@@ -31,6 +31,7 @@
 #include "Configuration.h"
 #include "Core.h"
 #include "UserInterface.h"
+#include "Debug.h"
 
 
 __interrupt void cpu_timer0_isr(void);
@@ -41,6 +42,9 @@ __interrupt void cpu_timer0_isr(void);
 //
 // Declare all of the main components and wire them together
 //
+
+// Debug harness
+Debug debug;
 
 // Feed table factory
 FeedTableFactory feedTableFactory;
@@ -104,18 +108,12 @@ void main(void)
     // Use write-only instruction to set TSS bit = 0
     CpuTimer0Regs.TCR.all = 0x4001;
 
-    // Initialize components
-    controlPanel.init();
-    stepperDrive.init();
-    encoder.init();
-    userInterface.init();
-
-    // Set up GPIO7 as a timing indicator for the logic analyzer
-    EALLOW;
-    GpioCtrlRegs.GPAMUX1.bit.GPIO7 = 0;
-    GpioCtrlRegs.GPADIR.bit.GPIO7 = 1;
-    GpioDataRegs.GPACLEAR.bit.GPIO7 = 1;
-    EDIS;
+    // Initialize peripherals and pins
+    debug.initHardware();
+    controlPanel.initHardware();
+    stepperDrive.initHardware();
+    encoder.initHardware();
+    userInterface.initHardware();
 
     // Enable CPU INT1 which is connected to CPU-Timer 0
     IER |= M_INT1;
@@ -124,12 +122,20 @@ void main(void)
     PieCtrlRegs.PIEIER1.bit.INTx7 = 1;
 
     // Enable global Interrupts and higher priority real-time debug events
-    EINT;   // Enable Global interrupt INTM
-    ERTM;   // Enable Global realtime interrupt DBGM
+    EINT;
+    ERTM;
 
     // User interface loop
     for(;;) {
+        // mark beginning of loop for debugging
+        debug.set2();
+
+        // service the user interface
         userInterface.loop();
+
+        // mark end of loop for debugging
+        debug.clear2();
+
         DELAY_US(10000); // update at 100Hz-ish
     }
 }
@@ -142,13 +148,13 @@ cpu_timer0_isr(void)
     CpuTimer0.InterruptCount++;
 
     // flag entrance to ISR for timing
-    GpioDataRegs.GPASET.bit.GPIO7 = 1;
+    debug.set1();
 
     // service the Core engine ISR, which in turn services the StepperDrive ISR
     core.ISR();
 
     // flag exit from ISR for timing
-    GpioDataRegs.GPACLEAR.bit.GPIO7 = 1;
+    debug.clear1();
 
     //
     // Acknowledge this interrupt to receive more interrupts from group 1

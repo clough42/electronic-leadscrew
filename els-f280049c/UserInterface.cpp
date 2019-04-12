@@ -42,7 +42,7 @@ UserInterface :: UserInterface(ControlPanel *controlPanel, Core *core, FeedTable
     this->keys.all = 0xff;
 }
 
-void UserInterface :: init( void )
+void UserInterface :: initHardware( void )
 {
 
 }
