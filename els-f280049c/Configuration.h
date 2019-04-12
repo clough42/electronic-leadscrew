@@ -42,5 +42,15 @@
 #define CPU_CLOCK_MHZ 100
 #define CPU_CLOCK_HZ (CPU_CLOCK_MHZ * 1000000)
 
+// Stepper driver configuration
+#define STEPPER_MICROSTEPS 8
+#define STEPPER_RESOLUTION 200
+
+// Encoder configuration
+#define ENCODER_RESOLUTION 4096
+
+// Leadscrew configuration
+#define LEADSCREW_TPI 12
+
 
 #endif // __CONFIGURATION_H

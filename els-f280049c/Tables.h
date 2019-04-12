@@ -28,6 +28,7 @@
 #define __TABLES_H
 
 #include "F28x_Project.h"
+#include "Configuration.h"
 #include "ControlPanel.h"
 
 
