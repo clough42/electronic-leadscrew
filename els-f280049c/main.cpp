@@ -6,12 +6,20 @@
 #include "StepperDrive.h"
 #include "Encoder.h"
 #include "Configuration.h"
+#include "Core.h"
 #include <stdio.h>
 
 //
 // Function Prototypes statements for functions found within this file.
 //
 __interrupt void cpu_timer0_isr(void);
+
+//
+// DEPENDENCY INJECTION
+//
+Encoder encoder;
+StepperDrive stepperDrive;
+Core core(&encoder, &stepperDrive);
 
 long double feed = 200.0 * 8.0 / 4096.0;
 //Uint32 numerator = (Uint32)250 * 10 * 12 * 200 * 8;
@@ -32,6 +40,7 @@ void main(void)
     // This configures the MCU to pre-fetch instructions from flash.
     InitFlash();
 #endif
+
 
     //
     // Step 1. Initialize System Control:
@@ -117,12 +126,12 @@ void main(void)
     //
     // Set up GPIO and state machine for stepper drive
     //
-    StepperDrive_Init();
+    stepperDrive.init();
 
     //
     // Set up Encoder input
     //
-    Encoder_Init();
+    encoder.init();
 
     // GPIO 9 as an indicator
     EALLOW;
@@ -174,30 +183,30 @@ void main(void)
         // Respond to keypresses
         //
         if( keys.all & 0x01 ) {
-            StepperDrive_SetDesiredPosition(4);
+            stepperDrive.setDesiredPosition(4);
             feed += 0.001;
         }
         if( keys.all & 0x02 ) {
-            StepperDrive_SetDesiredPosition(3);
+            stepperDrive.setDesiredPosition(3);
         }
         if( keys.all & 0x04 ) {
-            StepperDrive_SetDesiredPosition(2);
+            stepperDrive.setDesiredPosition(2);
         }
         if( keys.all & 0x08 ) {
-            StepperDrive_SetDesiredPosition(1);
+            stepperDrive.setDesiredPosition(1);
             feed -= 0.001;
         }
         if( keys.all & 0x10 ) {
-            StepperDrive_SetDesiredPosition(0);
+            stepperDrive.setDesiredPosition(0);
         }
         if( keys.all & 0x20 ) {
-            StepperDrive_SetDesiredPosition(-1);
+            stepperDrive.setDesiredPosition(-1);
         }
         if( keys.all & 0x40 ) {
-            StepperDrive_SetDesiredPosition(-2);
+            stepperDrive.setDesiredPosition(-2);
         }
         if( keys.all & 0x80 ) {
-            StepperDrive_SetDesiredPosition(-3);
+            stepperDrive.setDesiredPosition(-3);
         }
 
         if( feed > 0.999 ) feed = 0.999;
@@ -209,8 +218,7 @@ void main(void)
 }
 
 
-Uint32 previousSpindlePosition = 0;
-long double previousFeed = 0;
+
 
 
 inline int32 Apply_Ratio(Uint32 count)
@@ -230,37 +238,7 @@ cpu_timer0_isr(void)
     // flag entrance to ISR for timing
     GpioDataRegs.GPASET.bit.GPIO7 = 1;
 
-    //
-    // Calculate the correct stepper position
-    //
-    Uint32 spindlePosition = Encoder_GetPosition();
-    int32 desiredSteps = Apply_Ratio(spindlePosition);
-
-    // overflow
-    if( spindlePosition < previousSpindlePosition && previousSpindlePosition - spindlePosition > Encoder_GetMaxCount()/2 ) {
-        StepperDrive_IncrementCurrentPosition(-1 * Apply_Ratio(Encoder_GetMaxCount()));
-    }
-    // underflow
-    if( spindlePosition > previousSpindlePosition && spindlePosition - previousSpindlePosition > Encoder_GetMaxCount()/2 ) {
-        StepperDrive_IncrementCurrentPosition(Apply_Ratio(Encoder_GetMaxCount()));
-    }
-
-    StepperDrive_SetDesiredPosition(desiredSteps);
-
-    // if the feed changed, we want to reset and avoid a big step
-    if( feed != previousFeed ) {
-        StepperDrive_SetCurrentPosition(desiredSteps);
-    }
-
-    previousSpindlePosition = spindlePosition;
-    previousFeed = feed;
-
-    //
-    // Service the stepper driver
-    //
-    StepperDrive_Service_ISR();
-
-    ControlPanel_SetRPM(Encoder_GetRPM());
+    core.ISR();
 
     // flag exit from ISR for timing
     GpioDataRegs.GPACLEAR.bit.GPIO7 = 1;

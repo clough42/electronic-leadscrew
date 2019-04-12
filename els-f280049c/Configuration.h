@@ -1,6 +1,9 @@
 #ifndef __CONFIGURATION_H
 #define __CONFIGURATION_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //
 // Stepper cycle servicing time, in microseconds
@@ -23,6 +26,8 @@
 //
 #define MCU_CLOCK_RATE_HZ 100000000
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __CONFIGURATION_H

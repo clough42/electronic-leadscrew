@@ -2,8 +2,13 @@
 #include "Configuration.h"
 
 
+Encoder :: Encoder( void )
+{
+    this->previous = 0;
+    this->rpm = 0;
+}
 
-void Encoder_Init(void)
+void Encoder :: init(void)
 {
     EALLOW;
 
@@ -41,15 +46,12 @@ void Encoder_Init(void)
 
 }
 
-Uint32 previous = 0;
-Uint16 rpm = 0;
-
-Uint16 Encoder_GetRPM(void)
+Uint16 Encoder :: getRPM(void)
 {
     if(EQep1Regs.QFLG.bit.UTO==1)       // If unit timeout (one 10Hz period)
     {
-        Uint32 new = EQep1Regs.QPOSLAT;
-        Uint32 count = (new > previous) ? new - previous : previous - new;
+        Uint32 current = EQep1Regs.QPOSLAT;
+        Uint32 count = (current > previous) ? current - previous : previous - current;
 
         // deal with over/underflow
         if( count > _ENCODER_MAX_COUNT/2 ) {
@@ -59,10 +61,10 @@ Uint16 Encoder_GetRPM(void)
         rpm = count * 60 * RPM_CALC_RATE_HZ / 4096;
 
         if( rpm > 2000 ) {
-            previous = new;
+            previous = current;
         }
 
-        previous = new;
+        previous = current;
         EQep1Regs.QCLR.bit.UTO=1;       // Clear interrupt flag
     }
 

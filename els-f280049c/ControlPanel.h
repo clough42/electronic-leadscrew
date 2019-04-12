@@ -3,6 +3,10 @@
 
 #include "F28x_Project.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define CONTROL_PANEL_REFRESH_US 10000
 
 #define ZERO    0b1111110000000000 // 0
@@ -104,5 +108,8 @@ inline void ControlPanel_SetLEDs(Uint16 leds)
     _controlpanel_state.leds.all = leds;
 }
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __STEPPERDRIVE_H

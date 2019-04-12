@@ -156,6 +156,10 @@ extern __cregister volatile unsigned int IER;
 #include <stddef.h>
 #include <stdint.h>
 
+#if defined(__cplusplus)
+typedef bool _Bool;
+#endif
+
 //
 // C99 defines boolean type to be _Bool, but this doesn't match the format of
 // the other standard integer types.  bool_t has been defined to fill this gap.
