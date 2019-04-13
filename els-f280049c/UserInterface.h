@@ -31,6 +31,13 @@
 #include "Core.h"
 #include "Tables.h"
 
+typedef struct MESSAGE
+{
+    Uint16 message[8];
+    Uint16 displayTime;
+    const MESSAGE *next;
+} MESSAGE;
+
 class UserInterface
 {
 private:
@@ -46,12 +53,16 @@ private:
 
     KEY_REG keys;
 
+    const MESSAGE *message;
+    Uint16 messageTime;
+
     const FEED_THREAD *loadFeedTable();
     LED_REG calculateLEDs(const FEED_THREAD *selectedFeed);
+    void setMessage(const MESSAGE *message);
+    void overrideMessage( void );
 
 public:
     UserInterface(ControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory);
-    void initHardware( void );
 
     void loop( void );
 };

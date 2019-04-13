@@ -36,6 +36,7 @@ ControlPanel :: ControlPanel(void)
     this->value = NULL;
     this->leds.all = 0;
     this->keys.all = 0;
+    this->message = NULL;
 }
 
 void ControlPanel :: initHardware(void)
@@ -156,7 +157,14 @@ void ControlPanel :: sendData()
     CS_CLEAR;
     sendByte(reverse_byte(0xc0));           // display data
     for( i=0; i < 8; i++ ) {
-        sendByte(this->sevenSegmentData[i]);
+        if( this->message != NULL )
+        {
+            sendByte(this->message[i]);
+        }
+        else
+        {
+            sendByte(this->sevenSegmentData[i]);
+        }
         sendByte( (ledMask & 0x80) ? 0xff00 : 0x0000 );
         ledMask <<= 1;
     }
@@ -231,6 +239,11 @@ KEY_REG ControlPanel :: getKeys()
         return newKeys;
     }
     return noKeys;
+}
+
+void ControlPanel :: setMessage( const Uint16 *message )
+{
+    this->message = message;
 }
 
 void ControlPanel :: refresh()

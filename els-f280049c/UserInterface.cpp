@@ -26,6 +26,31 @@
 
 #include "UserInterface.h"
 
+const MESSAGE STARTUP_MESSAGE_2 =
+{
+  .message = { LETTER_E, LETTER_L, LETTER_S, DASH, ONE | POINT, ZERO | POINT, ZERO, ONE },
+  .displayTime = UI_REFRESH_RATE_HZ * 1.5
+};
+
+const MESSAGE STARTUP_MESSAGE_1 =
+{
+ .message = { LETTER_C, LETTER_L, LETTER_O, LETTER_U, LETTER_G, LETTER_H, FOUR, TWO },
+ .displayTime = UI_REFRESH_RATE_HZ * 1.5,
+ .next = &STARTUP_MESSAGE_2
+};
+
+const MESSAGE SETTINGS_MESSAGE_2 =
+{
+ .message = { LETTER_S, LETTER_E, LETTER_T, LETTER_T, LETTER_I, LETTER_N, LETTER_G, LETTER_S },
+ .displayTime = UI_REFRESH_RATE_HZ * .5
+};
+
+const MESSAGE SETTINGS_MESSAGE_1 =
+{
+ .message = { BLANK, BLANK, BLANK, LETTER_N, LETTER_O, BLANK, BLANK, BLANK },
+ .displayTime = UI_REFRESH_RATE_HZ * .5,
+ .next = &SETTINGS_MESSAGE_2
+};
 
 UserInterface :: UserInterface(ControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory)
 {
@@ -40,11 +65,8 @@ UserInterface :: UserInterface(ControlPanel *controlPanel, Core *core, FeedTable
     this->feedTable = NULL;
 
     this->keys.all = 0xff;
-}
 
-void UserInterface :: initHardware( void )
-{
-
+    setMessage(&STARTUP_MESSAGE_1);
 }
 
 const FEED_THREAD *UserInterface::loadFeedTable()
@@ -66,9 +88,36 @@ LED_REG UserInterface::calculateLEDs(const FEED_THREAD *selectedFeed)
     return leds;
 }
 
+void UserInterface :: setMessage(const MESSAGE *message)
+{
+    this->message = message;
+    this->messageTime = message->displayTime;
+}
+
+void UserInterface :: overrideMessage( void )
+{
+    if( this->message != NULL )
+    {
+        if( this->messageTime > 0 ) {
+            this->messageTime--;
+            controlPanel->setMessage(this->message->message);
+        }
+        else {
+            this->message = this->message->next;
+            if( this->message == NULL )
+                controlPanel->setMessage(NULL);
+            else
+                this->messageTime = this->message->displayTime;
+        }
+    }
+}
+
 void UserInterface :: loop( void )
 {
     const FEED_THREAD *newFeed = NULL;
+
+    // display an override message, if there is one
+    overrideMessage();
 
     // just in case, initialize the first time through
     if( feedTable == NULL ) {
@@ -102,6 +151,10 @@ void UserInterface :: loop( void )
     if( keys.bit.DOWN )
     {
         newFeed = feedTable->previous();
+    }
+    if( keys.bit.SET )
+    {
+        setMessage(&SETTINGS_MESSAGE_1);
     }
 
     // if we have changed the feed
