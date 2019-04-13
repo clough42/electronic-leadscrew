@@ -42,6 +42,10 @@ private:
     const FEED_THREAD *feed;
     const FEED_THREAD *previousFeed;
 
+#ifdef USE_FLOATING_POINT
+    float ratio;
+#endif // USE_FLOATING_POINT
+
     int16 feedDirection;
     int16 previousFeedDirection;
 
@@ -62,6 +66,10 @@ public:
 inline void Core :: setFeed(const FEED_THREAD *feed)
 {
     this->feed = feed;
+
+#ifdef USE_FLOATING_POINT
+    this->ratio = (float)feed->numerator / feed->denominator;
+#endif // USE_FLOATING_POINT
 }
 
 inline Uint16 Core :: getRPM(void)
@@ -71,7 +79,11 @@ inline Uint16 Core :: getRPM(void)
 
 inline int32 Core :: feedRatio(Uint32 count)
 {
+#ifdef USE_FLOATING_POINT
+    return ((float)count) * this->ratio * feedDirection;
+#else // USE_FLOATING_POINT
     return ((long long)count) * feed->numerator / feed->denominator * feedDirection;
+#endif // USE_FLOATING_POINT
 }
 
 inline void Core :: ISR( void )

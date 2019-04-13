@@ -30,7 +30,7 @@
 
 // Stepper state machine cycle time, in microseconds
 // Two cycles are required per step
-#define STEPPER_CYCLE_US 15
+#define STEPPER_CYCLE_US 5
 
 // User interface refresh rate, in Hertz
 #define UI_REFRESH_RATE_HZ 100
@@ -51,6 +51,9 @@
 
 // Leadscrew configuration
 #define LEADSCREW_TPI 12
+
+// Use floating-point math for gear ratios
+#define USE_FLOATING_POINT
 
 
 #endif // __CONFIGURATION_H
