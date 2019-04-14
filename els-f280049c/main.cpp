@@ -127,13 +127,13 @@ void main(void)
     // User interface loop
     for(;;) {
         // mark beginning of loop for debugging
-        debug.set2();
+        debug.begin2();
 
         // service the user interface
         userInterface.loop();
 
         // mark end of loop for debugging
-        debug.clear2();
+        debug.end2();
 
         // delay
         DELAY_US(1000000 / UI_REFRESH_RATE_HZ);
@@ -148,13 +148,13 @@ cpu_timer0_isr(void)
     CpuTimer0.InterruptCount++;
 
     // flag entrance to ISR for timing
-    debug.set1();
+    debug.begin1();
 
     // service the Core engine ISR, which in turn services the StepperDrive ISR
     core.ISR();
 
     // flag exit from ISR for timing
-    debug.clear1();
+    debug.end1();
 
     //
     // Acknowledge this interrupt to receive more interrupts from group 1

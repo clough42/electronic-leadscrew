@@ -35,29 +35,32 @@ public:
     Debug(void);
     void initHardware(void);
 
-    void set1( void );
-    void clear1( void );
-    void set2( void );
-    void clear2( void );
+    // analyzer pin 1
+    void begin1( void );
+    void end1( void );
+
+    // analyzer pin 2
+    void begin2( void );
+    void end2( void );
 };
 
 
-inline void Debug :: set1( void )
+inline void Debug :: begin1( void )
 {
     GpioDataRegs.GPASET.bit.GPIO7 = 1;
 }
 
-inline void Debug :: clear1( void )
+inline void Debug :: end1( void )
 {
     GpioDataRegs.GPACLEAR.bit.GPIO7 = 1;
 }
 
-inline void Debug :: set2( void )
+inline void Debug :: begin2( void )
 {
     GpioDataRegs.GPASET.bit.GPIO2 = 1;
 }
 
-inline void Debug :: clear2( void )
+inline void Debug :: end2( void )
 {
     GpioDataRegs.GPACLEAR.bit.GPIO2 = 1;
 }
