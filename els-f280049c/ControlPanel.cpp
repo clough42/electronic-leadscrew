@@ -37,6 +37,7 @@ ControlPanel :: ControlPanel(void)
     this->leds.all = 0;
     this->keys.all = 0;
     this->message = NULL;
+    this->brightness = 3;
 }
 
 void ControlPanel :: initHardware(void)
@@ -143,11 +144,15 @@ void ControlPanel :: sendData()
 {
     int i;
     Uint16 ledMask = this->leds.all;
+    Uint16 briteVal = 0x80;
+    if( this->brightness > 0 ) {
+        briteVal = 0x87 + this->brightness;
+    }
 
     SpibRegs.SPICTL.bit.TALK = 1;
 
     CS_CLEAR;
-    sendByte(reverse_byte(0x8a));           // brightness
+    sendByte(reverse_byte(briteVal));           // brightness
     CS_SET;
 
     CS_CLEAR;
@@ -246,6 +251,13 @@ void ControlPanel :: setMessage( const Uint16 *message )
     this->message = message;
 }
 
+void ControlPanel :: setBrightness( Uint16 brightness )
+{
+    if( brightness > 8 ) brightness = 8;
+
+    this->brightness = brightness;
+}
+
 void ControlPanel :: refresh()
 {
     decomposeRPM();
@@ -253,6 +265,7 @@ void ControlPanel :: refresh()
 
     sendData();
 }
+
 
 
 

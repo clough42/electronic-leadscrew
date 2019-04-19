@@ -136,6 +136,9 @@ private:
     // current override message, or NULL if none
     const Uint16 *message;
 
+    // brightness, levels 1-8, 0=off
+    Uint16 brightness;
+
     // Derived state, calculated internally
     Uint16 sevenSegmentData[8];
 
@@ -171,6 +174,9 @@ public:
 
     // set a message that overrides the display, 8 characters required
     void setMessage(const Uint16 *message);
+
+    // set a brightness value, 0 (off) to 8 (max)
+    void setBrightness(Uint16 brightness);
 
     // refresh the hardware display
     void refresh(void);
