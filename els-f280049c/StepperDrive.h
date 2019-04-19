@@ -28,14 +28,39 @@
 #define __STEPPERDRIVE_H
 
 #include "F28x_Project.h"
+#include "Configuration.h"
 
 
 #define STEP_PIN GPIO0
-#define DIR_PIN GPIO1
-#define ISR_PIN GPIO6
+#define DIRECTION_PIN GPIO1
+#define ENABLE_PIN GPIO6
 
 #define GPIO_SET(pin) GpioDataRegs.GPASET.bit.pin = 1
 #define GPIO_CLEAR(pin) GpioDataRegs.GPACLEAR.bit.pin = 1
+
+#ifdef INVERT_STEP_PIN
+#define GPIO_SET_STEP GPIO_CLEAR(STEP_PIN)
+#define GPIO_CLEAR_STEP GPIO_SET(STEP_PIN)
+#else
+#define GPIO_SET_STEP GPIO_SET(STEP_PIN)
+#define GPIO_CLEAR_STEP GPIO_CLEAR(STEP_PIN)
+#endif
+
+#ifdef INVERT_DIRECTION_PIN
+#define GPIO_SET_DIRECTION GPIO_CLEAR(DIRECTION_PIN)
+#define GPIO_CLEAR_DIRECTION GPIO_SET(DIRECTION_PIN)
+#else
+#define GPIO_SET_DIRECTION GPIO_SET(DIRECTION_PIN)
+#define GPIO_CLEAR_DIRECTION GPIO_CLEAR(DIRECTION_PIN)
+#endif
+
+#ifdef INVERT_ENABLE_PIN
+#define GPIO_SET_ENABLE GPIO_CLEAR(ENABLE_PIN)
+#define GPIO_CLEAR_ENABLE GPIO_SET(ENABLE_PIN)
+#else
+#define GPIO_SET_ENABLE GPIO_SET(ENABLE_PIN)
+#define GPIO_CLEAR_ENABLE GPIO_CLEAR(ENABLE_PIN)
+#endif
 
 
 class StepperDrive
@@ -92,11 +117,11 @@ inline void StepperDrive :: ISR(void)
     case 0:
         // Step = 0; Dir = 0
         if( this->desiredPosition < this->currentPosition ) {
-            GPIO_SET(STEP_PIN);
+            GPIO_SET_STEP;
             this->state = 2;
         }
         else if( this->desiredPosition > this->currentPosition ) {
-            GPIO_SET(DIR_PIN);
+            GPIO_SET_DIRECTION;
             this->state = 1;
         }
         break;
@@ -104,25 +129,25 @@ inline void StepperDrive :: ISR(void)
     case 1:
         // Step = 0; Dir = 1
         if( this->desiredPosition > this->currentPosition ) {
-            GPIO_SET(STEP_PIN);
+            GPIO_SET_STEP;
             this->state = 3;
         }
         else if( this->desiredPosition < this->currentPosition ) {
-            GPIO_CLEAR(DIR_PIN);
+            GPIO_CLEAR_DIRECTION;
             this->state = 0;
         }
         break;
 
     case 2:
         // Step = 1; Dir = 0
-        GPIO_CLEAR(STEP_PIN);
+        GPIO_CLEAR_STEP;
         this->currentPosition--;
         this->state = 0;
         break;
 
     case 3:
         // Step = 1; Dir = 1
-        GPIO_CLEAR(STEP_PIN);
+        GPIO_CLEAR_STEP;
         this->currentPosition++;
         this->state = 1;
         break;

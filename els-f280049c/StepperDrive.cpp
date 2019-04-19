@@ -58,9 +58,9 @@ void StepperDrive :: initHardware(void)
     GpioCtrlRegs.GPADIR.bit.GPIO1 = 1;
     GpioCtrlRegs.GPADIR.bit.GPIO6 = 1;
 
-    GpioDataRegs.GPACLEAR.bit.GPIO0 = 1; // step active-high
-    GpioDataRegs.GPACLEAR.bit.GPIO1 = 1; // direction active high
-    GpioDataRegs.GPACLEAR.bit.GPIO6 = 1; // enable active low
+    GPIO_CLEAR_STEP;
+    GPIO_CLEAR_DIRECTION;
+    GPIO_SET_ENABLE;
     EDIS;
 }
 

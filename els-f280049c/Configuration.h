@@ -55,5 +55,10 @@
 // Use floating-point math for gear ratios
 #define USE_FLOATING_POINT
 
+// Step, direction and enable pins are normally active-high
+// #define INVERT_STEP_PIN true
+// #define INVERT_DIRECTION_PIN true
+#define INVERT_ENABLE_PIN true
+
 
 #endif // __CONFIGURATION_H
