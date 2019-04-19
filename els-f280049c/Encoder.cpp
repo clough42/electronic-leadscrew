@@ -86,10 +86,6 @@ Uint16 Encoder :: getRPM(void)
 
         rpm = count * 60 * RPM_CALC_RATE_HZ / 4096;
 
-        if( rpm > 2000 ) {
-            previous = current;
-        }
-
         previous = current;
         EQep1Regs.QCLR.bit.UTO=1;       // Clear interrupt flag
     }
