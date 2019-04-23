@@ -26,9 +26,18 @@
 
 #include "ControlPanel.h"
 
+// Time delay to allow CS (STB) line to reach high state and be registered
+#define CS_RISE_TIME_US 5
 
+// Time delay after sending read command, before clocking in data
+#define DELAY_BEFORE_READING_US 1
+
+// Raise the TM1638 CS (STB) line
 #define CS_SET GpioDataRegs.GPBSET.bit.GPIO33 = 1
+
+// Lower the TM1638 CS (STB) line
 #define CS_CLEAR GpioDataRegs.GPBCLEAR.bit.GPIO33 = 1
+
 
 ControlPanel :: ControlPanel(void)
 {
@@ -152,12 +161,14 @@ void ControlPanel :: sendData()
     SpibRegs.SPICTL.bit.TALK = 1;
 
     CS_CLEAR;
-    sendByte(reverse_byte(briteVal));           // brightness
+    sendByte(reverse_byte(briteVal));       // brightness
     CS_SET;
+    DELAY_US(CS_RISE_TIME_US);              // give CS line time to register high
 
     CS_CLEAR;
     sendByte(reverse_byte(0x40));           // auto-increment
     CS_SET;
+    DELAY_US(CS_RISE_TIME_US);              // give CS line time to register high
 
     CS_CLEAR;
     sendByte(reverse_byte(0xc0));           // display data
@@ -174,6 +185,7 @@ void ControlPanel :: sendData()
         ledMask <<= 1;
     }
     CS_SET;
+    DELAY_US(CS_RISE_TIME_US);              // give CS line time to register high
 
     SpibRegs.SPICTL.bit.TALK = 0;
 }
@@ -208,13 +220,14 @@ KEY_REG ControlPanel :: readKeys(void)
     CS_CLEAR;
     sendByte(reverse_byte(0x40));           // auto-increment
     CS_SET;
+    DELAY_US(CS_RISE_TIME_US);              // give CS line time to register high
 
     CS_CLEAR;
     sendByte(reverse_byte(0x42));
 
     SpibRegs.SPICTL.bit.TALK = 0;
 
-    DELAY_US(1);
+    DELAY_US(DELAY_BEFORE_READING_US); // delay required by TM1638 per datasheet
 
     Uint16 byte1 = receiveByte();
     Uint16 byte2 = receiveByte();
@@ -229,6 +242,7 @@ KEY_REG ControlPanel :: readKeys(void)
             (byte4 & 0x88) >> 3;
 
     CS_SET;
+    DELAY_US(CS_RISE_TIME_US);              // give CS line time to register high
 
     return keyMask;
 }
