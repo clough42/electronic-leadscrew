@@ -7,6 +7,10 @@ lathe spindle.  The electronic controller allows setting different virtual gear 
 ## Project Status
 Design and prototyping.
 
+**NOTE: This is still a work in progress and is subject to change.  Many people have expressed interest in buying parts
+and following along with the build.  That's great!  Just be aware that this hasn't been tested and refined end-to-end yet, so
+things like stepper motors, servos, drivers, display boards are likely to change as the project progresses.**
+
 ## Current Concept
 The project is still in the early stages of development.  The current hardware looks like this:
 * Use a TI F280049C Piccolo microcontroller on a LaunchXL prototyping board
