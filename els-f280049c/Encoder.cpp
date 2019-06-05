@@ -84,7 +84,7 @@ Uint16 Encoder :: getRPM(void)
             count = _ENCODER_MAX_COUNT - count; // just subtract from max value
         }
 
-        rpm = count * 60 * RPM_CALC_RATE_HZ / 4096;
+        rpm = count * 60 * RPM_CALC_RATE_HZ / ENCODER_RESOLUTION;
 
         previous = current;
         EQep1Regs.QCLR.bit.UTO=1;       // Clear interrupt flag
