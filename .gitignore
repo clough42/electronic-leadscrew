@@ -32,4 +32,6 @@
 *.app
 /.metadata/
 
+.jxbrowser-data
+RemoteSystemsTempFiles
 
