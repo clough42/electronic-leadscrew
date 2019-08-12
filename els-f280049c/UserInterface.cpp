@@ -28,7 +28,7 @@
 
 const MESSAGE STARTUP_MESSAGE_2 =
 {
-  .message = { LETTER_E, LETTER_L, LETTER_S, DASH, ONE | POINT, ZERO | POINT, ZERO, TWO },
+  .message = { LETTER_E, LETTER_L, LETTER_S, DASH, ONE | POINT, ZERO | POINT, ZERO, THREE },
   .displayTime = UI_REFRESH_RATE_HZ * 1.5
 };
 
