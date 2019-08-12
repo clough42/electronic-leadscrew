@@ -59,6 +59,9 @@
 // #define INVERT_STEP_PIN true
 // #define INVERT_DIRECTION_PIN true
 #define INVERT_ENABLE_PIN true
+#define INVERT_ALARM_PIN true
+
+#define USE_ALARM_PIN
 
 
 #endif // __CONFIGURATION_H

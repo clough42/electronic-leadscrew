@@ -48,15 +48,18 @@ void StepperDrive :: initHardware(void)
     // GPIO0 = Step
     // GPIO1 = Direction
     // GPIO6 - Enable
+    // GPIO
     //
     EALLOW;
     GpioCtrlRegs.GPAMUX1.bit.GPIO0 = 0;
     GpioCtrlRegs.GPAMUX1.bit.GPIO1 = 0;
     GpioCtrlRegs.GPAMUX1.bit.GPIO6 = 0;
+    GpioCtrlRegs.GPAMUX1.bit.GPIO7 = 0;
 
     GpioCtrlRegs.GPADIR.bit.GPIO0 = 1;
     GpioCtrlRegs.GPADIR.bit.GPIO1 = 1;
     GpioCtrlRegs.GPADIR.bit.GPIO6 = 1;
+    GpioCtrlRegs.GPADIR.bit.GPIO7 = 0; // input
 
     GPIO_CLEAR_STEP;
     GPIO_CLEAR_DIRECTION;

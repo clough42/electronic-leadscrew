@@ -60,6 +60,7 @@ public:
     void setFeed(const FEED_THREAD *feed);
     void setReverse(bool reverse);
     Uint16 getRPM(void);
+    bool isAlarm();
 
     void ISR( void );
 };
@@ -76,6 +77,11 @@ inline void Core :: setFeed(const FEED_THREAD *feed)
 inline Uint16 Core :: getRPM(void)
 {
     return encoder->getRPM();
+}
+
+inline bool Core :: isAlarm()
+{
+    return this->stepperDrive->isAlarm();
 }
 
 inline int32 Core :: feedRatio(Uint32 count)

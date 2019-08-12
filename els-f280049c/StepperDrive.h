@@ -34,9 +34,11 @@
 #define STEP_PIN GPIO0
 #define DIRECTION_PIN GPIO1
 #define ENABLE_PIN GPIO6
+#define ALARM_PIN GPIO7
 
 #define GPIO_SET(pin) GpioDataRegs.GPASET.bit.pin = 1
 #define GPIO_CLEAR(pin) GpioDataRegs.GPACLEAR.bit.pin = 1
+#define GPIO_GET(pin) GpioDataRegs.GPADAT.bit.pin
 
 #ifdef INVERT_STEP_PIN
 #define GPIO_SET_STEP GPIO_CLEAR(STEP_PIN)
@@ -60,6 +62,12 @@
 #else
 #define GPIO_SET_ENABLE GPIO_SET(ENABLE_PIN)
 #define GPIO_CLEAR_ENABLE GPIO_CLEAR(ENABLE_PIN)
+#endif
+
+#ifdef INVERT_ALARM_PIN
+#define GPIO_GET_ALARM (GPIO_GET(ALARM_PIN) == 0)
+#else
+#define GPIO_GET_ALARM (GPIO_GET(ALARM_PIN) != 0)
 #endif
 
 
@@ -91,6 +99,8 @@ public:
     void incrementCurrentPosition(int32 increment);
     void setCurrentPosition(int32 position);
 
+    bool isAlarm();
+
     void ISR(void);
 };
 
@@ -107,6 +117,15 @@ inline void StepperDrive :: incrementCurrentPosition(int32 increment)
 inline void StepperDrive :: setCurrentPosition(int32 position)
 {
     this->currentPosition = position;
+}
+
+inline bool StepperDrive :: isAlarm()
+{
+#ifdef USE_ALARM_PIN
+    return GPIO_GET_ALARM;
+#else
+    return false;
+#endif
 }
 
 
