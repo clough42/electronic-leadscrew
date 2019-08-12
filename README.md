@@ -71,6 +71,7 @@ A Step-direction stepper motor driver should be connected to the following GPIO 
 * `GPIO0` (J8 pin 80) - Step
 * `GPIO1` (J8 pin 79) - Direction
 * `GPIO6` (J8 pin 78) - Enable
+* `GPIO7` (J8 pin 77) - Alarm input
 
 #### Control Panel
 The LED&KEY control panel board **must be connected through a bidirectional level converter**, since
@@ -84,5 +85,5 @@ well.
 In addition to the control wires for the hardware, the firmware also outputs signals on two additional
 GPIO pins to allow timing of the interrupt and loop routines.  An oscilloscope or logic analyzer may be
 connected to these pins to debug and time the ISR routines:
-* `GPIO7` (J8 pin 77) - Main state machine ISR
-* `GPIO2` (J8 pin 76) - Secondary control panel loop
+* `GPIO2` (J8 pin 76) - Main state machine ISR
+* `GPIO3` (J8 pin 75) - Secondary control panel loop
