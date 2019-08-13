@@ -199,4 +199,4 @@ inline void ControlPanel :: setLEDs(LED_REG leds)
 }
 
 
-#endif // __STEPPERDRIVE_H
+#endif // __CONTROL_PANEL_H

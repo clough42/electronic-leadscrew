@@ -72,7 +72,7 @@ void ControlPanel :: initHardware(void)
     // just use GPIO33 as the chip select so we can control it ourselves
     GpioCtrlRegs.GPBMUX1.bit.GPIO33 = 0x0;      // SELECT GPIO33
     GpioCtrlRegs.GPBDIR.bit.GPIO33 = 1;         // output
-    GpioCtrlRegs.GPBDIR.bit.GPIO33 = 1;         // set it to high
+    CS_SET;                                     // set it to high
 
     EDIS;
 }
