@@ -32,15 +32,17 @@
 // Time delay after sending read command, before clocking in data
 #define DELAY_BEFORE_READING_US 1
 
-// Raise the TM1638 CS (STB) line
-#define CS_SET GpioDataRegs.GPBSET.bit.GPIO33 = 1
 
 // Lower the TM1638 CS (STB) line
-#define CS_CLEAR GpioDataRegs.GPBCLEAR.bit.GPIO33 = 1
+#define CS_ASSERT GpioDataRegs.GPBCLEAR.bit.GPIO33 = 1
+
+// Raise the TM1638 CS (STB) line
+#define CS_RELEASE GpioDataRegs.GPBSET.bit.GPIO33 = 1
 
 
-ControlPanel :: ControlPanel(void)
+ControlPanel :: ControlPanel(SPIBus *spiBus)
 {
+    this->spiBus = spiBus;
     this->rpm = 0;
     this->value = NULL;
     this->leds.all = 0;
@@ -53,28 +55,19 @@ void ControlPanel :: initHardware(void)
 {
     EALLOW;
 
-    // Set up SPI A
-    SpibRegs.SPICCR.bit.SPISWRESET = 0;         // Enter RESET state
-    SpibRegs.SPICCR.bit.SPICHAR = 0x7;          // 8 bits
-    SpibRegs.SPICCR.bit.CLKPOLARITY = 1;        // data latched on rising edge
-    SpibRegs.SPICTL.bit.CLK_PHASE=0;            // normal clocking scheme
-    SpibRegs.SPICTL.bit.MASTER_SLAVE=1;         // master
-    SpibRegs.SPIBRR.bit.SPI_BIT_RATE = ((25000000 / 250000) - 1); // baud rate = 250k LSPCLK
-    SpibRegs.SPIPRI.bit.TRIWIRE=1;              // 3-wire mode
-    SpibRegs.SPICCR.bit.SPISWRESET = 1;         // clear reset state; ready to transmit
-
-    // Set up muxing for SPIB pins
-    GpioCtrlRegs.GPAMUX2.bit.GPIO24 = 0x2;      // select SPIB_SIMO
-    GpioCtrlRegs.GPAGMUX2.bit.GPIO24 = 0x1;
-    GpioCtrlRegs.GPBMUX1.bit.GPIO32 = 0x3;      // select SPIB_CLK
-    GpioCtrlRegs.GPBGMUX1.bit.GPIO32 = 0x0;
-
-    // just use GPIO33 as the chip select so we can control it ourselves
+    // use GPIO33 as the chip select so we can control it ourselves
     GpioCtrlRegs.GPBMUX1.bit.GPIO33 = 0x0;      // SELECT GPIO33
     GpioCtrlRegs.GPBDIR.bit.GPIO33 = 1;         // output
-    CS_SET;                                     // set it to high
+    CS_RELEASE;                                 // set it to high
 
     EDIS;
+}
+
+void ControlPanel :: configureSpiBus( void )
+{
+    // configure the shared bus
+    this->spiBus->setThreeWire();
+    this->spiBus->setEightBits();
 }
 
 Uint16 ControlPanel :: reverse_byte(Uint16 x)
@@ -137,18 +130,6 @@ Uint16 ControlPanel :: lcd_char(Uint16 x)
     return table[sizeof(table)-1];
 }
 
-void ControlPanel :: sendByte(Uint16 data) {
-    SpibRegs.SPITXBUF = data;
-    while(SpibRegs.SPISTS.bit.INT_FLAG !=1) {}
-    dummy = SpibRegs.SPIRXBUF;
-}
-
-Uint16 ControlPanel :: receiveByte(void) {
-    SpibRegs.SPITXBUF = dummy;
-    while(SpibRegs.SPISTS.bit.INT_FLAG !=1) {}
-    return SpibRegs.SPIRXBUF;
-}
-
 void ControlPanel :: sendData()
 {
     int i;
@@ -160,31 +141,31 @@ void ControlPanel :: sendData()
 
     SpibRegs.SPICTL.bit.TALK = 1;
 
-    CS_CLEAR;
-    sendByte(reverse_byte(briteVal));       // brightness
-    CS_SET;
+    CS_ASSERT;
+    spiBus->sendWord(reverse_byte(briteVal));       // brightness
+    CS_RELEASE;
     DELAY_US(CS_RISE_TIME_US);              // give CS line time to register high
 
-    CS_CLEAR;
-    sendByte(reverse_byte(0x40));           // auto-increment
-    CS_SET;
+    CS_ASSERT;
+    spiBus->sendWord(reverse_byte(0x40));           // auto-increment
+    CS_RELEASE;
     DELAY_US(CS_RISE_TIME_US);              // give CS line time to register high
 
-    CS_CLEAR;
-    sendByte(reverse_byte(0xc0));           // display data
+    CS_ASSERT;
+    spiBus->sendWord(reverse_byte(0xc0));           // display data
     for( i=0; i < 8; i++ ) {
         if( this->message != NULL )
         {
-            sendByte(this->message[i]);
+            spiBus->sendWord(this->message[i]);
         }
         else
         {
-            sendByte(this->sevenSegmentData[i]);
+            spiBus->sendWord(this->sevenSegmentData[i]);
         }
-        sendByte( (ledMask & 0x80) ? 0xff00 : 0x0000 );
+        spiBus->sendWord( (ledMask & 0x80) ? 0xff00 : 0x0000 );
         ledMask <<= 1;
     }
-    CS_SET;
+    CS_RELEASE;
     DELAY_US(CS_RISE_TIME_US);              // give CS line time to register high
 
     SpibRegs.SPICTL.bit.TALK = 0;
@@ -217,22 +198,22 @@ KEY_REG ControlPanel :: readKeys(void)
 {
     SpibRegs.SPICTL.bit.TALK = 1;
 
-    CS_CLEAR;
-    sendByte(reverse_byte(0x40));           // auto-increment
-    CS_SET;
+    CS_ASSERT;
+    spiBus->sendWord(reverse_byte(0x40));           // auto-increment
+    CS_RELEASE;
     DELAY_US(CS_RISE_TIME_US);              // give CS line time to register high
 
-    CS_CLEAR;
-    sendByte(reverse_byte(0x42));
+    CS_ASSERT;
+    spiBus->sendWord(reverse_byte(0x42));
 
     SpibRegs.SPICTL.bit.TALK = 0;
 
     DELAY_US(DELAY_BEFORE_READING_US); // delay required by TM1638 per datasheet
 
-    Uint16 byte1 = receiveByte();
-    Uint16 byte2 = receiveByte();
-    Uint16 byte3 = receiveByte();
-    Uint16 byte4 = receiveByte();
+    Uint16 byte1 = spiBus->receiveWord();
+    Uint16 byte2 = spiBus->receiveWord();
+    Uint16 byte3 = spiBus->receiveWord();
+    Uint16 byte4 = spiBus->receiveWord();
 
     KEY_REG keyMask;
     keyMask.all =
@@ -241,7 +222,7 @@ KEY_REG ControlPanel :: readKeys(void)
             (byte3 & 0x88) >> 2 |
             (byte4 & 0x88) >> 3;
 
-    CS_SET;
+    CS_RELEASE;
     DELAY_US(CS_RISE_TIME_US);              // give CS line time to register high
 
     return keyMask;
@@ -251,6 +232,8 @@ KEY_REG ControlPanel :: getKeys()
 {
     KEY_REG newKeys;
     static KEY_REG noKeys;
+
+    configureSpiBus();
 
     newKeys = readKeys();
     if( newKeys.all != this->keys.all ) {
@@ -274,6 +257,8 @@ void ControlPanel :: setBrightness( Uint16 brightness )
 
 void ControlPanel :: refresh()
 {
+    configureSpiBus();
+
     decomposeRPM();
     decomposeValue();
 

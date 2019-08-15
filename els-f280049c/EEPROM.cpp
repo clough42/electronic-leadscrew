@@ -27,42 +27,85 @@
 #include "EEPROM.h"
 
 // Raise the EEPROM CS line
-#define CS_SET GpioDataRegs.GPBSET.bit.GPIO34 = 1
+#define CS_RELEASE GpioDataRegs.GPBSET.bit.GPIO34 = 1
 
 // Lower the EEPROM CS line
-#define CS_CLEAR GpioDataRegs.GPBCLEAR.bit.GPIO34 = 1
+#define CS_ASSERT GpioDataRegs.GPBCLEAR.bit.GPIO34 = 1
 
-EEPROM :: EEPROM(void)
+EEPROM :: EEPROM(SPIBus *spiBus)
 {
-
+    this->spiBus = spiBus;
 }
 
 void EEPROM :: initHardware(void)
 {
     EALLOW;
 
-    // Set up SPI A
-    SpibRegs.SPICCR.bit.SPISWRESET = 0;         // Enter RESET state
-    SpibRegs.SPICCR.bit.SPICHAR = 0x7;          // 8 bits
-    SpibRegs.SPICCR.bit.CLKPOLARITY = 1;        // data latched on rising edge
-    SpibRegs.SPICTL.bit.CLK_PHASE=0;            // normal clocking scheme
-    SpibRegs.SPICTL.bit.MASTER_SLAVE=1;         // master
-    SpibRegs.SPIBRR.bit.SPI_BIT_RATE = ((25000000 / 250000) - 1); // baud rate = 250k LSPCLK
-    SpibRegs.SPIPRI.bit.TRIWIRE=0;              // Normal (4-wire) mode
-    SpibRegs.SPICCR.bit.SPISWRESET = 1;         // clear reset state; ready to transmit
-
-    // Set up muxing for SPIB pins
-    GpioCtrlRegs.GPAMUX2.bit.GPIO24 = 0x2;      // select SPIB_SIMO
-    GpioCtrlRegs.GPAGMUX2.bit.GPIO24 = 0x1;
-    GpioCtrlRegs.GPAMUX2.bit.GPIO31 = 0x3;      // select SPIB_SOMI
-    GpioCtrlRegs.GPAGMUX2.bit.GPIO31 = 0x0;
-    GpioCtrlRegs.GPBMUX1.bit.GPIO32 = 0x3;      // select SPIB_CLK
-    GpioCtrlRegs.GPBGMUX1.bit.GPIO32 = 0x0;
-
-    // just use GPIO34 as the chip select so we can control it ourselves
+    // use GPIO34 as the chip select
     GpioCtrlRegs.GPBMUX1.bit.GPIO34 = 0x0;      // SELECT GPIO34
     GpioCtrlRegs.GPBDIR.bit.GPIO34 = 1;         // output
-    CS_SET;                                     // set it to high
+    CS_RELEASE;                                 // set it to high
 
     EDIS;
 }
+
+void EEPROM :: configureSpiBus( void )
+{
+    // configure the shared bus
+    this->spiBus->setFourWire();
+    this->spiBus->setSixteenBits();
+}
+
+void EEPROM :: sendReadCommand(Uint16 blockNumber)
+{
+    Uint16 address = blockNumber << 4;
+    Uint16 command = 0b0000001100000000 +           // read
+            (address & 0b0000000011111111) +        // bits 0-7 of address
+            ((address & 0b0000000100000000) << 3);  // bit 8 of address
+
+    this->spiBus->sendWord(command);
+}
+
+void EEPROM :: receivePage(Uint16 pageSize, Uint16 *buffer)
+{
+    for( Uint16 i=0; i < pageSize; i++ ) {
+        buffer[i] = this->spiBus->receiveWord();
+    }
+}
+
+void EEPROM :: sendPage(Uint16 pageSize, Uint16 *buffer)
+{
+    for( Uint16 i=0; i < pageSize; i++ ) {
+        this->spiBus->sendWord(buffer[i]);
+    }
+}
+
+bool EEPROM :: readPage(Uint16 pageNum, Uint16 *buffer)
+{
+    this->spiBus->setSixteenBits();
+    this->spiBus->setFourWire();
+
+    CS_ASSERT;
+    sendReadCommand(pageNum);
+    receivePage(EEPROM_PAGE_SIZE, buffer);
+    CS_RELEASE;
+
+    return true;
+}
+
+//bool EEPROM :: writePage(Uint16 pageNum, Uint16 *buffer)
+//{
+//    this->spiBus->setSixteenBits();
+//    this->spiBus->setFourWire();
+//
+//    setWriteLatch();
+//
+//    CS_ASSERT;
+//    sendWriteCommand(pageNum);
+//    sendPage(EEPROM_PAGE_SIZE, buffer);
+//    CS_RELEASE;
+//
+//    waitForWriteCycle();
+//
+//    return true;
+//}

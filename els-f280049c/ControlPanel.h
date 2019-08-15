@@ -28,6 +28,7 @@
 #define __CONTROL_PANEL_H
 
 #include "F28x_Project.h"
+#include "SPIBus.h"
 
 
 #define ZERO    0b1111110000000000 // 0
@@ -121,6 +122,9 @@ typedef union KEY_REG
 class ControlPanel
 {
 private:
+    // Common SPI Bus
+    SPIBus *spiBus;
+
     // Current RPM value; 4 decimal digits
     Uint16 rpm;
 
@@ -153,9 +157,11 @@ private:
     Uint16 receiveByte(void);
     void sendData(void);
     Uint16 reverse_byte(Uint16 x);
+    void initSpi();
+    void configureSpiBus(void);
 
 public:
-    ControlPanel(void);
+    ControlPanel(SPIBus *spiBus);
 
     // initialize the hardware for operation
     void initHardware(void);

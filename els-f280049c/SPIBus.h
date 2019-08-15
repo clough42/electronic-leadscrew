@@ -24,38 +24,35 @@
 // SOFTWARE.
 
 
-#ifndef __EEPROM_H
-#define __EEPROM_H
+#ifndef __SPI_BUSL_H
+#define __SPI_BUSL_H
 
 #include "F28x_Project.h"
-#include "SPIBus.h"
 
-#define EEPROM_PAGE_SIZE 8 // 2-byte words
-
-class EEPROM
+class SPIBus
 {
 private:
-    // Shared SPI bus
-    SPIBus *spiBus;
-
-    //void setWriteLatch( void );
-    //void waitForWriteCycle( void );
-    void sendReadCommand(Uint16 blockNumber);
-    //void sendWriteCommand(Uint16 blockNumber);
-    void receivePage(Uint16 numWords, Uint16 *buffer);
-    void sendPage(Uint16 numWords, Uint16 *buffer);
-    void initSpi(void);
-    void configureSpiBus(void);
+    // dummy register, for SPI
+    Uint16 dummy;
 
 public:
-    EEPROM(SPIBus *spiBus);
+    SPIBus(void);
 
-    // initialize hardware for operation
+    // initialize the hardware for operation
     void initHardware(void);
 
-    bool readPage(Uint16 pageNum, Uint16 *buffer);
-    //bool writePage(Uint16 pageNum, Uint16 *buffer);
+    void setThreeWire( void );
+    void setFourWire( void );
+    void setEightBits( void );
+    void setSixteenBits( void );
+
+    // transmit one word of data
+    void sendWord(Uint16 data);
+
+    // receive one word of data
+    Uint16 receiveWord(void);
+
 };
 
 
-#endif // __EEPROM_H
+#endif // __SPI_BUSL_H
