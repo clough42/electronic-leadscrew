@@ -38,14 +38,16 @@ private:
     // Shared SPI bus
     SPIBus *spiBus;
 
-    //void setWriteLatch( void );
-    //void waitForWriteCycle( void );
+    Uint16 readStatusRegister( void );
+    void setWriteLatch( void );
+    void waitForWriteCycle( void );
     void sendReadCommand(Uint16 blockNumber);
-    //void sendWriteCommand(Uint16 blockNumber);
+    void sendWriteCommand(Uint16 blockNumber);
     void receivePage(Uint16 numWords, Uint16 *buffer);
     void sendPage(Uint16 numWords, Uint16 *buffer);
     void initSpi(void);
-    void configureSpiBus(void);
+    void configureSpiBus8Bit(void);
+    void configureSpiBus16Bit(void);
 
 public:
     EEPROM(SPIBus *spiBus);
@@ -54,7 +56,7 @@ public:
     void initHardware(void);
 
     bool readPage(Uint16 pageNum, Uint16 *buffer);
-    //bool writePage(Uint16 pageNum, Uint16 *buffer);
+    bool writePage(Uint16 pageNum, Uint16 *buffer);
 };
 
 

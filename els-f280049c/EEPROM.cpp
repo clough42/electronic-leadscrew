@@ -32,6 +32,9 @@
 // Lower the EEPROM CS line
 #define CS_ASSERT GpioDataRegs.GPBCLEAR.bit.GPIO34 = 1
 
+// enough time for the CS line to rise and be deteted
+#define CS_RISE_TIME_US 5
+
 EEPROM :: EEPROM(SPIBus *spiBus)
 {
     this->spiBus = spiBus;
@@ -49,15 +52,57 @@ void EEPROM :: initHardware(void)
     EDIS;
 }
 
-void EEPROM :: configureSpiBus( void )
+void EEPROM :: configureSpiBus8Bit( void )
 {
     // configure the shared bus
     this->spiBus->setFourWire();
     this->spiBus->setSixteenBits();
 }
 
+void EEPROM :: configureSpiBus16Bit( void )
+{
+    // configure the shared bus
+    this->spiBus->setFourWire();
+    this->spiBus->setSixteenBits();
+}
+
+Uint16 EEPROM :: readStatusRegister(void)
+{
+    Uint16 command = 0b0000010100000000;
+
+    configureSpiBus8Bit();
+
+    CS_ASSERT;
+    this->spiBus->sendWord(command);
+    Uint16 status = this->spiBus->receiveWord();
+    CS_RELEASE;
+    DELAY_US(CS_RISE_TIME_US);
+
+    return status;
+}
+
+void EEPROM :: setWriteLatch(void)
+{
+    Uint16 command = 0b0000011000000000;
+
+    configureSpiBus8Bit();
+
+    CS_ASSERT;
+    this->spiBus->sendWord(command);
+    CS_RELEASE;
+    DELAY_US(CS_RISE_TIME_US);
+
+}
+
+void EEPROM :: waitForWriteCycle(void)
+{
+    while( readStatusRegister() & 0b0000000000000001 );
+}
+
 void EEPROM :: sendReadCommand(Uint16 blockNumber)
 {
+    configureSpiBus16Bit();
+
     Uint16 address = blockNumber << 4;
     Uint16 command = 0b0000001100000000 +           // read
             (address & 0b0000000011111111) +        // bits 0-7 of address
@@ -66,8 +111,22 @@ void EEPROM :: sendReadCommand(Uint16 blockNumber)
     this->spiBus->sendWord(command);
 }
 
+void EEPROM :: sendWriteCommand(Uint16 blockNumber)
+{
+    configureSpiBus16Bit();
+
+    Uint16 address = blockNumber << 4;
+    Uint16 command = 0b0000001000000000 +           // write
+            (address & 0b0000000011111111) +        // bits 0-7 of address
+            ((address & 0b0000000100000000) << 3);  // bit 8 of address
+
+    this->spiBus->sendWord(command);
+}
+
 void EEPROM :: receivePage(Uint16 pageSize, Uint16 *buffer)
 {
+    configureSpiBus16Bit();
+
     for( Uint16 i=0; i < pageSize; i++ ) {
         buffer[i] = this->spiBus->receiveWord();
     }
@@ -75,6 +134,8 @@ void EEPROM :: receivePage(Uint16 pageSize, Uint16 *buffer)
 
 void EEPROM :: sendPage(Uint16 pageSize, Uint16 *buffer)
 {
+    configureSpiBus16Bit();
+
     for( Uint16 i=0; i < pageSize; i++ ) {
         this->spiBus->sendWord(buffer[i]);
     }
@@ -89,23 +150,25 @@ bool EEPROM :: readPage(Uint16 pageNum, Uint16 *buffer)
     sendReadCommand(pageNum);
     receivePage(EEPROM_PAGE_SIZE, buffer);
     CS_RELEASE;
+    DELAY_US(CS_RISE_TIME_US);
 
     return true;
 }
 
-//bool EEPROM :: writePage(Uint16 pageNum, Uint16 *buffer)
-//{
-//    this->spiBus->setSixteenBits();
-//    this->spiBus->setFourWire();
-//
-//    setWriteLatch();
-//
-//    CS_ASSERT;
-//    sendWriteCommand(pageNum);
-//    sendPage(EEPROM_PAGE_SIZE, buffer);
-//    CS_RELEASE;
-//
-//    waitForWriteCycle();
-//
-//    return true;
-//}
+bool EEPROM :: writePage(Uint16 pageNum, Uint16 *buffer)
+{
+    this->spiBus->setSixteenBits();
+    this->spiBus->setFourWire();
+
+    setWriteLatch();
+
+    CS_ASSERT;
+    sendWriteCommand(pageNum);
+    sendPage(EEPROM_PAGE_SIZE, buffer);
+    CS_RELEASE;
+    DELAY_US(CS_RISE_TIME_US);
+
+    waitForWriteCycle();
+
+    return true;
+}

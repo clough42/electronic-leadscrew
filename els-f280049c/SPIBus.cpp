@@ -64,12 +64,14 @@ void SPIBus :: setSixteenBits( void )
 
 void SPIBus :: sendWord(Uint16 data)
 {
+    SpibRegs.SPICTL.bit.TALK = 1;
     SpibRegs.SPITXBUF = data;
     WAIT_FOR_SERIAL;
     dummy = SpibRegs.SPIRXBUF;
 }
 
 Uint16 SPIBus :: receiveWord(void) {
+    SpibRegs.SPICTL.bit.TALK = 0;
     SpibRegs.SPITXBUF = dummy;
     WAIT_FOR_SERIAL;
     return SpibRegs.SPIRXBUF;
