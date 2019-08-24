@@ -24,8 +24,8 @@
 // SOFTWARE.
 
 
-#ifndef __SPI_BUSL_H
-#define __SPI_BUSL_H
+#ifndef __SPI_BUS_H
+#define __SPI_BUS_H
 
 #include "F28x_Project.h"
 
@@ -55,4 +55,4 @@ public:
 };
 
 
-#endif // __SPI_BUSL_H
+#endif // __SPI_BUS_H
