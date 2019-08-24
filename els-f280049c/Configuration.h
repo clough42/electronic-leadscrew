@@ -28,6 +28,82 @@
 #define __CONFIGURATION_H
 
 
+
+
+//================================================================================
+//                                  LEADSCREW
+//
+// Define the type and pitch of leadscrew you have in your lathe.  If you have an
+// imperial leadscrew, define LEADSCREW_TPI.  If you have a metric leadscrew,
+// define LEADSCREW_HMM (pitch in hundredths of a millimeter).  Do not define
+// both.
+//================================================================================
+
+// For Imperial leadscrews: pitch in Threads Per Inch (TPI)
+#define LEADSCREW_TPI 12
+
+// For metric leadscrews: pitch in hundredths of a millimeter (HMM)
+// Example: 200hmm = 2mm
+//#define LEADSCREW_HMM 200
+
+
+
+
+//================================================================================
+//                                STEPPER/SERVO
+//
+// Define the number of steps and microsteps for your stepper motor, the pin
+// polarity of the driver, and whether to use additional features, like servo
+// alarm feedback.
+//================================================================================
+
+// Steps and microsteps
+#define STEPPER_MICROSTEPS 8
+#define STEPPER_RESOLUTION 200
+
+// Step, direction and enable pins are normally active-high
+// #define INVERT_STEP_PIN true
+// #define INVERT_DIRECTION_PIN true
+#define INVERT_ENABLE_PIN true
+#define INVERT_ALARM_PIN true
+
+// Enable servo alarm feedback
+#define USE_ALARM_PIN
+
+
+
+
+//================================================================================
+//                                 ENCODER
+//
+// Define the type of encoder you are using on the spindle.  The firmware assumes
+// the encoder is turning at a 1:1 ratio with the spindle.
+//================================================================================
+#define ENCODER_RESOLUTION 4096
+
+
+
+
+//================================================================================
+//                               CALCULATIONS
+//
+// Define how calculations should be performed.  Most users will not need to
+// touch these settings.
+//================================================================================
+
+// Use floating-point math for gear ratios
+#define USE_FLOATING_POINT
+
+
+
+
+//================================================================================
+//                               CPU / TIMING
+//
+// Define the CPU clock, interrupt, and refresh timing.  Most users will not need
+// to touch these settings.
+//================================================================================
+
 // Stepper state machine cycle time, in microseconds
 // Two cycles are required per step
 #define STEPPER_CYCLE_US 5
@@ -42,26 +118,7 @@
 #define CPU_CLOCK_MHZ 100
 #define CPU_CLOCK_HZ (CPU_CLOCK_MHZ * 1000000)
 
-// Stepper driver configuration
-#define STEPPER_MICROSTEPS 8
-#define STEPPER_RESOLUTION 200
 
-// Encoder configuration
-#define ENCODER_RESOLUTION 4096
-
-// Leadscrew configuration
-#define LEADSCREW_TPI 12
-
-// Use floating-point math for gear ratios
-#define USE_FLOATING_POINT
-
-// Step, direction and enable pins are normally active-high
-// #define INVERT_STEP_PIN true
-// #define INVERT_DIRECTION_PIN true
-#define INVERT_ENABLE_PIN true
-#define INVERT_ALARM_PIN true
-
-#define USE_ALARM_PIN
 
 
 #endif // __CONFIGURATION_H

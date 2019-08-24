@@ -33,8 +33,14 @@
 // Each row in the table defines a standard imperial thread, with the display data,
 // LED indicator states and gear ratio fraction to use.
 //
+#if defined(LEADSCREW_TPI)
 #define TPI_NUMERATOR(tpi) ((Uint32)LEADSCREW_TPI*STEPPER_RESOLUTION*STEPPER_MICROSTEPS*10)
 #define TPI_DENOMINATOR(tpi) ((Uint32)tpi*ENCODER_RESOLUTION)
+#endif
+#if defined(LEADSCREW_HMM)
+#define TPI_NUMERATOR(tpi) ((Uint32)254*STEPPER_RESOLUTION*STEPPER_MICROSTEPS)
+#define TPI_DENOMINATOR(tpi) ((Uint32)tpi*ENCODER_RESOLUTION*LEADSCREW_HMM)
+#endif
 #define TPI_FRACTION(tpi) .numerator = TPI_NUMERATOR(tpi), .denominator = TPI_DENOMINATOR(tpi)
 
 const FEED_THREAD inch_thread_table[] =
@@ -73,8 +79,14 @@ const FEED_THREAD inch_thread_table[] =
 // LED indicator states and gear ratio fraction to use.
 //
 
+#if defined(LEADSCREW_TPI)
 #define THOU_IN_NUMERATOR(thou) ((Uint32)thou*LEADSCREW_TPI*STEPPER_RESOLUTION*STEPPER_MICROSTEPS)
 #define THOU_IN_DENOMINATOR(thou) ((Uint32)ENCODER_RESOLUTION*1000)
+#endif
+#if defined(LEADSCREW_HMM)
+#define THOU_IN_NUMERATOR(thou) ((Uint32)thou*254*STEPPER_RESOLUTION*STEPPER_MICROSTEPS)
+#define THOU_IN_DENOMINATOR(thou) ((Uint32)ENCODER_RESOLUTION*100*LEADSCREW_HMM)
+#endif
 #define THOU_IN_FRACTION(thou) .numerator = THOU_IN_NUMERATOR(thou), .denominator = THOU_IN_DENOMINATOR(thou)
 
 const FEED_THREAD inch_feed_table[] =
@@ -111,8 +123,14 @@ const FEED_THREAD inch_feed_table[] =
 // Each row in the table defines a standard metric thread, with the display data,
 // LED indicator states and gear ratio fraction to use.
 //
+#if defined(LEADSCREW_TPI)
 #define HMM_NUMERATOR(hmm) ((Uint32)hmm*10*LEADSCREW_TPI*STEPPER_RESOLUTION*STEPPER_MICROSTEPS)
 #define HMM_DENOMINATOR(hmm) ((Uint32)ENCODER_RESOLUTION*254*100)
+#endif
+#if defined(LEADSCREW_HMM)
+#define HMM_NUMERATOR(hmm) ((Uint32)hmm*STEPPER_RESOLUTION*STEPPER_MICROSTEPS)
+#define HMM_DENOMINATOR(hmm) ((Uint32)ENCODER_RESOLUTION*LEADSCREW_HMM)
+#endif
 #define HMM_FRACTION(hmm) .numerator = HMM_NUMERATOR(hmm), .denominator = HMM_DENOMINATOR(hmm)
 
 const FEED_THREAD metric_thread_table[] =

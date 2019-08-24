@@ -25,11 +25,13 @@
 
 
 #include "F28x_Project.h"
+#include "Configuration.h"
+#include "SanityCheck.h"
 #include "ControlPanel.h"
 #include "EEPROM.h"
 #include "StepperDrive.h"
 #include "Encoder.h"
-#include "Configuration.h"
+
 #include "Core.h"
 #include "UserInterface.h"
 #include "Debug.h"
