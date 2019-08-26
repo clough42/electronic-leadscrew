@@ -1,3 +1,3 @@
-ccsFirmware {
+standardBuild {
   firmwareDir = 'els-f280049c'
 }
