@@ -1,3 +1,16 @@
-standardBuild {
-  firmwareDir = 'els-f280049c'
+pipeline {
+	agent any
+	
+	stages {
+		stage('Build Debug') {
+			steps {
+				echo 'Building debug...'
+			}
+		}
+		stage('Build Release') {
+			steps {
+				echo 'Building release...'
+			}
+		}
+	}
 }
