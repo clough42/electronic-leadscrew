@@ -11,13 +11,13 @@ pipeline {
 		
 		stage('Build Debug') {
 			steps {
-				sh 'ccstudio -noSplash -data . -application com.ti.ccstudio.apps.projectBuild -ccs.workspace --ccs.buildType full -ccs.configuration Debug'
+				sh 'ccstudio -noSplash -data . -application com.ti.ccstudio.apps.projectBuild -ccs.workspace -ccs.buildType full -ccs.configuration Debug'
 			}
 		}
 		
 		stage('Build Release') {
 			steps {
-				sh 'ccstudio -noSplash -data . -application com.ti.ccstudio.apps.projectBuild -ccs.workspace --ccs.buildType full -ccs.configuration Release'
+				sh 'ccstudio -noSplash -data . -application com.ti.ccstudio.apps.projectBuild -ccs.workspace -ccs.buildType full -ccs.configuration Release'
 			}
 		}
 		
