@@ -1,5 +1,5 @@
 pipeline {
-	agent ccs9
+	agent { label 'ccs9' }
 	
 	stages {
 	
