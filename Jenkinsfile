@@ -4,17 +4,17 @@ pipeline {
 	stages {
 		stage('Import Projects') {
 			steps {
-				ccstudio -noSplash -data . -application com.ti.ccstudio.apps.projectImport -ccs.location els-f280049c || true
+				sh 'ccstudio -noSplash -data . -application com.ti.ccstudio.apps.projectImport -ccs.location els-f280049c || true'
 			}
 		}
 		stage('Build Debug') {
 			steps {
-				ccstudio -noSplash -data . -application com.ti.ccstudio.apps.projectBuild -ccs.workspace --ccs.buildType full -ccs.configuration Debug
+				sh 'ccstudio -noSplash -data . -application com.ti.ccstudio.apps.projectBuild -ccs.workspace --ccs.buildType full -ccs.configuration Debug'
 			}
 		}
 		stage('Build Release') {
 			steps {
-				ccstudio -noSplash -data . -application com.ti.ccstudio.apps.projectBuild -ccs.workspace --ccs.buildType full -ccs.configuration Release
+				sh 'ccstudio -noSplash -data . -application com.ti.ccstudio.apps.projectBuild -ccs.workspace --ccs.buildType full -ccs.configuration Release'
 			}
 		}
 	}
