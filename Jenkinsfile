@@ -2,14 +2,19 @@ pipeline {
 	agent any
 	
 	stages {
+		stage('Import Projects') {
+			steps {
+				ccstudio -noSplash -data . -application com.ti.ccstudio.apps.projectImport -ccs.location els-f280049c || true
+			}
+		}
 		stage('Build Debug') {
 			steps {
-				echo 'Building debug...'
+				ccstudio -noSplash -data . -application com.ti.ccstudio.apps.projectBuild -ccs.workspace --ccs.buildType full -ccs.configuration Debug
 			}
 		}
 		stage('Build Release') {
 			steps {
-				echo 'Building release...'
+				ccstudio -noSplash -data . -application com.ti.ccstudio.apps.projectBuild -ccs.workspace --ccs.buildType full -ccs.configuration Release
 			}
 		}
 	}
