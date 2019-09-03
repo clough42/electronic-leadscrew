@@ -23,7 +23,7 @@ pipeline {
 		
 		stage('Build Alternate Configurations') {
 			steps {
-				echo 'Building alternate configurations..."
+				echo 'Building alternate configurations...'
 			}
 		}
 		
