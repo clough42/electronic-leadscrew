@@ -5,6 +5,8 @@
   for testing and other purposes.
 */
 
+#include "DelayTable.h"
+
 #define ENC_A_PIN 7
 #define ENC_B_PIN 8
 
@@ -19,7 +21,6 @@ volatile int analogReady;
 volatile int analogVal;
 
 uint16_t calculatedDelay = 0;
-
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -39,8 +40,6 @@ void setup() {
 
   digitalWrite(ENC_A_PIN, 0);
   digitalWrite(ENC_B_PIN, 0);
-
-  Serial.begin(115200);
 }
 
 // the loop function runs over and over again forever
@@ -65,10 +64,9 @@ void wait() {
 void readPot() {
   if( analogReady == 1 ) {
     uint16_t raw = analogVal;
-
-    calculatedDelay = map(raw, 0, 1023, 4096, 2);
-
     analogReady = 0;
+   
+    calculatedDelay = pgm_read_byte_near(delayTable + raw) - 1;
   }
 }
 
@@ -86,7 +84,7 @@ void initADC() {
   // input
   ADMUX &= B11110000;
  
-  // Set MUX3..0 in ADMUX (0x7C) to read from AD8 (Internal temp)
+  // Set MUX3..0 in ADMUX (0x7C) to read from ADIN0
   // Do not set above 15! You will overrun other parts of ADMUX. A full
   // list of possible inputs is available in Table 24-4 of the ATMega328
   // datasheet
