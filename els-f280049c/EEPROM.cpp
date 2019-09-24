@@ -56,7 +56,7 @@ void EEPROM :: configureSpiBus8Bit( void )
 {
     // configure the shared bus
     this->spiBus->setFourWire();
-    this->spiBus->setSixteenBits();
+    this->spiBus->setEightBits();
 }
 
 void EEPROM :: configureSpiBus16Bit( void )
