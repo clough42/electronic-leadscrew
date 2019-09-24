@@ -29,6 +29,17 @@
 
 #include "F28x_Project.h"
 #include "SPIBus.h"
+#include "Configuration.h"
+
+#if HARDWARE_VERSION == 1
+#  define EEPROM_CHIP_25AA040A
+#elif HARDWARE_VERSION == 2
+#  define EEPROM_CHIP_AT25080B
+#else
+#  error Must define a valid HARDWARE_VERSION
+#endif
+
+
 
 #define EEPROM_PAGE_SIZE 8 // 2-byte words
 

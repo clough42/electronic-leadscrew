@@ -35,6 +35,9 @@ private:
     // dummy register, for SPI
     Uint16 dummy;
 
+    // mask used to discard high bits on receive
+    Uint16 mask;
+
 public:
     SPIBus(void);
 

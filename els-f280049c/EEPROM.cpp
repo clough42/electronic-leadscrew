@@ -101,26 +101,56 @@ void EEPROM :: waitForWriteCycle(void)
 
 void EEPROM :: sendReadCommand(Uint16 blockNumber)
 {
-    configureSpiBus16Bit();
-
+    Uint16 command = 0b0000001100000000;            // read
     Uint16 address = blockNumber << 4;
-    Uint16 command = 0b0000001100000000 +           // read
+
+#ifdef EEPROM_CHIP_25AA040A
+    // combine the address with the command
+    command +=
             (address & 0b0000000011111111) +        // bits 0-7 of address
             ((address & 0b0000000100000000) << 3);  // bit 8 of address
 
+    // send the command-address
+    configureSpiBus16Bit();
     this->spiBus->sendWord(command);
+#endif
+
+#ifdef EEPROM_CHIP_AT25080B
+    // send the command
+    configureSpiBus8Bit();
+    this->spiBus->sendWord(command);
+
+    // send the address
+    configureSpiBus16Bit();
+    this->spiBus->sendWord(address);
+#endif
 }
 
 void EEPROM :: sendWriteCommand(Uint16 blockNumber)
 {
-    configureSpiBus16Bit();
-
+    Uint16 command = 0b0000001000000000;            // write
     Uint16 address = blockNumber << 4;
-    Uint16 command = 0b0000001000000000 +           // write
+
+#ifdef EEPROM_CHIP_25AA040A
+    // combine the address with the command
+    command +=
             (address & 0b0000000011111111) +        // bits 0-7 of address
             ((address & 0b0000000100000000) << 3);  // bit 8 of address
 
+    // send the command-address
+    configureSpiBus16Bit();
     this->spiBus->sendWord(command);
+#endif
+
+#ifdef EEPROM_CHIP_AT25080B
+    // send the command
+    configureSpiBus8Bit();
+    this->spiBus->sendWord(command);
+
+    // send the address
+    configureSpiBus16Bit();
+    this->spiBus->sendWord(address);
+#endif
 }
 
 void EEPROM :: receivePage(Uint16 pageSize, Uint16 *buffer)
@@ -143,9 +173,6 @@ void EEPROM :: sendPage(Uint16 pageSize, Uint16 *buffer)
 
 bool EEPROM :: readPage(Uint16 pageNum, Uint16 *buffer)
 {
-    this->spiBus->setSixteenBits();
-    this->spiBus->setFourWire();
-
     CS_ASSERT;
     sendReadCommand(pageNum);
     receivePage(EEPROM_PAGE_SIZE, buffer);
@@ -157,9 +184,6 @@ bool EEPROM :: readPage(Uint16 pageNum, Uint16 *buffer)
 
 bool EEPROM :: writePage(Uint16 pageNum, Uint16 *buffer)
 {
-    this->spiBus->setSixteenBits();
-    this->spiBus->setFourWire();
-
     setWriteLatch();
 
     CS_ASSERT;

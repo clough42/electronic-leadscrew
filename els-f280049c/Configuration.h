@@ -98,6 +98,19 @@
 
 
 //================================================================================
+//                                HARDWARE
+//
+// Define which hardware you're using:
+//
+//  1 - LaunchXL F280049C with ELS BoostXL v1
+//  2 - LaunchXL F280049C with ELS BoostXL v2
+//================================================================================
+
+// See hardware version table above
+#define HARDWARE_VERSION 1
+
+
+//================================================================================
 //                               CPU / TIMING
 //
 // Define the CPU clock, interrupt, and refresh timing.  Most users will not need
@@ -117,8 +130,6 @@
 // Microprocessor system clock
 #define CPU_CLOCK_MHZ 100
 #define CPU_CLOCK_HZ (CPU_CLOCK_MHZ * 1000000)
-
-
 
 
 #endif // __CONFIGURATION_H
