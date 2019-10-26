@@ -122,7 +122,7 @@
 #define STEPPER_CYCLE_US 5
 
 // User interface refresh rate, in Hertz
-#define UI_REFRESH_RATE_HZ 100
+#define UI_REFRESH_RATE_HZ 20
 
 // RPM recalculation rate, in Hz
 #define RPM_CALC_RATE_HZ 10

@@ -31,10 +31,8 @@
 #include "EEPROM.h"
 #include "StepperDrive.h"
 #include "Encoder.h"
-
-#include "Core.h"
-#include "UserInterface.h"
 #include "Debug.h"
+#include "TestKeys.h"
 
 
 __interrupt void cpu_timer0_isr(void);
@@ -48,9 +46,6 @@ __interrupt void cpu_timer0_isr(void);
 
 // Debug harness
 Debug debug;
-
-// Feed table factory
-FeedTableFactory feedTableFactory;
 
 // Common SPI Bus driver
 SPIBus spiBus;
@@ -67,11 +62,8 @@ Encoder encoder;
 // Stepper driver
 StepperDrive stepperDrive;
 
-// Core engine
-Core core(&encoder, &stepperDrive);
-
-// User interface
-UserInterface userInterface(&controlPanel, &core, &feedTableFactory);
+// Tests
+TestKeys testKeys;
 
 void main(void)
 {
@@ -123,6 +115,7 @@ void main(void)
     eeprom.initHardware();
     stepperDrive.initHardware();
     encoder.initHardware();
+    testKeys.initHardware();
 
     // Enable CPU INT1 which is connected to CPU-Timer 0
     IER |= M_INT1;
@@ -134,13 +127,23 @@ void main(void)
     EINT;
     ERTM;
 
+    // default for LEDs should show blank
+    LED_REG leds;
+    leds.all = 0;
+
     // User interface loop
     for(;;) {
+        KEY_REG keys;
+
         // mark beginning of loop for debugging
         debug.begin2();
 
-        // service the user interface
-        userInterface.loop();
+        keys = controlPanel.getKeys();
+
+        testKeys.test(keys, &leds);
+
+        controlPanel.setLeds(leds);
+        controlPanel.refresh();
 
         // mark end of loop for debugging
         debug.end2();
@@ -159,9 +162,6 @@ cpu_timer0_isr(void)
 
     // flag entrance to ISR for timing
     debug.begin1();
-
-    // service the Core engine ISR, which in turn services the StepperDrive ISR
-    core.ISR();
 
     // flag exit from ISR for timing
     debug.end1();

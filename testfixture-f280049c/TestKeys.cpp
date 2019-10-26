@@ -23,48 +23,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include "TestKeys.h"
 
-#ifndef __USERINTERFACE_H
-#define __USERINTERFACE_H
-
-#include "ControlPanel.h"
-#include "Core.h"
-#include "Tables.h"
-
-typedef struct MESSAGE
-{
-    Uint16 message[8];
-    Uint16 displayTime;
-    const MESSAGE *next;
-} MESSAGE;
-
-class UserInterface
-{
-private:
-    ControlPanel *controlPanel;
-    Core *core;
-    FeedTableFactory *feedTableFactory;
-
-    bool metric;
-    bool thread;
-    bool reverse;
-
-    FeedTable *feedTable;
-
-    KEY_REG keys;
-
-    const MESSAGE *message;
-    Uint16 messageTime;
-
-    const FEED_THREAD *loadFeedTable();
-    LED_REG calculateLEDs(const FEED_THREAD *selectedFeed);
-    void setMessage(const MESSAGE *message);
-    void overrideMessage( void );
-
-public:
-    UserInterface(ControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory);
-
-    void loop( void );
+Uint16 light_cycle[][4] = {
+       { 0,0,0,1 },
+       { 0,0,1,0 },
+       { 0,1,0,0 },
+       { 1,0,0,0 },
+       { 0,1,0,0 },
+       { 0,0,1,0 }
 };
 
-#endif // __USERINTERFACE_H
+TestKeys :: TestKeys( void )
+{
+    this->cycle = 0;
+    this->desiredKeys.all = 0;
+    this->desiredKeys.bit.KS5K3 = 1;
+    this->desiredKeys.bit.KS6K3 = 1;
+}
+
+void TestKeys :: initHardware(void)
+{
+
+}
+
+void TestKeys :: test(KEY_REG keys, LED_REG *output)
+{
+    if( keys.all == this->desiredKeys.all ) {
+        output->bit.A = light_cycle[cycle][0];
+        output->bit.B = light_cycle[cycle][1];
+        output->bit.C = light_cycle[cycle][2];
+        output->bit.D = light_cycle[cycle][3];
+
+        if( ++cycle >= (sizeof(light_cycle)/sizeof(light_cycle[0])) ) cycle = 0;
+    }
+}

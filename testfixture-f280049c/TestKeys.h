@@ -24,39 +24,27 @@
 // SOFTWARE.
 
 
+#ifndef __TEST_KEYS_H
+#define __TEST_KEYS_H
+
 #include "F28x_Project.h"
-#include "Core.h"
+#include "ControlPanel.h"
 
-
-
-Core :: Core( Encoder *encoder, StepperDrive *stepperDrive )
+class TestKeys
 {
-    this->encoder = encoder;
-    this->stepperDrive = stepperDrive;
+private:
+    Uint16 cycle;
+    KEY_REG desiredKeys;
 
-    this->feed = NULL;
-    this->feedDirection = 0;
+public:
+    TestKeys(void);
 
-    this->previousSpindlePosition = 0;
-    this->previousFeedDirection = 0;
-    this->previousFeed = NULL;
-}
+    // initialize the hardware for operation
+    void initHardware(void);
 
-void Core :: setReverse(bool reverse)
-{
-    if( reverse )
-    {
-        this->feedDirection = -1;
-    }
-    else
-    {
-        this->feedDirection = 1;
-    }
-}
+    // execute test
+    void test(KEY_REG keys, LED_REG *output);
+};
 
 
-
-
-
-
-
+#endif // __SPI_BUS_H

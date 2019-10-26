@@ -43,11 +43,8 @@
 ControlPanel :: ControlPanel(SPIBus *spiBus)
 {
     this->spiBus = spiBus;
-    this->rpm = 0;
-    this->value = NULL;
     this->leds.all = 0;
     this->keys.all = 0;
-    this->message = NULL;
     this->brightness = 3;
 }
 
@@ -109,31 +106,9 @@ Uint16 ControlPanel :: reverse_byte(Uint16 x)
     return table[x];
 }
 
-Uint16 ControlPanel :: lcd_char(Uint16 x)
-{
-    static const Uint16 table[] = {
-        0b1111110000000000, // 0
-        0b0110000000000000, // 1
-        0b1101101000000000, // 2
-        0b1111001000000000, // 3
-        0b0110011000000000, // 4
-        0b1011011000000000, // 5
-        0b1011111000000000, // 6
-        0b1110000000000000, // 7
-        0b1111111000000000, // 8
-        0b1111011000000000, // 9
-        0b0000000100000000  // .
-    };
-    if( x < sizeof(table) ) {
-        return table[x];
-    }
-    return table[sizeof(table)-1];
-}
-
 void ControlPanel :: sendData()
 {
     int i;
-    Uint16 ledMask = this->leds.all;
     Uint16 briteVal = 0x80;
     if( this->brightness > 0 ) {
         briteVal = 0x87 + this->brightness;
@@ -153,45 +128,13 @@ void ControlPanel :: sendData()
 
     CS_ASSERT;
     spiBus->sendWord(reverse_byte(0xc0));           // display data
-    for( i=0; i < 8; i++ ) {
-        if( this->message != NULL )
-        {
-            spiBus->sendWord(this->message[i]);
-        }
-        else
-        {
-            spiBus->sendWord(this->sevenSegmentData[i]);
-        }
-        spiBus->sendWord( (ledMask & 0x80) ? 0xff00 : 0x0000 );
-        ledMask <<= 1;
+    for( i=0; i < 16; i++ ) {
+        spiBus->sendWord(this->displayData[i]);
     }
     CS_RELEASE;
     DELAY_US(CS_RISE_TIME_US);              // give CS line time to register high
 
     SpibRegs.SPICTL.bit.TALK = 0;
-}
-
-void ControlPanel :: decomposeRPM()
-{
-    Uint16 rpm = this->rpm;
-    int i;
-
-    for(i=3; i>=0; i--) {
-        this->sevenSegmentData[i] = (rpm == 0 && i != 3) ? 0 : lcd_char(rpm % 10);
-        rpm = rpm / 10;
-    }
-}
-
-void ControlPanel :: decomposeValue()
-{
-    if( this->value != NULL )
-    {
-        int i;
-        for( i=0; i < 4; i++ )
-        {
-            this->sevenSegmentData[i+4] = this->value[i];
-        }
-    }
 }
 
 KEY_REG ControlPanel :: readKeys(void)
@@ -216,11 +159,7 @@ KEY_REG ControlPanel :: readKeys(void)
     Uint16 byte4 = spiBus->receiveWord();
 
     KEY_REG keyMask;
-    keyMask.all =
-            (byte1 & 0x88) |
-            (byte2 & 0x88) >> 1 |
-            (byte3 & 0x88) >> 2 |
-            (byte4 & 0x88) >> 3;
+    keyMask.all = byte3;
 
     CS_RELEASE;
     DELAY_US(CS_RISE_TIME_US);              // give CS line time to register high
@@ -231,21 +170,12 @@ KEY_REG ControlPanel :: readKeys(void)
 KEY_REG ControlPanel :: getKeys()
 {
     KEY_REG newKeys;
-    static KEY_REG noKeys;
 
     configureSpiBus();
 
     newKeys = readKeys();
-    if( newKeys.all != this->keys.all ) {
-        this->keys = newKeys;
-        return newKeys;
-    }
-    return noKeys;
-}
 
-void ControlPanel :: setMessage( const Uint16 *message )
-{
-    this->message = message;
+    return newKeys;
 }
 
 void ControlPanel :: setBrightness( Uint16 brightness )
@@ -255,12 +185,41 @@ void ControlPanel :: setBrightness( Uint16 brightness )
     this->brightness = brightness;
 }
 
+void ControlPanel :: setLeds(LED_REG leds)
+{
+    displayData[0] =
+            (leds.bit.VREG_RED << 15) +
+            (leds.bit.STEP_RED << 14) +
+            (leds.bit.ALM_RED << 13) +
+            (leds.bit.EEPROM_RED << 12);
+    displayData[1] = 0x0000ffff;
+    displayData[2] =
+            (leds.bit.VREG_GREEN << 15) +
+            (leds.bit.STEP_GREEN << 14) +
+            (leds.bit.ALM_GREEN << 13) +
+            (leds.bit.EEPROM_GREEN << 12);
+    displayData[3] = 0x0000ffff;
+    displayData[4] =
+            (leds.bit.A << 15) +
+            (leds.bit.B << 14) +
+            (leds.bit.C << 13) +
+            (leds.bit.D << 12);
+    displayData[5] = 0x0000ffff;
+    displayData[6] = 0x0000ffff;
+    displayData[7] = 0x0000ffff;
+    displayData[8] = 0x0000ffff;
+    displayData[9] = 0x0000ffff;
+    displayData[10] = 0x0000ffff;
+    displayData[11] = 0x0000ffff;
+    displayData[12] = 0x0000ffff;
+    displayData[13] = 0x0000ffff;
+    displayData[14] = 0x0000ffff;
+    displayData[15] = 0x0000ffff;
+}
+
 void ControlPanel :: refresh()
 {
     configureSpiBus();
-
-    decomposeRPM();
-    decomposeValue();
 
     sendData();
 }
