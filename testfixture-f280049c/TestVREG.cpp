@@ -38,11 +38,10 @@ void TestVREG :: initHardware(void)
     SetVREF(ADC_ADCC, ADC_INTERNAL, ADC_VREF3P3);
 
     EALLOW;
-    AdcaRegs.ADCCTL1.bit.ADCPWDNZ = 1; // power up
-    //AdcaRegs.ADCCTL1.bit.INTPULSEPOS = 1; // pulse at end of conversion
-    AdcaRegs.ADCSOC0CTL.bit.CHSEL = 5; // ADCINB1
-    AdcaRegs.ADCSOC0CTL.bit.ACQPS = 30; // 31 SYSCLK cycles
-    AdcaRegs.ADCSOC0CTL.bit.TRIGSEL = 1; // CPU1 timer
+    AdcbRegs.ADCCTL1.bit.ADCPWDNZ = 1; // power up
+    AdcbRegs.ADCSOC0CTL.bit.CHSEL = 1; // ADCINB1
+    AdcbRegs.ADCSOC0CTL.bit.ACQPS = 30; // 31 SYSCLK cycles
+    AdcbRegs.ADCSOC0CTL.bit.TRIGSEL = 1; // CPU1 timer
     EDIS;
 }
 
@@ -50,11 +49,7 @@ void TestVREG :: test(LED_REG *output)
 {
     bool pass = false;
 
-    // trigger a conversion
-    ////AdcaRegs.ADCSOCFRC1.bit.SOC0 = 1;
-    //DELAY_US(1000000);
-    //while(AdcaRegs.ADCINTFLG.bit.ADCINT1 != 1);
-    Uint16 result = AdcaResultRegs.ADCRESULT0;
+    Uint16 result = AdcbResultRegs.ADCRESULT0;
 
     pass = ( result > 1900 && result < 2100 );
 
