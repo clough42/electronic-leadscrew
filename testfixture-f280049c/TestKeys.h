@@ -47,4 +47,4 @@ public:
 };
 
 
-#endif // __SPI_BUS_H
+#endif // __TEST_KEYS_H
