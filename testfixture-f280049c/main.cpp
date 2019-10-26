@@ -34,6 +34,7 @@
 #include "Debug.h"
 #include "TestKeys.h"
 #include "TestEEPROM.h"
+#include "TestVREG.h"
 
 
 __interrupt void cpu_timer0_isr(void);
@@ -66,6 +67,7 @@ StepperDrive stepperDrive;
 // Tests
 TestKeys testKeys;
 TestEEPROM testEeprom(&eeprom);
+TestVREG testVreg;
 
 void main(void)
 {
@@ -119,6 +121,7 @@ void main(void)
     encoder.initHardware();
     testKeys.initHardware();
     testEeprom.initHardware();
+    testVreg.initHardware();
 
     // Enable CPU INT1 which is connected to CPU-Timer 0
     IER |= M_INT1;
@@ -145,6 +148,7 @@ void main(void)
 
         testKeys.test(keys, &leds);
         testEeprom.test(&leds);
+        testVreg.test(&leds);
 
         controlPanel.setLeds(leds);
         controlPanel.refresh();
