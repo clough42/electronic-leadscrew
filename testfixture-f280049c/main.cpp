@@ -33,6 +33,7 @@
 #include "Encoder.h"
 #include "Debug.h"
 #include "TestKeys.h"
+#include "TestEEPROM.h"
 
 
 __interrupt void cpu_timer0_isr(void);
@@ -64,6 +65,7 @@ StepperDrive stepperDrive;
 
 // Tests
 TestKeys testKeys;
+TestEEPROM testEeprom(&eeprom);
 
 void main(void)
 {
@@ -116,6 +118,7 @@ void main(void)
     stepperDrive.initHardware();
     encoder.initHardware();
     testKeys.initHardware();
+    testEeprom.initHardware();
 
     // Enable CPU INT1 which is connected to CPU-Timer 0
     IER |= M_INT1;
@@ -141,6 +144,7 @@ void main(void)
         keys = controlPanel.getKeys();
 
         testKeys.test(keys, &leds);
+        testEeprom.test(&leds);
 
         controlPanel.setLeds(leds);
         controlPanel.refresh();
