@@ -32,7 +32,9 @@ TestVREG :: TestVREG( void )
 
 void TestVREG :: initHardware(void)
 {
+    SetVREF(ADC_ADCA, ADC_INTERNAL, ADC_VREF3P3);
     SetVREF(ADC_ADCB, ADC_INTERNAL, ADC_VREF3P3);
+    SetVREF(ADC_ADCC, ADC_INTERNAL, ADC_VREF3P3);
 
     EALLOW;
     AdcbRegs.ADCCTL1.bit.ADCPWDNZ = 1; // power up
