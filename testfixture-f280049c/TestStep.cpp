@@ -29,8 +29,6 @@
 #define DIRECTION_FEEDBACK GpioDataRegs.GPBDAT.bit.GPIO40;
 #define ENABLE_FEEDBACK GpioDataRegs.GPBDAT.bit.GPIO56;
 
-#define ASSERT(x) (pass &&= x)
-
 TestStep :: TestStep( StepperDrive *stepperDrive )
 {
     this->stepperDrive = stepperDrive;
