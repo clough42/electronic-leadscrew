@@ -72,12 +72,9 @@ void TestEEPROM :: test(LED_REG *output)
     bool test2K = checkPage(15, buf1);   // should not collide for an 8K EEPROM
     bool test4K = checkPage(31, buf1);   // should not collide for an 8K EEPROM
     bool test8K = checkPage(63, buf1);   // should read back for an 8K EEPROM
-    bool test16K = checkPage(127, buf1); // should wrap and collide for an 8K EEPROM
-    bool test32K = checkPage(255, buf1); // should wrap and collide for an 8K EEPROM
 
     bool pass =
-            !test1K && !test2K && !test4K &&
-            test8K && test16K && test32K;
+            !test1K && !test2K && !test4K && test8K;
 
     output->bit.EEPROM_GREEN = pass;
     output->bit.EEPROM_RED = !pass;

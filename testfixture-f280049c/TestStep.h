@@ -23,36 +23,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "TestVREG.h"
 
-TestVREG :: TestVREG( void )
+#ifndef __TEST_STEP_H
+#define __TEST_STEP_H
+
+#include "F28x_Project.h"
+#include "ControlPanel.h"
+#include "StepperDrive.h"
+
+class TestStep
 {
+private:
+    StepperDrive *stepperDrive;
 
-}
+public:
+    TestStep(StepperDrive *stepperDrive);
 
-void TestVREG :: initHardware(void)
-{
+    // initialize the hardware for operation
+    void initHardware(void);
 
-    SetVREF(ADC_ADCA, ADC_INTERNAL, ADC_VREF3P3);
-    SetVREF(ADC_ADCB, ADC_INTERNAL, ADC_VREF3P3);
-    SetVREF(ADC_ADCC, ADC_INTERNAL, ADC_VREF3P3);
+    // execute test
+    void test(LED_REG *output);
+};
 
-    EALLOW;
-    AdcbRegs.ADCCTL1.bit.ADCPWDNZ = 1; // power up
-    AdcbRegs.ADCSOC0CTL.bit.CHSEL = 1; // ADCINB1
-    AdcbRegs.ADCSOC0CTL.bit.ACQPS = 30; // 31 SYSCLK cycles
-    AdcbRegs.ADCSOC0CTL.bit.TRIGSEL = 1; // CPU1 timer
-    EDIS;
-}
 
-void TestVREG :: test(LED_REG *output)
-{
-    bool pass = false;
-
-    Uint16 result = AdcbResultRegs.ADCRESULT0;
-
-    pass = ( result > 1850 && result < 2100 );
-
-    output->bit.VREG_GREEN = pass;
-    output->bit.VREG_RED = !pass;
-}
+#endif // __TEST_STEP_H

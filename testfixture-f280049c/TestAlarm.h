@@ -24,40 +24,27 @@
 // SOFTWARE.
 
 
-#ifndef __ENCODER_H
-#define __ENCODER_H
+#ifndef __TEST_ALARM_H
+#define __TEST_ALARM_H
 
 #include "F28x_Project.h"
+#include "ControlPanel.h"
+#include "StepperDrive.h"
 
-#define _ENCODER_MAX_COUNT 0x00ffffff
-
-
-class Encoder
+class TestAlarm
 {
 private:
-    Uint32 previous;
-    Uint16 rpm;
+    StepperDrive *stepperDrive;
 
 public:
-    Encoder( void );
-    void initHardware( void );
+    TestAlarm(StepperDrive *stepperDrive);
 
-    Uint16 getRPM( void );
-    Uint32 getPosition( void );
-    Uint32 getMaxCount( void );
+    // initialize the hardware for operation
+    void initHardware(void);
+
+    // execute test
+    void test(LED_REG *output);
 };
 
 
-inline Uint32 Encoder :: getPosition(void)
-{
-    return EQep1Regs.QPOSCNT;
-}
-
-inline Uint32 Encoder :: getMaxCount(void)
-{
-    return _ENCODER_MAX_COUNT;
-}
-
-
-
-#endif // __ENCODER_H
+#endif // __TEST_ALARM_H

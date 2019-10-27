@@ -30,11 +30,12 @@
 #include "ControlPanel.h"
 #include "EEPROM.h"
 #include "StepperDrive.h"
-#include "Encoder.h"
 #include "Debug.h"
 #include "TestKeys.h"
 #include "TestEEPROM.h"
 #include "TestVREG.h"
+#include "TestStep.h"
+#include "TestAlarm.h"
 
 
 __interrupt void cpu_timer0_isr(void);
@@ -58,9 +59,6 @@ ControlPanel controlPanel(&spiBus);
 // EEPROM driver
 EEPROM eeprom(&spiBus);
 
-// Encoder driver
-Encoder encoder;
-
 // Stepper driver
 StepperDrive stepperDrive;
 
@@ -68,6 +66,8 @@ StepperDrive stepperDrive;
 TestKeys testKeys;
 TestEEPROM testEeprom(&eeprom);
 TestVREG testVreg;
+TestStep testStep(&stepperDrive);
+TestAlarm testAlarm(&stepperDrive);
 
 void main(void)
 {
@@ -118,10 +118,11 @@ void main(void)
     controlPanel.initHardware();
     eeprom.initHardware();
     stepperDrive.initHardware();
-    encoder.initHardware();
     testKeys.initHardware();
     testEeprom.initHardware();
     testVreg.initHardware();
+    testStep.initHardware();
+    testAlarm.initHardware();
 
     // Enable CPU INT1 which is connected to CPU-Timer 0
     IER |= M_INT1;
@@ -149,6 +150,8 @@ void main(void)
         testKeys.test(keys, &leds);
         testEeprom.test(&leds);
         testVreg.test(&leds);
+        testStep.test(&leds);
+        testAlarm.test(&leds);
 
         controlPanel.setLeds(leds);
         controlPanel.refresh();

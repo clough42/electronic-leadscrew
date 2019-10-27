@@ -23,36 +23,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "TestVREG.h"
+#include "TestAlarm.h"
 
-TestVREG :: TestVREG( void )
+TestAlarm :: TestAlarm( StepperDrive *stepperDrive )
 {
-
+    this->stepperDrive = stepperDrive;
 }
 
-void TestVREG :: initHardware(void)
+void TestAlarm :: initHardware(void)
 {
-
-    SetVREF(ADC_ADCA, ADC_INTERNAL, ADC_VREF3P3);
-    SetVREF(ADC_ADCB, ADC_INTERNAL, ADC_VREF3P3);
-    SetVREF(ADC_ADCC, ADC_INTERNAL, ADC_VREF3P3);
-
     EALLOW;
-    AdcbRegs.ADCCTL1.bit.ADCPWDNZ = 1; // power up
-    AdcbRegs.ADCSOC0CTL.bit.CHSEL = 1; // ADCINB1
-    AdcbRegs.ADCSOC0CTL.bit.ACQPS = 30; // 31 SYSCLK cycles
-    AdcbRegs.ADCSOC0CTL.bit.TRIGSEL = 1; // CPU1 timer
+    GpioCtrlRegs.GPBMUX1.bit.GPIO35 = 0;
+
+    GpioCtrlRegs.GPBDIR.bit.GPIO35 = 1; // output;
+
     EDIS;
 }
 
-void TestVREG :: test(LED_REG *output)
+void TestAlarm :: test(LED_REG *output)
 {
-    bool pass = false;
+    bool pass = true;
 
-    Uint16 result = AdcbResultRegs.ADCRESULT0;
+    GpioDataRegs.GPBSET.bit.GPIO35 = 1;
+    DELAY_US(1000);
 
-    pass = ( result > 1850 && result < 2100 );
+    pass = pass && ! this->stepperDrive->isAlarm();
 
-    output->bit.VREG_GREEN = pass;
-    output->bit.VREG_RED = !pass;
+    GpioDataRegs.GPBCLEAR.bit.GPIO35 = 1;
+    DELAY_US(1000);
+
+    pass = pass && this->stepperDrive->isAlarm();
+
+    output->bit.ALM_GREEN = pass;
+    output->bit.ALM_RED = !pass;
 }
