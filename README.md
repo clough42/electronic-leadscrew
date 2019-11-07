@@ -12,7 +12,7 @@ and following along with the build.  That's great!  Just be aware that this hasn
 things like stepper motors, servos, drivers, display boards are likely to change as the project progresses.**
 
 ## Documentation
-Documentation can be found [**in the wiki**](https://github.com/clough42/electronic-leadscrew/wiki)
+For documentation, please [**visit the project wiki**](https://github.com/clough42/electronic-leadscrew/wiki)
 
 ## Current Concept
 The project is still in the early stages of development.  The current hardware looks like this:
