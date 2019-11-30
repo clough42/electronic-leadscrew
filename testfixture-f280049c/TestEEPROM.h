@@ -24,38 +24,31 @@
 // SOFTWARE.
 
 
-#ifndef __SPI_BUS_H
-#define __SPI_BUS_H
+#ifndef __TEST_EEPROM_H
+#define __TEST_EEPROM_H
 
 #include "F28x_Project.h"
+#include "ControlPanel.h"
+#include "EEPROM.h"
 
-class SPIBus
+class TestEEPROM
 {
 private:
-    // dummy register, for SPI
-    Uint16 dummy;
+    EEPROM *eeprom;
 
-    // mask used to discard high bits on receive
-    Uint16 mask;
+    Uint16 count;
+
+    bool checkPage(Uint16 pageNum, Uint16 buf2[EEPROM_PAGE_SIZE]);
 
 public:
-    SPIBus(void);
+    TestEEPROM(EEPROM *eeprom);
 
     // initialize the hardware for operation
     void initHardware(void);
 
-    void setThreeWire( void );
-    void setFourWire( void );
-    void setEightBits( void );
-    void setSixteenBits( void );
-
-    // transmit one word of data
-    void sendWord(Uint16 data);
-
-    // receive one word of data
-    Uint16 receiveWord(void);
-
+    // execute test
+    void test(LED_REG *output);
 };
 
 
-#endif // __SPI_BUS_H
+#endif // __TEST_EEPROM_H

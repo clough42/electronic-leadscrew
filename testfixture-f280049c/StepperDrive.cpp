@@ -24,38 +24,51 @@
 // SOFTWARE.
 
 
-#ifndef __SPI_BUS_H
-#define __SPI_BUS_H
+#include "StepperDrive.h"
 
-#include "F28x_Project.h"
 
-class SPIBus
+StepperDrive :: StepperDrive(void)
 {
-private:
-    // dummy register, for SPI
-    Uint16 dummy;
+    //
+    // Set up global state variables
+    //
+    this->currentPosition = 0;
+    this->desiredPosition = 0;
 
-    // mask used to discard high bits on receive
-    Uint16 mask;
+    //
+    // State machine starts at state zero
+    //
+    this->state = 0;
+}
 
-public:
-    SPIBus(void);
+void StepperDrive :: initHardware(void)
+{
+    //
+    // Configure GPIO pins for output
+    // GPIO0 = Step
+    // GPIO1 = Direction
+    // GPIO6 - Enable
+    // GPIO
+    //
+    EALLOW;
+    GpioCtrlRegs.GPAMUX1.bit.GPIO0 = 0;
+    GpioCtrlRegs.GPAMUX1.bit.GPIO1 = 0;
+    GpioCtrlRegs.GPAMUX1.bit.GPIO6 = 0;
+    GpioCtrlRegs.GPAMUX1.bit.GPIO7 = 0;
 
-    // initialize the hardware for operation
-    void initHardware(void);
+    GpioCtrlRegs.GPADIR.bit.GPIO0 = 1;
+    GpioCtrlRegs.GPADIR.bit.GPIO1 = 1;
+    GpioCtrlRegs.GPADIR.bit.GPIO6 = 1;
+    GpioCtrlRegs.GPADIR.bit.GPIO7 = 0; // input
 
-    void setThreeWire( void );
-    void setFourWire( void );
-    void setEightBits( void );
-    void setSixteenBits( void );
-
-    // transmit one word of data
-    void sendWord(Uint16 data);
-
-    // receive one word of data
-    Uint16 receiveWord(void);
-
-};
+    GPIO_CLEAR_STEP;
+    GPIO_CLEAR_DIRECTION;
+    GPIO_SET_ENABLE;
+    EDIS;
+}
 
 
-#endif // __SPI_BUS_H
+
+
+
+

@@ -24,38 +24,27 @@
 // SOFTWARE.
 
 
-#ifndef __SPI_BUS_H
-#define __SPI_BUS_H
+#ifndef __TEST_KEYS_H
+#define __TEST_KEYS_H
 
 #include "F28x_Project.h"
+#include "ControlPanel.h"
 
-class SPIBus
+class TestKeys
 {
 private:
-    // dummy register, for SPI
-    Uint16 dummy;
-
-    // mask used to discard high bits on receive
-    Uint16 mask;
+    Uint16 cycle;
+    KEY_REG desiredKeys;
 
 public:
-    SPIBus(void);
+    TestKeys(void);
 
     // initialize the hardware for operation
     void initHardware(void);
 
-    void setThreeWire( void );
-    void setFourWire( void );
-    void setEightBits( void );
-    void setSixteenBits( void );
-
-    // transmit one word of data
-    void sendWord(Uint16 data);
-
-    // receive one word of data
-    Uint16 receiveWord(void);
-
+    // execute test
+    void test(KEY_REG keys, LED_REG *output);
 };
 
 
-#endif // __SPI_BUS_H
+#endif // __TEST_KEYS_H

@@ -23,39 +23,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include "TestAlarm.h"
 
-#ifndef __SPI_BUS_H
-#define __SPI_BUS_H
-
-#include "F28x_Project.h"
-
-class SPIBus
+TestAlarm :: TestAlarm( StepperDrive *stepperDrive )
 {
-private:
-    // dummy register, for SPI
-    Uint16 dummy;
+    this->stepperDrive = stepperDrive;
+}
 
-    // mask used to discard high bits on receive
-    Uint16 mask;
+void TestAlarm :: initHardware(void)
+{
+    EALLOW;
+    GpioCtrlRegs.GPBMUX1.bit.GPIO35 = 0;
 
-public:
-    SPIBus(void);
+    GpioCtrlRegs.GPBDIR.bit.GPIO35 = 1; // output;
 
-    // initialize the hardware for operation
-    void initHardware(void);
+    EDIS;
+}
 
-    void setThreeWire( void );
-    void setFourWire( void );
-    void setEightBits( void );
-    void setSixteenBits( void );
+void TestAlarm :: test(LED_REG *output)
+{
+    bool pass = true;
 
-    // transmit one word of data
-    void sendWord(Uint16 data);
+    GpioDataRegs.GPBSET.bit.GPIO35 = 1;
+    DELAY_US(1000);
 
-    // receive one word of data
-    Uint16 receiveWord(void);
+    pass = pass && ! this->stepperDrive->isAlarm();
 
-};
+    GpioDataRegs.GPBCLEAR.bit.GPIO35 = 1;
+    DELAY_US(1000);
 
+    pass = pass && this->stepperDrive->isAlarm();
 
-#endif // __SPI_BUS_H
+    output->bit.ALM_GREEN = pass;
+    output->bit.ALM_RED = !pass;
+}

@@ -24,38 +24,24 @@
 // SOFTWARE.
 
 
-#ifndef __SPI_BUS_H
-#define __SPI_BUS_H
+#include "Debug.h"
 
-#include "F28x_Project.h"
 
-class SPIBus
+Debug :: Debug( void )
 {
-private:
-    // dummy register, for SPI
-    Uint16 dummy;
 
-    // mask used to discard high bits on receive
-    Uint16 mask;
-
-public:
-    SPIBus(void);
-
-    // initialize the hardware for operation
-    void initHardware(void);
-
-    void setThreeWire( void );
-    void setFourWire( void );
-    void setEightBits( void );
-    void setSixteenBits( void );
-
-    // transmit one word of data
-    void sendWord(Uint16 data);
-
-    // receive one word of data
-    Uint16 receiveWord(void);
-
-};
+}
 
 
-#endif // __SPI_BUS_H
+void Debug :: initHardware( void )
+{
+    // set up GPIO pins as output for debugging
+    EALLOW;
+    GpioCtrlRegs.GPAMUX1.bit.GPIO2 = 0;
+    GpioCtrlRegs.GPADIR.bit.GPIO2 = 1;
+    GpioDataRegs.GPACLEAR.bit.GPIO2 = 1;
+    GpioCtrlRegs.GPAMUX1.bit.GPIO3 = 0;
+    GpioCtrlRegs.GPADIR.bit.GPIO3 = 1;
+    GpioDataRegs.GPACLEAR.bit.GPIO3 = 1;
+    EDIS;
+}

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configurations XML_version="1.2" id="configurations_0">
+    <configuration XML_version="1.2" id="configuration_0">
+        <instance XML_version="1.2" desc="Texas Instruments XDS110 USB Debug Probe" href="connections/TIXDS110_Connection.xml" id="Texas Instruments XDS110 USB Debug Probe" xml="TIXDS110_Connection.xml" xmlpath="connections"/>
+        <connection XML_version="1.2" id="Texas Instruments XDS110 USB Debug Probe">
+            <instance XML_version="1.2" href="drivers/tixds510icepick_c.xml" id="drivers" xml="tixds510icepick_c.xml" xmlpath="drivers"/>
+            <instance XML_version="1.2" href="drivers/tixds510c28x.xml" id="drivers" xml="tixds510c28x.xml" xmlpath="drivers"/>
+            <instance XML_version="1.2" href="drivers/tixds510cla2.xml" id="drivers" xml="tixds510cla2.xml" xmlpath="drivers"/>
+            <instance XML_version="1.2" href="drivers/tixds510cs_child.xml" id="drivers" xml="tixds510cs_child.xml" xmlpath="drivers"/>
+            <property Type="choicelist" Value="4" id="SWD Mode Settings"/>
+            <platform XML_version="1.2" id="platform_0">
+                <instance XML_version="1.2" desc="TMS320F280049C" href="devices/f280049c.xml" id="TMS320F280049C" xml="f280049c.xml" xmlpath="devices"/>
+            <device HW_revision="1" XML_version="1.2" description="" id="TMS320F280049C" partnum="TMS320F280049C" simulation="no">
+                    <router HW_revision="1.0" XML_version="1.2" description="ICEPick_C router" id="IcePick_C_0" isa="ICEPICK_C">
+                        <subpath id="Subpath_0">
+                            <cpu HW_revision="1.0" XML_version="1.2" description="CLA2 Accelerator" deviceSim="false" id="CLA1_0" isa="TMS192C2008">
+                                <property Type="choicelist" Value="1" id="bypass"/>
+                            </cpu>
+                        </subpath>
+                    </router>
+                </device>
+            </platform>
+        </connection>
+    </configuration>
+</configurations>

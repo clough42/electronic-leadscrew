@@ -23,39 +23,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include "TestVREG.h"
 
-#ifndef __SPI_BUS_H
-#define __SPI_BUS_H
-
-#include "F28x_Project.h"
-
-class SPIBus
+TestVREG :: TestVREG( void )
 {
-private:
-    // dummy register, for SPI
-    Uint16 dummy;
 
-    // mask used to discard high bits on receive
-    Uint16 mask;
+}
 
-public:
-    SPIBus(void);
+void TestVREG :: initHardware(void)
+{
+    SetVREF(ADC_ADCA, ADC_INTERNAL, ADC_VREF3P3);
+    SetVREF(ADC_ADCB, ADC_INTERNAL, ADC_VREF3P3);
+    SetVREF(ADC_ADCC, ADC_INTERNAL, ADC_VREF3P3);
 
-    // initialize the hardware for operation
-    void initHardware(void);
+    EALLOW;
+    AdcbRegs.ADCCTL1.bit.ADCPWDNZ = 1; // power up
+    AdcbRegs.ADCSOC0CTL.bit.CHSEL = 1; // ADCINB1
+    AdcbRegs.ADCSOC0CTL.bit.ACQPS = 30; // 31 SYSCLK cycles
+    AdcbRegs.ADCSOC0CTL.bit.TRIGSEL = 1; // CPU1 timer
+    EDIS;
+}
 
-    void setThreeWire( void );
-    void setFourWire( void );
-    void setEightBits( void );
-    void setSixteenBits( void );
+void TestVREG :: test(LED_REG *output)
+{
+    bool pass = false;
 
-    // transmit one word of data
-    void sendWord(Uint16 data);
+    Uint16 result = AdcbResultRegs.ADCRESULT0;
 
-    // receive one word of data
-    Uint16 receiveWord(void);
+    pass = ( result > 1850 && result < 2100 );
 
-};
-
-
-#endif // __SPI_BUS_H
+    output->bit.VREG_GREEN = pass;
+    output->bit.VREG_RED = !pass;
+}
