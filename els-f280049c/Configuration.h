@@ -55,6 +55,12 @@
 // Define the number of steps and microsteps for your stepper motor, the pin
 // polarity of the driver, and whether to use additional features, like servo
 // alarm feedback.
+//
+// NOTE: If you are using a servo drive with something other than a 1:1 drive
+// ratio, you can use the STEPPER_MICROSTEPS to compensate.  For example, if you
+// have a servo configured for 1000 steps/revolution and it drives the leadscrew
+// through a 3:1 reduction, you can set STEPPER_RESOLUTION to 1000 and
+// STEPPER_MICROSTEPS to 3.
 //================================================================================
 
 // Steps and microsteps
@@ -78,6 +84,10 @@
 //
 // Define the type of encoder you are using on the spindle.  The firmware assumes
 // the encoder is turning at a 1:1 ratio with the spindle.
+//
+// NOTE: the firmware is concerned with the quadrature edge count, which is
+// four times the number of pulses.  For example, if you have a 1024 P/R
+// encoder, you need to enter 4096 here.
 //================================================================================
 #define ENCODER_RESOLUTION 4096
 
