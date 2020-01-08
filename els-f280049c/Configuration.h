@@ -67,6 +67,13 @@
 #define STEPPER_MICROSTEPS 8
 #define STEPPER_RESOLUTION 200
 
+// Separate Settings for feed rates, the normal ones are used for threading.
+// This is useful for lathes that do not use the leadscrew for power feed.
+// Note that the leadscrew setting is still used in the formulas, this is a
+// basic adjustment to scale the threading pulse rate.
+#define STEPPER_MICROSTEPS_FEED STEPPER_MICROSTEPS
+#define STEPPER_RESOLUTION_FEED STEPPER_RESOLUTION 
+
 // Step, direction and enable pins are normally active-high
 // #define INVERT_STEP_PIN true
 // #define INVERT_DIRECTION_PIN true
