@@ -89,7 +89,13 @@
 // four times the number of pulses.  For example, if you have a 1024 P/R
 // encoder, you need to enter 4096 here.
 //================================================================================
+
+// Encoder resolution (counts per revolution)
 #define ENCODER_RESOLUTION 4096
+
+// Which encoder input to use
+#define ENCODER_USE_EQEP1
+//#define ENCODER_USE_EQEP2
 
 
 
