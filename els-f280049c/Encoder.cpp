@@ -27,13 +27,6 @@
 #include "Encoder.h"
 #include "Configuration.h"
 
-#ifdef ENCODER_USE_EQEP1
-#define ENCODER_REGS EQep1Regs
-#endif
-#ifdef ENCODER_USE_EQEP2
-#define ENCODER_REGS EQep2Regs
-#endif
-
 
 Encoder :: Encoder( void )
 {
@@ -46,13 +39,13 @@ void Encoder :: initHardware(void)
     EALLOW;
 
 #ifdef ENCODER_USE_EQEP1
-    GpioCtrlRegs.GPBPUD.bit.GPIO35 = 0;     // Enable pull-up on GPIO20 (EQEP1A)
-    GpioCtrlRegs.GPBPUD.bit.GPIO37 = 0;     // Enable pull-up on GPIO21 (EQEP1B)
-    GpioCtrlRegs.GPBPUD.bit.GPIO59 = 0;     // Enable pull-up on GPIO23 (EQEP1I)
+    GpioCtrlRegs.GPBPUD.bit.GPIO35 = 0;     // Enable pull-up on GPIO35 (EQEP1A)
+    GpioCtrlRegs.GPBPUD.bit.GPIO37 = 0;     // Enable pull-up on GPIO371 (EQEP1B)
+    GpioCtrlRegs.GPBPUD.bit.GPIO59 = 0;     // Enable pull-up on GPIO59 (EQEP1I)
 
-    GpioCtrlRegs.GPBQSEL1.bit.GPIO35 = 0;   // Sync to SYSCLKOUT GPIO20 (EQEP1A)
-    GpioCtrlRegs.GPBQSEL1.bit.GPIO37 = 0;   // Sync to SYSCLKOUT GPIO21 (EQEP1B)
-    GpioCtrlRegs.GPBQSEL2.bit.GPIO59 = 0;   // Sync to SYSCLKOUT GPIO23 (EQEP1I)
+    GpioCtrlRegs.GPBQSEL1.bit.GPIO35 = 0;   // Sync to SYSCLKOUT GPIO35 (EQEP1A)
+    GpioCtrlRegs.GPBQSEL1.bit.GPIO37 = 0;   // Sync to SYSCLKOUT GPIO37 (EQEP1B)
+    GpioCtrlRegs.GPBQSEL2.bit.GPIO59 = 0;   // Sync to SYSCLKOUT GPIO59 (EQEP1I)
 
     GpioCtrlRegs.GPBMUX1.bit.GPIO35 = 1;    // Configure GPIO35 as EQEP1A
     GpioCtrlRegs.GPBGMUX1.bit.GPIO35 = 2;
@@ -62,13 +55,13 @@ void Encoder :: initHardware(void)
     GpioCtrlRegs.GPBGMUX2.bit.GPIO59 = 2;
 #endif
 #ifdef ENCODER_USE_EQEP2
-    GpioCtrlRegs.GPAPUD.bit.GPIO14 = 0;     // Enable pull-up on GPIO20 (EQEP1A)
-    GpioCtrlRegs.GPAPUD.bit.GPIO15 = 0;     // Enable pull-up on GPIO21 (EQEP1B)
-    GpioCtrlRegs.GPAPUD.bit.GPIO26 = 0;     // Enable pull-up on GPIO23 (EQEP1I)
+    GpioCtrlRegs.GPAPUD.bit.GPIO14 = 0;     // Enable pull-up on GPIO14 (EQEP2A)
+    GpioCtrlRegs.GPAPUD.bit.GPIO15 = 0;     // Enable pull-up on GPIO15 (EQEP2B)
+    GpioCtrlRegs.GPAPUD.bit.GPIO26 = 0;     // Enable pull-up on GPIO26 (EQEP2I)
 
-    GpioCtrlRegs.GPAQSEL1.bit.GPIO14 = 0;   // Sync to SYSCLKOUT GPIO20 (EQEP1A)
-    GpioCtrlRegs.GPAQSEL1.bit.GPIO15 = 0;   // Sync to SYSCLKOUT GPIO21 (EQEP1B)
-    GpioCtrlRegs.GPAQSEL2.bit.GPIO26 = 0;   // Sync to SYSCLKOUT GPIO23 (EQEP1I)
+    GpioCtrlRegs.GPAQSEL1.bit.GPIO14 = 0;   // Sync to SYSCLKOUT GPIO14 (EQEP2A)
+    GpioCtrlRegs.GPAQSEL1.bit.GPIO15 = 0;   // Sync to SYSCLKOUT GPIO15 (EQEP2B)
+    GpioCtrlRegs.GPAQSEL2.bit.GPIO26 = 0;   // Sync to SYSCLKOUT GPIO26 (EQEP2I)
 
     GpioCtrlRegs.GPAMUX1.bit.GPIO14 = 2;    // Configure GPIO14 as EQEP2A
     GpioCtrlRegs.GPAGMUX1.bit.GPIO14 = 2;
@@ -101,7 +94,7 @@ Uint16 Encoder :: getRPM(void)
 {
     if(ENCODER_REGS.QFLG.bit.UTO==1)       // If unit timeout (one 10Hz period)
     {
-        Uint32 current = EQep1Regs.QPOSLAT;
+        Uint32 current = ENCODER_REGS.QPOSLAT;
         Uint32 count = (current > previous) ? current - previous : previous - current;
 
         // deal with over/underflow

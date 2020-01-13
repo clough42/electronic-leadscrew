@@ -28,6 +28,14 @@
 #define __ENCODER_H
 
 #include "F28x_Project.h"
+#include "Configuration.h"
+
+#ifdef ENCODER_USE_EQEP1
+#define ENCODER_REGS EQep1Regs
+#endif
+#ifdef ENCODER_USE_EQEP2
+#define ENCODER_REGS EQep2Regs
+#endif
 
 #define _ENCODER_MAX_COUNT 0x00ffffff
 
@@ -50,7 +58,7 @@ public:
 
 inline Uint32 Encoder :: getPosition(void)
 {
-    return EQep1Regs.QPOSCNT;
+    return ENCODER_REGS.QPOSCNT;
 }
 
 inline Uint32 Encoder :: getMaxCount(void)
