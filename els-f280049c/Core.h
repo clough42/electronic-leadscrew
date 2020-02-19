@@ -52,15 +52,19 @@ private:
 
     Uint32 previousSpindlePosition;
 
-    int32 feedRatio(Uint32 count);
+    Uint16 leadscrewRpm;
 
 public:
     Core( Encoder *encoder, StepperDrive *stepperDrive );
 
     void setFeed(const FEED_THREAD *feed);
     void setReverse(bool reverse);
-    Uint16 getRPM(void);
+    Uint16 getSpindleRPM(void);
+    Uint16 getLeadscrewRPM(void);
     bool isAlarm();
+    int32 feedRatio(Uint32 count);
+    bool isOverWarningSpeed();
+    bool isOverShutoffSpeed();
 
     void ISR( void );
 };
@@ -74,14 +78,29 @@ inline void Core :: setFeed(const FEED_THREAD *feed)
 #endif // USE_FLOATING_POINT
 }
 
-inline Uint16 Core :: getRPM(void)
+inline Uint16 Core :: getSpindleRPM(void)
 {
     return encoder->getRPM();
+}
+
+inline Uint16 Core :: getLeadscrewRPM(void)
+{
+    return leadscrewRpm;
 }
 
 inline bool Core :: isAlarm()
 {
     return this->stepperDrive->isAlarm();
+}
+
+inline bool Core :: isOverWarningSpeed()
+{
+    return this->getLeadscrewRPM() > STEPPER_WARNING_RPM;
+}
+
+inline bool Core :: isOverShutoffSpeed()
+{
+    return this->getLeadscrewRPM() > STEPPER_SHUTOFF_RPM;
 }
 
 inline int32 Core :: feedRatio(Uint32 count)
@@ -120,6 +139,18 @@ inline void Core :: ISR( void )
         previousSpindlePosition = spindlePosition;
         previousFeedDirection = feedDirection;
         previousFeed = feed;
+
+        // compute leadscrew RPM
+#ifdef USE_FLOATING_POINT
+        Uint16 rpm = encoder->getRPM();
+        float feed = this->feed * rpm;
+        // converts feed to RPM
+        float adjustment = (1.0 * ENCODER_RESOLUTION) / (STEPPER_RESOLUTION * STEPPER_MICROSTEPS);
+        float leadscrewRpm = feed * adjustment;
+        this->leadscrewRpm = static_cast<Uint16>(leadscrewRpm);
+#else // USE_FLOATING_POINT
+#error Not yet implemented
+#endif
 
         // service the stepper drive state machine
         stepperDrive->ISR();

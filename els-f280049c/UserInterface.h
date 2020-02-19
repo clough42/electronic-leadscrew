@@ -48,6 +48,9 @@ private:
     bool metric;
     bool thread;
     bool reverse;
+    bool power;
+    bool displaySpindleRpm;
+    Uint16 checkInterval;
 
     FeedTable *feedTable;
 

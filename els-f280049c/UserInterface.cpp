@@ -28,7 +28,7 @@
 
 const MESSAGE STARTUP_MESSAGE_2 =
 {
-  .message = { LETTER_E, LETTER_L, LETTER_S, DASH, ONE | POINT, ONE | POINT, ZERO, TWO },
+  .message = { LETTER_E, LETTER_L, LETTER_S, DASH, ONE | POINT, ONE | POINT, ZERO, THREE },
   .displayTime = UI_REFRESH_RATE_HZ * 1.5
 };
 
@@ -39,17 +39,58 @@ const MESSAGE STARTUP_MESSAGE_1 =
  .next = &STARTUP_MESSAGE_2
 };
 
+/*
 const MESSAGE SETTINGS_MESSAGE_2 =
 {
  .message = { LETTER_S, LETTER_E, LETTER_T, LETTER_T, LETTER_I, LETTER_N, LETTER_G, LETTER_S },
  .displayTime = UI_REFRESH_RATE_HZ * .5
 };
 
+
 const MESSAGE SETTINGS_MESSAGE_1 =
 {
  .message = { BLANK, BLANK, BLANK, LETTER_N, LETTER_O, BLANK, BLANK, BLANK },
  .displayTime = UI_REFRESH_RATE_HZ * .5,
  .next = &SETTINGS_MESSAGE_2
+};
+*/
+
+const MESSAGE SETTINGS_MESSAGE_SPINDLE_RPM =
+{
+ .message = { LETTER_S, LETTER_P, LETTER_I, LETTER_N | POINT, BLANK, LETTER_R, LETTER_P, LETTER_M },
+ .displayTime = UI_REFRESH_RATE_HZ * 0.7
+};
+
+const MESSAGE SETTINGS_MESSAGE_LEADSCREW_RPM =
+{
+ .message = { LETTER_L, LETTER_E, LETTER_A, LETTER_D | POINT, BLANK, LETTER_R, LETTER_P, LETTER_M },
+ .displayTime = UI_REFRESH_RATE_HZ * 0.7
+};
+
+const MESSAGE ALARM_MESSAGE_TOO_FAST_WARNING =
+{
+ .message = { LETTER_S, LETTER_P, LETTER_E, LETTER_E, LETTER_D, BLANK, LETTER_W, LETTER_N },
+ .displayTime = UI_REFRESH_RATE_HZ * .2
+};
+
+const MESSAGE ALARM_MESSAGE_TOO_FAST_ERROR_2 =
+{
+ .message = { LETTER_P, LETTER_W, LETTER_R, BLANK, LETTER_O, LETTER_F, LETTER_F, BLANK },
+ .displayTime = UI_REFRESH_RATE_HZ * 2.5
+};
+
+const MESSAGE ALARM_MESSAGE_TOO_FAST_ERROR =
+{
+ .message = { LETTER_S, LETTER_P, LETTER_E, LETTER_E, LETTER_D, BLANK, LETTER_E, LETTER_R },
+ .displayTime = UI_REFRESH_RATE_HZ * 2.5,
+ .next = &ALARM_MESSAGE_TOO_FAST_ERROR_2
+};
+
+const MESSAGE ALARM_MESSAGE_STEPPER_DRIVER =
+{
+ .message = { LETTER_S, LETTER_T, LETTER_P, LETTER_P, LETTER_R, BLANK, LETTER_E, LETTER_R },
+ // on most drives this is permanent until shutdown, so it will restart every second
+ .displayTime = UI_REFRESH_RATE_HZ * 0.7
 };
 
 UserInterface :: UserInterface(ControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory)
@@ -61,10 +102,14 @@ UserInterface :: UserInterface(ControlPanel *controlPanel, Core *core, FeedTable
     this->metric = false; // start out with imperial
     this->thread = false; // start out with feeds
     this->reverse = false; // start out going forward
+    this->power = true; // power on by default
+    this->displaySpindleRpm = true; // start out with spindle rpm
 
     this->feedTable = NULL;
 
     this->keys.all = 0xff;
+
+    this->checkInterval = 0;
 
     setMessage(&STARTUP_MESSAGE_1);
 }
@@ -81,7 +126,7 @@ LED_REG UserInterface::calculateLEDs(const FEED_THREAD *selectedFeed)
     LED_REG leds = selectedFeed->leds;
 
     // and add a few of our own
-    leds.bit.POWER = 1;
+    leds.bit.POWER = this->power;
     leds.bit.REVERSE = this->reverse;
     leds.bit.FORWARD = ! this->reverse;
 
@@ -124,37 +169,89 @@ void UserInterface :: loop( void )
         newFeed = loadFeedTable();
     }
 
+    // do periodic checks
+    //
+    // this is done once per second because failures can override the
+    // message to blink in warnings or errors
+    this->checkInterval++;
+    if (this->checkInterval == CHECK_INTERVAL)
+    {
+        this->checkInterval = 0;
+
+        if (core->isAlarm())
+        {
+            setMessage(&ALARM_MESSAGE_STEPPER_DRIVER);
+        }
+        else if (core->isOverShutoffSpeed())
+        {
+            setMessage(&ALARM_MESSAGE_TOO_FAST_ERROR);
+            this->power = false;
+            GPIO_CLEAR_ENABLE;
+            // feed table hasn't changed, but we need to trigger an update
+            newFeed = loadFeedTable();
+        }
+        else if (core->isOverWarningSpeed())
+        {
+            setMessage(&ALARM_MESSAGE_TOO_FAST_WARNING);
+        }
+    }
+
     // read keypresses from the control panel
     keys = controlPanel->getKeys();
 
     // respond to keypresses
     if( keys.bit.IN_MM )
     {
+        // toggles metric or inch mode
         this->metric = ! this->metric;
         newFeed = loadFeedTable();
     }
     if( keys.bit.FEED_THREAD )
     {
+        // toggles threading or feed mode
         this->thread = ! this->thread;
         newFeed = loadFeedTable();
     }
     if( keys.bit.FWD_REV )
     {
+        // toggles stepper direction
         this->reverse = ! this->reverse;
         // feed table hasn't changed, but we need to trigger an update
         newFeed = loadFeedTable();
     }
     if( keys.bit.UP )
     {
+        // changes feed rate
         newFeed = feedTable->next();
     }
     if( keys.bit.DOWN )
     {
+        // changes feed rate
         newFeed = feedTable->previous();
     }
     if( keys.bit.SET )
     {
-        setMessage(&SETTINGS_MESSAGE_1);
+        // toggles showing spindle or leadscrew RPM
+        this->displaySpindleRpm = !this->displaySpindleRpm;
+        setMessage((this->displaySpindleRpm) ? &SETTINGS_MESSAGE_SPINDLE_RPM : &SETTINGS_MESSAGE_LEADSCREW_RPM);
+    }
+    if( keys.bit.POWER )
+    {
+        // toggles stepper enable
+        this->power = !this->power;
+        GPIO_CLEAR_STEP;
+        GPIO_CLEAR_DIRECTION;
+        if (this->power)
+        {
+            GPIO_SET_ENABLE;
+        }
+        else
+        {
+            GPIO_CLEAR_ENABLE;
+        }
+        EDIS;
+        // feed table hasn't changed, but we need to trigger an update
+        newFeed = loadFeedTable();
     }
 
     // if we have changed the feed
@@ -170,7 +267,7 @@ void UserInterface :: loop( void )
     }
 
     // update the RPM display
-    controlPanel->setRPM(core->getRPM());
+    controlPanel->setRPM((this->displaySpindleRpm) ? core->getSpindleRPM() : core->getLeadscrewRPM());
 
     // write data out to the display
     controlPanel->refresh();
