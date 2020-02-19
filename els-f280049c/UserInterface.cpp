@@ -28,7 +28,7 @@
 
 const MESSAGE STARTUP_MESSAGE_2 =
 {
-  .message = { LETTER_E, LETTER_L, LETTER_S, DASH, ONE | POINT, ONE | POINT, ZERO, THREE },
+  .message = { LETTER_E, LETTER_L, LETTER_S, DASH, ONE | POINT, TWO | POINT, ZERO, ZERO },
   .displayTime = UI_REFRESH_RATE_HZ * 1.5
 };
 
@@ -38,22 +38,6 @@ const MESSAGE STARTUP_MESSAGE_1 =
  .displayTime = UI_REFRESH_RATE_HZ * 1.5,
  .next = &STARTUP_MESSAGE_2
 };
-
-/*
-const MESSAGE SETTINGS_MESSAGE_2 =
-{
- .message = { LETTER_S, LETTER_E, LETTER_T, LETTER_T, LETTER_I, LETTER_N, LETTER_G, LETTER_S },
- .displayTime = UI_REFRESH_RATE_HZ * .5
-};
-
-
-const MESSAGE SETTINGS_MESSAGE_1 =
-{
- .message = { BLANK, BLANK, BLANK, LETTER_N, LETTER_O, BLANK, BLANK, BLANK },
- .displayTime = UI_REFRESH_RATE_HZ * .5,
- .next = &SETTINGS_MESSAGE_2
-};
-*/
 
 const MESSAGE SETTINGS_MESSAGE_SPINDLE_RPM =
 {
@@ -174,7 +158,7 @@ void UserInterface :: loop( void )
     // this is done once per second because failures can override the
     // message to blink in warnings or errors
     this->checkInterval++;
-    if (this->checkInterval == CHECK_INTERVAL)
+    if (this->checkInterval == UI_REFRESH_RATE_HZ)
     {
         this->checkInterval = 0;
 
@@ -185,6 +169,7 @@ void UserInterface :: loop( void )
         else if (core->isOverShutoffSpeed())
         {
             setMessage(&ALARM_MESSAGE_TOO_FAST_ERROR);
+            // turn off the stepper drive
             this->power = false;
             GPIO_CLEAR_ENABLE;
             // feed table hasn't changed, but we need to trigger an update

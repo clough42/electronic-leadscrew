@@ -52,6 +52,8 @@ private:
 
     Uint32 previousSpindlePosition;
 
+    int32 feedRatio(Uint32 count);
+
     Uint16 leadscrewRpm;
 
 public:
@@ -62,7 +64,6 @@ public:
     Uint16 getSpindleRPM(void);
     Uint16 getLeadscrewRPM(void);
     bool isAlarm();
-    int32 feedRatio(Uint32 count);
     bool isOverWarningSpeed();
     bool isOverShutoffSpeed();
 
@@ -149,7 +150,12 @@ inline void Core :: ISR( void )
         float leadscrewRpm = feed * adjustment;
         this->leadscrewRpm = static_cast<Uint16>(leadscrewRpm);
 #else // USE_FLOATING_POINT
-#error Not yet implemented
+#warning Untested code
+        long long rpm = encoder->getRPM();
+        rpm *= feed->numerator / feed->denominator;
+        rpm *= ENCODER_RESOLUTION;
+        rpm /= STEPPER_RESOLUTION * STEPPER_MICROSTEPS;
+        return static_cast<Uint16>(rpm);
 #endif
 
         // service the stepper drive state machine

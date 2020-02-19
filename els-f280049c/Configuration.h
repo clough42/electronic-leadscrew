@@ -64,12 +64,12 @@
 //================================================================================
 
 // Steps and microsteps
-#define STEPPER_MICROSTEPS 4      // 4:1 belt drive ratio
-#define STEPPER_RESOLUTION 1600   // default resolution on our system
+#define STEPPER_MICROSTEPS 8
+#define STEPPER_RESOLUTION 200
 
 // Step, direction and enable pins are normally active-high
 // #define INVERT_STEP_PIN true
-#define INVERT_DIRECTION_PIN true
+// #define INVERT_DIRECTION_PIN true
 #define INVERT_ENABLE_PIN true
 #define INVERT_ALARM_PIN true
 
@@ -91,7 +91,7 @@
 //================================================================================
 
 // Encoder resolution (counts per revolution)
-#define ENCODER_RESOLUTION 1440 // 360 p/r
+#define ENCODER_RESOLUTION 4096
 
 // Which encoder input to use
 #define ENCODER_USE_EQEP1
@@ -147,11 +147,8 @@
 #define CPU_CLOCK_MHZ 100
 #define CPU_CLOCK_HZ (CPU_CLOCK_MHZ * 1000000)
 
-// Warning and shutoff levels for stepper speeds
+// Warning and shutoff levels for leadscrew speeds
 #define STEPPER_WARNING_RPM 300
 #define STEPPER_SHUTOFF_RPM 500
-
-// How often does the UserInterface check for errors
-#define CHECK_INTERVAL 100
 
 #endif // __CONFIGURATION_H
