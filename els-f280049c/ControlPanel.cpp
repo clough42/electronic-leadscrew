@@ -162,7 +162,7 @@ void ControlPanel :: sendData()
         {
             spiBus->sendWord(this->sevenSegmentData[i]);
         }
-        spiBus->sendWord( (ledMask & 0x80) ? 0xffff : 0x0000 ); // was 0xff00
+        spiBus->sendWord( (ledMask & 0x80) ? 0xff00 : 0x0000 ); 
         ledMask <<= 1;
     }
     CS_RELEASE;
