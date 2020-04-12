@@ -43,12 +43,13 @@
 ControlPanel :: ControlPanel(SPIBus *spiBus)
 {
     this->spiBus = spiBus;
-    this->rpm = 0;
+    this->rpm = -1u;
     this->value = NULL;
     this->leds.all = 0;
     this->keys.all = 0;
     this->message = NULL;
     this->brightness = 3;
+    this->resetRPMSamples();
 }
 
 void ControlPanel :: initHardware(void)
@@ -130,6 +131,14 @@ Uint16 ControlPanel :: lcd_char(Uint16 x)
     return table[sizeof(table)-1];
 }
 
+void ControlPanel :: resetRPMSamples()
+{
+    for (int i = 0; i < RPM_SAMPLE_SIZE; i++)
+    {
+        this->rpm_samples[i] = -1u;
+    }
+}
+
 void ControlPanel :: sendData()
 {
     int i;
@@ -171,12 +180,45 @@ void ControlPanel :: sendData()
     SpibRegs.SPICTL.bit.TALK = 0;
 }
 
+Uint16 ControlPanel :: addRPMSample(Uint16 rpmSample)
+{
+    if (this->rpm == -1u)
+    {
+        this->rpm = rpmSample;
+    }
+
+    int sampleCount = 0;
+    unsigned long rpmSum = rpmSample;
+    for (int i = 0; i < RPM_SAMPLE_SIZE; i++)
+    {
+        sampleCount++;
+        if (this->rpm_samples[i] == -1u)
+        {
+            this->rpm_samples[i] = rpmSample;
+            break;
+        }
+        rpmSum += this->rpm_samples[i];
+    }
+
+    if (sampleCount >= RPM_SAMPLE_SIZE)
+    {
+        this->rpm = rpmSum / sampleCount;
+        this->resetRPMSamples();
+    }
+
+    return this->rpm;
+}
+
 void ControlPanel :: decomposeRPM()
 {
     Uint16 rpm = this->rpm;
-    int i;
+    if (rpm == -1u)
+    {
+        rpm = 0;
+    }
 
-    for(i=3; i>=0; i--) {
+    for(int i = 3; i >= 0; i--) 
+    {
         this->sevenSegmentData[i] = (rpm == 0 && i != 3) ? 0 : lcd_char(rpm % 10);
         rpm = rpm / 10;
     }

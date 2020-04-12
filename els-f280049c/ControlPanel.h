@@ -27,6 +27,7 @@
 #ifndef __CONTROL_PANEL_H
 #define __CONTROL_PANEL_H
 
+#include "Configuration.h"
 #include "F28x_Project.h"
 #include "SPIBus.h"
 
@@ -128,6 +129,9 @@ private:
     // Current RPM value; 4 decimal digits
     Uint16 rpm;
 
+    // RPM Samples
+    Uint16 rpm_samples[RPM_SAMPLE_SIZE];
+
     // Current displayed setting value, 4 digits
     const Uint16 *value;
 
@@ -149,6 +153,7 @@ private:
     // dummy register, for SPI
     Uint16 dummy;
 
+    void resetRPMSamples(void);
     void decomposeRPM(void);
     void decomposeValue(void);
     KEY_REG readKeys(void);
@@ -159,6 +164,7 @@ private:
     Uint16 reverse_byte(Uint16 x);
     void initSpi();
     void configureSpiBus(void);
+    Uint16 addRPMSample(Uint16 rpmSample);
 
 public:
     ControlPanel(SPIBus *spiBus);
@@ -191,7 +197,7 @@ public:
 
 inline void ControlPanel :: setRPM(Uint16 rpm)
 {
-    this->rpm = rpm;
+    this->rpm = this->addRPMSample(rpm);
 }
 
 inline void ControlPanel :: setValue(const Uint16 *value)

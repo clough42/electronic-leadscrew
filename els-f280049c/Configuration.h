@@ -126,6 +126,21 @@
 #define HARDWARE_VERSION 2
 
 
+
+
+//================================================================================
+//                                DISPLAY
+//
+// Define display parameters.
+//================================================================================
+
+// RPM Sample Size - Used to stabilize RPM display by averaging out over
+// sample size, and oly updating display after sample size has been reached.
+#define RPM_SAMPLE_SIZE 50
+
+
+
+
 //================================================================================
 //                               CPU / TIMING
 //
