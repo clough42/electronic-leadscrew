@@ -133,7 +133,7 @@ Uint16 ControlPanel :: lcd_char(Uint16 x)
 
 void ControlPanel :: resetRPMSamples()
 {
-    for (int i = 0; i < RPM_SAMPLE_SIZE; i++)
+    for (int i = 0; i < RPM_DISPLAY_SAMPLE_SIZE; i++)
     {
         this->rpm_samples[i] = -1u;
     }
@@ -189,7 +189,7 @@ Uint16 ControlPanel :: addRPMSample(Uint16 rpmSample)
 
     int sampleCount = 0;
     unsigned long rpmSum = rpmSample;
-    for (int i = 0; i < RPM_SAMPLE_SIZE; i++)
+    for (int i = 0; i < RPM_DISPLAY_SAMPLE_SIZE; i++)
     {
         sampleCount++;
         if (this->rpm_samples[i] == -1u)
@@ -200,7 +200,7 @@ Uint16 ControlPanel :: addRPMSample(Uint16 rpmSample)
         rpmSum += this->rpm_samples[i];
     }
 
-    if (sampleCount >= RPM_SAMPLE_SIZE)
+    if (sampleCount >= RPM_DISPLAY_SAMPLE_SIZE)
     {
         this->rpm = rpmSum / sampleCount;
         this->resetRPMSamples();

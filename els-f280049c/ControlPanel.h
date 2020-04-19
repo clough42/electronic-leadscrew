@@ -130,7 +130,7 @@ private:
     Uint16 rpm;
 
     // RPM Samples
-    Uint16 rpm_samples[RPM_SAMPLE_SIZE];
+    Uint16 rpm_samples[RPM_DISPLAY_SAMPLE_SIZE];
 
     // Current displayed setting value, 4 digits
     const Uint16 *value;
