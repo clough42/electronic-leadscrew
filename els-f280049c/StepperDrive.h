@@ -59,9 +59,11 @@
 #ifdef INVERT_ENABLE_PIN
 #define GPIO_SET_ENABLE GPIO_CLEAR(ENABLE_PIN)
 #define GPIO_CLEAR_ENABLE GPIO_SET(ENABLE_PIN)
+#define GPIO_GET_ENABLE (GPIO_GET(ENABLE_PIN) == 0)
 #else
 #define GPIO_SET_ENABLE GPIO_SET(ENABLE_PIN)
 #define GPIO_CLEAR_ENABLE GPIO_CLEAR(ENABLE_PIN)
+#define GPIO_GET_ENABLE (GPIO_GET(ENABLE_PIN) != 0)
 #endif
 
 #ifdef INVERT_ALARM_PIN
@@ -101,6 +103,9 @@ public:
 
     bool isAlarm();
 
+    bool isEnabled(void);
+    void setEnabled(bool enabled);
+
     void ISR(void);
 };
 
@@ -128,6 +133,21 @@ inline bool StepperDrive :: isAlarm()
 #endif
 }
 
+inline void StepperDrive :: setEnabled(bool enabled)
+{
+    if (enabled)
+    {
+        GPIO_SET_ENABLE;
+    } else
+    {
+        GPIO_CLEAR_ENABLE;
+    }
+}
+
+inline bool StepperDrive :: isEnabled(void)
+{
+    return GPIO_GET_ENABLE;
+}
 
 inline void StepperDrive :: ISR(void)
 {

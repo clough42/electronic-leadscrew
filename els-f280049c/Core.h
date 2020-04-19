@@ -61,6 +61,8 @@ public:
     void setReverse(bool reverse);
     Uint16 getRPM(void);
     bool isAlarm();
+    void setEnabled(bool enabled);
+    bool isEnabled(void);
 
     void ISR( void );
 };
@@ -82,6 +84,16 @@ inline Uint16 Core :: getRPM(void)
 inline bool Core :: isAlarm()
 {
     return this->stepperDrive->isAlarm();
+}
+
+inline void Core :: setEnabled(bool enabled)
+{
+    this->stepperDrive->setEnabled(enabled);
+}
+
+inline bool Core :: isEnabled(void)
+{
+    return this->stepperDrive->isEnabled();
 }
 
 inline int32 Core :: feedRatio(Uint32 count)

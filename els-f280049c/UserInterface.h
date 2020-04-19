@@ -58,6 +58,7 @@ private:
 
     const FEED_THREAD *loadFeedTable();
     LED_REG calculateLEDs(const FEED_THREAD *selectedFeed);
+    LED_REG getPoweredOffLEDs(void);
     void setMessage(const MESSAGE *message);
     void overrideMessage( void );
 
