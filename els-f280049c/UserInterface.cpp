@@ -26,23 +26,11 @@
 
 #include "UserInterface.h"
 
-const LED_REG POWER_OFF_LEDS =
-{
-   .all = 0
-};
-
-const MESSAGE POWER_OFF_MESSAGE =
-{
-   .message = { LETTER_O, LETTER_F, LETTER_F, BLANK, BLANK, BLANK, BLANK, BLANK },
-   .displayTime = 0
-};
-
 const MESSAGE POWER_ON_MESSAGE =
 {
-   .message = { LETTER_O, LETTER_N, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK },
+   .message = { BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, LETTER_O, LETTER_N },
    .displayTime = UI_REFRESH_RATE_HZ * .5
 };
-
 
 const MESSAGE STARTUP_MESSAGE_2 =
 {
@@ -106,11 +94,6 @@ LED_REG UserInterface::calculateLEDs(const FEED_THREAD *selectedFeed)
     return leds;
 }
 
-LED_REG UserInterface::getPoweredOffLEDs()
-{
-    // get the LEDs for power off mode
-    return POWER_OFF_LEDS;
-}
 
 void UserInterface :: setMessage(const MESSAGE *message)
 {
@@ -126,11 +109,7 @@ void UserInterface :: setMessage(const MESSAGE *message)
 
 void UserInterface :: overrideMessage( void )
 {
-    if (! this->core->isEnabled())
-    {
-        controlPanel->setMessage(POWER_OFF_MESSAGE.message);
-    }
-    else if( this->message != NULL )
+    if( this->message != NULL )
     {
         if( this->messageTime > 0 ) {
             this->messageTime--;
@@ -150,8 +129,11 @@ void UserInterface :: loop( void )
 {
     const FEED_THREAD *newFeed = NULL;
 
-    // display an override message, if there is one
-    overrideMessage();
+    if (this->core->isEnabled())
+    {
+        // display an override message, if there is one
+        overrideMessage();
+    }
 
     // just in case, initialize the first time through
     if( feedTable == NULL ) {
@@ -161,7 +143,7 @@ void UserInterface :: loop( void )
     // read key presses from the control panel
     keys = controlPanel->getKeys();
 
-    bool powerOn = false;
+    bool powerOn = true;
     // respond to key presses
     if( keys.bit.POWER )
     {
@@ -169,15 +151,14 @@ void UserInterface :: loop( void )
         {
             powerOn = false;
             this->core->setEnabled(powerOn);
-            LED_REG leds = this->getPoweredOffLEDs();
-            controlPanel->setLEDs(leds);
-            controlPanel->refresh();
+            this->controlPanel->setElsEnabled(powerOn);
         } else
         {
             powerOn = true;
             this->core->setEnabled(powerOn);
-            newFeed = loadFeedTable();
-            setMessage(&POWER_ON_MESSAGE);
+            this->controlPanel->setElsEnabled(powerOn);
+            // newFeed = loadFeedTable();
+            this->setMessage(&POWER_ON_MESSAGE);
         }
     }
 
@@ -223,10 +204,10 @@ void UserInterface :: loop( void )
             core->setFeed(newFeed);
             core->setReverse(this->reverse);
         }
-
-        // update the RPM display
-        controlPanel->setRPM(core->getRPM());
     }
+
+    // update the RPM display
+    controlPanel->setRPM(core->getRPM());
 
     // write data out to the display
     controlPanel->refresh();

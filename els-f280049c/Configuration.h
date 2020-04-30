@@ -27,8 +27,15 @@
 #ifndef __CONFIGURATION_H
 #define __CONFIGURATION_H
 
-
-
+//================================================================================
+//                                  GENERAL
+//
+// Define general preferences...
+//
+// PWR_OFF_SHOW_RPM: true to show RPM readout in "power off" mode, false to
+//                   prevent RPM readout in "power off" mode.
+//================================================================================
+#define PWR_OFF_SHOW_RPM true
 
 //================================================================================
 //                                  LEADSCREW

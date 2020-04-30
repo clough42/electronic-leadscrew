@@ -24,6 +24,7 @@
 // SOFTWARE.
 
 
+#include "Configuration.h"
 #include "ControlPanel.h"
 
 // Time delay to allow CS (STB) line to reach high state and be registered
@@ -42,6 +43,7 @@
 
 ControlPanel :: ControlPanel(SPIBus *spiBus)
 {
+    this->isElsEnabled = true;
     this->spiBus = spiBus;
     this->rpm = 0;
     this->value = NULL;
@@ -134,6 +136,12 @@ void ControlPanel :: sendData()
 {
     int i;
     Uint16 ledMask = this->leds.all;
+
+    if (!this->isElsEnabled)
+    {
+        ledMask = POWER_OFF_LEDS.all;
+    }
+
     Uint16 briteVal = 0x80;
     if( this->brightness > 0 ) {
         briteVal = 0x87 + this->brightness;
@@ -174,11 +182,17 @@ void ControlPanel :: sendData()
 void ControlPanel :: decomposeRPM()
 {
     Uint16 rpm = this->rpm;
-    int i;
-
-    for(i=3; i>=0; i--) {
-        this->sevenSegmentData[i] = (rpm == 0 && i != 3) ? 0 : lcd_char(rpm % 10);
-        rpm = rpm / 10;
+    if (this->isElsEnabled == false && PWR_OFF_SHOW_RPM == false)
+    {
+        for(int i=3; i>=0; i--) {
+            this->sevenSegmentData[i] = BLANK;
+        }
+    } else
+    {
+        for(int i=3; i>=0; i--) {
+            this->sevenSegmentData[i] = (rpm == 0 && i != 3) ? 0 : lcd_char(rpm % 10);
+            rpm = rpm / 10;
+        }
     }
 }
 
@@ -189,7 +203,13 @@ void ControlPanel :: decomposeValue()
         int i;
         for( i=0; i < 4; i++ )
         {
-            this->sevenSegmentData[i+4] = this->value[i];
+            if (this->isElsEnabled)
+            {
+                this->sevenSegmentData[i+4] = this->value[i];
+            } else
+            {
+                this->sevenSegmentData[i+4] = POWER_OFF_MESSAGE[i];
+            }
         }
     }
 }

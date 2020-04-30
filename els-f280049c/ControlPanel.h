@@ -118,6 +118,13 @@ typedef union KEY_REG
     struct KEY_BITS bit;
 } KEY_REG;
 
+const LED_REG POWER_OFF_LEDS =
+{
+   .all = 0
+};
+
+const Uint16 POWER_OFF_MESSAGE[4] = { BLANK, LETTER_O, LETTER_F, LETTER_F };
+
 
 class ControlPanel
 {
@@ -149,6 +156,8 @@ private:
     // dummy register, for SPI
     Uint16 dummy;
 
+    bool isElsEnabled;
+
     void decomposeRPM(void);
     void decomposeValue(void);
     KEY_REG readKeys(void);
@@ -169,6 +178,8 @@ public:
     // poll the keys and return a mask
     KEY_REG getKeys(void);
 
+    void setElsEnabled(bool isEnabled);
+
     // set the RPM value to display
     void setRPM(Uint16 rpm);
 
@@ -188,6 +199,10 @@ public:
     void refresh(void);
 };
 
+inline void ControlPanel :: setElsEnabled(bool isEnabled)
+{
+    this->isElsEnabled = isEnabled;
+}
 
 inline void ControlPanel :: setRPM(Uint16 rpm)
 {
