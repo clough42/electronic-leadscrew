@@ -26,6 +26,10 @@
 
 #include "UserInterface.h"
 
+#define POWERSTATE bool
+#define POWERSTATE_ON true
+#define POWERSTATE_OFF false
+
 const MESSAGE POWER_ON_MESSAGE =
 {
    .message = { BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, LETTER_O, LETTER_N },
@@ -129,6 +133,7 @@ void UserInterface :: loop( void )
 {
     const FEED_THREAD *newFeed = NULL;
 
+
     if (this->core->isEnabled())
     {
         // display an override message, if there is one
@@ -143,26 +148,24 @@ void UserInterface :: loop( void )
     // read key presses from the control panel
     keys = controlPanel->getKeys();
 
-    bool powerOn = true;
     // respond to key presses
     if( keys.bit.POWER )
     {
-        if (this->core->isEnabled())
+        // start with assumption we are turning power off
+        POWERSTATE powerState = POWERSTATE_OFF;
+        // if already disabled, turn power back on
+        if (!this->core->isEnabled())
         {
-            powerOn = false;
-            this->core->setEnabled(powerOn);
-            this->controlPanel->setElsEnabled(powerOn);
-        } else
-        {
-            powerOn = true;
-            this->core->setEnabled(powerOn);
-            this->controlPanel->setElsEnabled(powerOn);
-            // newFeed = loadFeedTable();
+            powerState = POWERSTATE_ON;
             this->setMessage(&POWER_ON_MESSAGE);
         }
+        // set core and control panel states appropriately
+        this->core->setEnabled(powerState);
+        this->controlPanel->setElsEnabled(powerState);
     }
 
-    if (this->core->isEnabled() || powerOn)
+    // only respond to other button events if ELS is enabled
+    if (this->core->isEnabled())
     {
         if( keys.bit.IN_MM )
         {
@@ -192,18 +195,18 @@ void UserInterface :: loop( void )
         {
             setMessage(&SETTINGS_MESSAGE_1);
         }
+    }
 
-        // if we have changed the feed
-        if( newFeed != NULL ) {
-            // update the display
-            LED_REG leds = this->calculateLEDs(newFeed);
-            controlPanel->setLEDs(leds);
-            controlPanel->setValue(newFeed->display);
+    // if we have changed the feed
+    if( newFeed != NULL ) {
+        // update the display
+        LED_REG leds = this->calculateLEDs(newFeed);
+        controlPanel->setLEDs(leds);
+        controlPanel->setValue(newFeed->display);
 
-            // update the core
-            core->setFeed(newFeed);
-            core->setReverse(this->reverse);
-        }
+        // update the core
+        core->setFeed(newFeed);
+        core->setReverse(this->reverse);
     }
 
     // update the RPM display
