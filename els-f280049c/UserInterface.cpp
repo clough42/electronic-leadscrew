@@ -134,6 +134,7 @@ void UserInterface :: loop( void )
     const FEED_THREAD *newFeed = NULL;
 
 
+    // only show messages if ELS is "On"
     if (this->core->isEnabled())
     {
         // display an override message, if there is one
@@ -164,7 +165,7 @@ void UserInterface :: loop( void )
         this->controlPanel->setElsEnabled(powerState);
     }
 
-    // only respond to other button events if ELS is enabled
+    // only respond to other button events if ELS is "On"
     if (this->core->isEnabled())
     {
         if( keys.bit.IN_MM )
