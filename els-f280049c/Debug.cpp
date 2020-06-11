@@ -1,3 +1,9 @@
+// Electronic Leadscrew
+// https://github.com/alexphredorg/electronic-leadscrew
+//
+// Copyright (c) 2020 Alex Wetmore
+//
+// Derived from:
 // Clough42 Electronic Leadscrew
 // https://github.com/clough42/electronic-leadscrew
 //
@@ -23,7 +29,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #include "Debug.h"
 
 
@@ -35,13 +40,23 @@ Debug :: Debug( void )
 
 void Debug :: initHardware( void )
 {
-    // set up GPIO pins as output for debugging
-    EALLOW;
-    GpioCtrlRegs.GPAMUX1.bit.GPIO2 = 0;
-    GpioCtrlRegs.GPADIR.bit.GPIO2 = 1;
-    GpioDataRegs.GPACLEAR.bit.GPIO2 = 1;
-    GpioCtrlRegs.GPAMUX1.bit.GPIO3 = 0;
-    GpioCtrlRegs.GPADIR.bit.GPIO3 = 1;
-    GpioDataRegs.GPACLEAR.bit.GPIO3 = 1;
-    EDIS;
+
+    /*
+     * This is clough42 did it, these are GPIO outputs that you can hook up
+     * to a logic probe
+     *
+    GPIO_setPinConfig(GPIO_2_GPIO2);
+    GPIO_setDirectionMode(2, GPIO_DIR_MODE_OUT);
+    GPIO_setPinConfig(GPIO_3_GPIO3);
+    GPIO_setDirectionMode(3, GPIO_DIR_MODE_OUT);
+     */
+
+    // these are the two red/green LEDs on the board
+    GPIO_setAnalogMode(23, GPIO_ANALOG_DISABLED);
+    GPIO_setDirectionMode(23, GPIO_DIR_MODE_OUT);
+    GPIO_setDirectionMode(34, GPIO_DIR_MODE_OUT);
+
+    // start with both off
+    GPIO_writePin(23, 0);
+    GPIO_writePin(34, 0);
 }

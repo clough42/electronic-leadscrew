@@ -1,3 +1,9 @@
+// Electronic Leadscrew
+// https://github.com/alexphredorg/electronic-leadscrew
+//
+// Copyright (c) 2020 Alex Wetmore
+//
+// Derived from:
 // Clough42 Electronic Leadscrew
 // https://github.com/clough42/electronic-leadscrew
 //
@@ -23,9 +29,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
-#include "StepperDrive.h"
-
+#include "els.h"
 
 StepperDrive :: StepperDrive(void)
 {
@@ -50,6 +54,7 @@ void StepperDrive :: initHardware(void)
     // GPIO6 - Enable
     // GPIO
     //
+    /*
     EALLOW;
     GpioCtrlRegs.GPAMUX1.bit.GPIO0 = 0;
     GpioCtrlRegs.GPAMUX1.bit.GPIO1 = 0;
@@ -65,6 +70,20 @@ void StepperDrive :: initHardware(void)
     GPIO_CLEAR_DIRECTION;
     GPIO_SET_ENABLE;
     EDIS;
+    */
+
+    GPIO_setPinConfig(GPIO_0_GPIO0);
+    GPIO_setPinConfig(GPIO_1_GPIO1);
+    GPIO_setPinConfig(GPIO_6_GPIO6);
+    GPIO_setPinConfig(GPIO_7_GPIO7);
+    GPIO_setDirectionMode(0, GPIO_DIR_MODE_OUT);
+    GPIO_setDirectionMode(1, GPIO_DIR_MODE_OUT);
+    GPIO_setDirectionMode(6, GPIO_DIR_MODE_OUT);
+    GPIO_setDirectionMode(7, GPIO_DIR_MODE_IN);
+
+    GPIO_CLEAR_STEP;
+    GPIO_CLEAR_DIRECTION;
+    GPIO_CLEAR_ENABLE;
 }
 
 

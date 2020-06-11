@@ -1,3 +1,9 @@
+// Electronic Leadscrew
+// https://github.com/alexphredorg/electronic-leadscrew
+//
+// Copyright (c) 2020 Alex Wetmore
+//
+// Derived from:
 // Clough42 Electronic Leadscrew
 // https://github.com/clough42/electronic-leadscrew
 //
@@ -23,48 +29,59 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #ifndef __USERINTERFACE_H
 #define __USERINTERFACE_H
 
-#include "ControlPanel.h"
+#include "NextionControlPanel.h"
 #include "Core.h"
 #include "Tables.h"
 
-typedef struct MESSAGE
-{
-    Uint16 message[8];
-    Uint16 displayTime;
-    const MESSAGE *next;
-} MESSAGE;
+#define VERSION_STRING "version 2.0"
 
-class UserInterface
+class UserInterface : IUserInterface
 {
+public:
+    UserInterface(NextionControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory);
+
+    void loop(void);
+
 private:
-    ControlPanel *controlPanel;
+    NextionControlPanel *controlPanel;
     Core *core;
     FeedTableFactory *feedTableFactory;
 
     bool metric;
     bool thread;
     bool reverse;
+    bool power;
+    bool displaySpindleRpm;
+    uint32_t messageClearCount;
+    Uint16 checkInterval;
+    bool welcomePage;
 
     FeedTable *feedTable;
 
-    KEY_REG keys;
-
-    const MESSAGE *message;
-    Uint16 messageTime;
-
     const FEED_THREAD *loadFeedTable();
-    LED_REG calculateLEDs(const FEED_THREAD *selectedFeed);
-    void setMessage(const MESSAGE *message);
-    void overrideMessage( void );
 
-public:
-    UserInterface(ControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory);
+    void setStatus(const char *msg, uint32_t seconds);
+    void setFeedTable();
 
-    void loop( void );
+    // from IUserInterface
+    virtual void powerButton(bool on);
+    virtual void upButton();
+    virtual void downButton();
+    virtual void selectFeed(uint32_t index);
+    virtual void inchMm(bool mm);
+    virtual void feedThread(bool thread);
+    virtual void forwardReverse(bool reverse);
+    virtual void pageChanged(uint32_t pageId);
 };
+
+inline void UserInterface::setStatus(const char *msg, uint32_t seconds)
+{
+    controlPanel->setStatus(msg);
+    this->messageClearCount = seconds * UI_REFRESH_RATE_HZ;
+}
+
 
 #endif // __USERINTERFACE_H

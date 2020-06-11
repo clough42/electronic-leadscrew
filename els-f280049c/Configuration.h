@@ -1,3 +1,9 @@
+// Electronic Leadscrew
+// https://github.com/alexphredorg/electronic-leadscrew
+//
+// Copyright (c) 2020 Alex Wetmore
+//
+// Derived from:
 // Clough42 Electronic Leadscrew
 // https://github.com/clough42/electronic-leadscrew
 //
@@ -27,6 +33,7 @@
 #ifndef __CONFIGURATION_H
 #define __CONFIGURATION_H
 
+#include "els.h"
 
 
 
@@ -64,12 +71,12 @@
 //================================================================================
 
 // Steps and microsteps
-#define STEPPER_MICROSTEPS 8
-#define STEPPER_RESOLUTION 200
+#define STEPPER_MICROSTEPS 4      // 4:1 belt drive ratio
+#define STEPPER_RESOLUTION 1600   // default resolution on our system
 
 // Step, direction and enable pins are normally active-high
 // #define INVERT_STEP_PIN true
-// #define INVERT_DIRECTION_PIN true
+#define INVERT_DIRECTION_PIN true
 #define INVERT_ENABLE_PIN true
 #define INVERT_ALARM_PIN true
 
@@ -91,7 +98,7 @@
 //================================================================================
 
 // Encoder resolution (counts per revolution)
-#define ENCODER_RESOLUTION 4096
+#define ENCODER_RESOLUTION 1440 // 360 p/r
 
 // Which encoder input to use
 #define ENCODER_USE_EQEP1
@@ -147,5 +154,8 @@
 #define CPU_CLOCK_MHZ 100
 #define CPU_CLOCK_HZ (CPU_CLOCK_MHZ * 1000000)
 
+// Warning and shutoff levels for stepper speeds
+#define STEPPER_WARNING_RPM 300
+#define STEPPER_SHUTOFF_RPM 500
 
 #endif // __CONFIGURATION_H

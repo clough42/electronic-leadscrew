@@ -1,3 +1,9 @@
+// Electronic Leadscrew
+// https://github.com/alexphredorg/electronic-leadscrew
+//
+// Copyright (c) 2020 Alex Wetmore
+//
+// Derived from:
 // Clough42 Electronic Leadscrew
 // https://github.com/clough42/electronic-leadscrew
 //
@@ -23,11 +29,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #ifndef __DEBUG_H
 #define __DEBUG_H
 
-#include "F28x_Project.h"
+#include "driverlib.h"
+#include "device.h"
 
 class Debug
 {
@@ -35,6 +41,7 @@ public:
     Debug(void);
     void initHardware(void);
 
+    /*
     // analyzer pin 1
     void begin1( void );
     void end1( void );
@@ -42,28 +49,43 @@ public:
     // analyzer pin 2
     void begin2( void );
     void end2( void );
+    */
+
+    // LEDs on board
+    void toggle_led_1(void);
+    void toggle_led_2(void);
 };
 
+inline void Debug::toggle_led_1(void)
+{
+    GPIO_togglePin(23);
+}
 
+inline void Debug::toggle_led_2(void)
+{
+    GPIO_togglePin(34);
+}
+
+/*
 inline void Debug :: begin1( void )
 {
-    GpioDataRegs.GPASET.bit.GPIO2 = 1;
+    GPIO_writePin(2, 1);
 }
 
 inline void Debug :: end1( void )
 {
-    GpioDataRegs.GPACLEAR.bit.GPIO2 = 1;
+    GPIO_writePin(2, 0);
 }
 
 inline void Debug :: begin2( void )
 {
-    GpioDataRegs.GPASET.bit.GPIO3 = 1;
+    GPIO_writePin(3, 1);
 }
 
 inline void Debug :: end2( void )
 {
-    GpioDataRegs.GPACLEAR.bit.GPIO3 = 1;
+    GPIO_writePin(3, 0);
 }
-
+*/
 
 #endif // __DEBUG_H
