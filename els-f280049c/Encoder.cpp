@@ -1,3 +1,9 @@
+// Electronic Leadscrew
+// https://github.com/alexphredorg/electronic-leadscrew
+//
+// Copyright (c) 2020 Alex Wetmore
+//
+// Derived from:
 // Clough42 Electronic Leadscrew
 // https://github.com/clough42/electronic-leadscrew
 //
@@ -23,22 +29,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
-#include "Encoder.h"
-#include "Configuration.h"
-
+#include "els.h"
 
 Encoder :: Encoder( void )
 {
     this->previous = 0;
     this->rpm = 0;
+#ifdef ENCODER_USE_EQEP1
+    this->base = EQEP1_BASE;
+#else
+    this->base = EQEP2_BASE;
+#endif
 }
 
 void Encoder :: initHardware(void)
 {
-    EALLOW;
+    // EALLOW;
 
 #ifdef ENCODER_USE_EQEP1
+    GPIO_setPadConfig(35, GPIO_PIN_TYPE_PULLUP);
+    GPIO_setPadConfig(37, GPIO_PIN_TYPE_PULLUP);
+    GPIO_setPadConfig(59, GPIO_PIN_TYPE_PULLUP);
+
+    GPIO_setQualificationMode(35, GPIO_QUAL_SYNC);
+    GPIO_setQualificationMode(37, GPIO_QUAL_SYNC);
+    GPIO_setQualificationMode(59, GPIO_QUAL_SYNC);
+
+    GPIO_setPinConfig(GPIO_35_EQEP1A);
+    GPIO_setPinConfig(GPIO_37_EQEP1B);
+    GPIO_setPinConfig(GPIO_59_EQEP1I);
+
+    /*
     GpioCtrlRegs.GPBPUD.bit.GPIO35 = 0;     // Enable pull-up on GPIO35 (EQEP1A)
     GpioCtrlRegs.GPBPUD.bit.GPIO37 = 0;     // Enable pull-up on GPIO371 (EQEP1B)
     GpioCtrlRegs.GPBPUD.bit.GPIO59 = 0;     // Enable pull-up on GPIO59 (EQEP1I)
@@ -53,6 +74,7 @@ void Encoder :: initHardware(void)
     GpioCtrlRegs.GPBGMUX1.bit.GPIO37 = 2;
     GpioCtrlRegs.GPBMUX2.bit.GPIO59 = 3;    // Configure GPIO59 as EQEP1I
     GpioCtrlRegs.GPBGMUX2.bit.GPIO59 = 2;
+    */
 #endif
 #ifdef ENCODER_USE_EQEP2
     GpioCtrlRegs.GPAPUD.bit.GPIO14 = 0;     // Enable pull-up on GPIO14 (EQEP2A)
@@ -71,8 +93,18 @@ void Encoder :: initHardware(void)
     GpioCtrlRegs.GPAGMUX2.bit.GPIO26 = 0;
 #endif
 
-    EDIS;
+    //EDIS;
 
+    EQEP_setDecoderConfig(this->base, EQEP_CONFIG_QUADRATURE);
+    EQEP_setPositionCounterConfig(EQEP1_BASE, EQEP_POSITION_RESET_IDX, 0xFFFFFFFF);
+    EQEP_setInputPolarity(this->base, true, true, true, false);
+    EQEP_setEmulationMode(this->base, EQEP_EMULATIONMODE_RUNFREE);
+    EQEP_setPositionCounterConfig(this->base, EQEP_POSITION_RESET_MAX_POS, _ENCODER_MAX_COUNT);
+    EQEP_enableUnitTimer(this->base, DEVICE_SYSCLK_FREQ / RPM_CALC_RATE_HZ);
+    EQEP_setLatchMode(EQEP1_BASE, EQEP_LATCH_UNIT_TIME_OUT);
+    EQEP_enableModule(this->base);
+
+    /*
     ENCODER_REGS.QDECCTL.bit.QSRC = 0;         // QEP quadrature count mode
     ENCODER_REGS.QDECCTL.bit.IGATE = 1;        // gate the index pin
     ENCODER_REGS.QDECCTL.bit.QAP = 1;          // invert A input
@@ -87,14 +119,15 @@ void Encoder :: initHardware(void)
     ENCODER_REGS.QEPCTL.bit.QCLM=1;            // Latch on unit time out
 
     ENCODER_REGS.QEPCTL.bit.QPEN=1;            // QEP enable
+    */
 
 }
 
 Uint16 Encoder :: getRPM(void)
 {
-    if(ENCODER_REGS.QFLG.bit.UTO==1)       // If unit timeout (one 10Hz period)
+    if((EQEP_getInterruptStatus(EQEP1_BASE) & EQEP_INT_UNIT_TIME_OUT) != 0)
     {
-        Uint32 current = ENCODER_REGS.QPOSLAT;
+        Uint32 current = EQEP_getPositionLatch(this->base);
         Uint32 count = (current > previous) ? current - previous : previous - current;
 
         // deal with over/underflow
@@ -103,9 +136,9 @@ Uint16 Encoder :: getRPM(void)
         }
 
         rpm = count * 60 * RPM_CALC_RATE_HZ / ENCODER_RESOLUTION;
-
         previous = current;
-        ENCODER_REGS.QCLR.bit.UTO=1;       // Clear interrupt flag
+
+        EQEP_clearInterruptStatus(EQEP1_BASE, EQEP_INT_UNIT_TIME_OUT);
     }
 
     return rpm;

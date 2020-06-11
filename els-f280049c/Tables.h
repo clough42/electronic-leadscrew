@@ -1,3 +1,9 @@
+// Electronic Leadscrew
+// https://github.com/alexphredorg/electronic-leadscrew
+//
+// Copyright (c) 2020 Alex Wetmore
+//
+// Derived from:
 // Clough42 Electronic Leadscrew
 // https://github.com/clough42/electronic-leadscrew
 //
@@ -23,20 +29,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #ifndef __TABLES_H
 #define __TABLES_H
 
-#include "F28x_Project.h"
-#include "Configuration.h"
-#include "ControlPanel.h"
-
-
-
 typedef struct FEED_THREAD
 {
-    Uint16 display[4];
-    union LED_REG leds;
+    const char *display;
     Uint32 numerator;
     Uint32 denominator;
 } FEED_THREAD;
@@ -56,6 +54,9 @@ public:
     const FEED_THREAD *current(void);
     const FEED_THREAD *next(void);
     const FEED_THREAD *previous(void);
+    const FEED_THREAD *select(Uint16 index);
+    Uint16 count(void) { return this->numRows; }
+    Uint16 index(void) { return this->selectedRow; }
 };
 
 

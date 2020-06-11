@@ -1,3 +1,9 @@
+// Electronic Leadscrew
+// https://github.com/alexphredorg/electronic-leadscrew
+//
+// Copyright (c) 2020 Alex Wetmore
+//
+// Derived from:
 // Clough42 Electronic Leadscrew
 // https://github.com/clough42/electronic-leadscrew
 //
@@ -23,8 +29,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
-#include "Tables.h"
+#include "els.h"
 
 
 //
@@ -45,31 +50,31 @@
 
 const FEED_THREAD inch_thread_table[] =
 {
- { .display = {BLANK, BLANK, BLANK, EIGHT}, .leds = LED_THREAD | LED_TPI, TPI_FRACTION(80) },
- { .display = {BLANK, BLANK, BLANK, NINE},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(90) },
- { .display = {BLANK, BLANK, ONE,   ZERO},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(100) },
- { .display = {BLANK, BLANK, ONE,   ONE},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(110) },
- { .display = {BLANK, ONE, ONE|POINT,FIVE}, .leds = LED_THREAD | LED_TPI, TPI_FRACTION(115) },
- { .display = {BLANK, BLANK, ONE,   TWO},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(120) },
- { .display = {BLANK, BLANK, ONE,   THREE}, .leds = LED_THREAD | LED_TPI, TPI_FRACTION(130) },
- { .display = {BLANK, BLANK, ONE,   FOUR},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(140) },
- { .display = {BLANK, BLANK, ONE,   SIX},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(160) },
- { .display = {BLANK, BLANK, ONE,   EIGHT}, .leds = LED_THREAD | LED_TPI, TPI_FRACTION(180) },
- { .display = {BLANK, BLANK, ONE,   NINE},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(190) },
- { .display = {BLANK, BLANK, TWO,   ZERO},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(200) },
- { .display = {BLANK, BLANK, TWO,   FOUR},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(240) },
- { .display = {BLANK, BLANK, TWO,   SIX},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(260) },
- { .display = {BLANK, BLANK, TWO,   SEVEN}, .leds = LED_THREAD | LED_TPI, TPI_FRACTION(270) },
- { .display = {BLANK, BLANK, TWO,   EIGHT}, .leds = LED_THREAD | LED_TPI, TPI_FRACTION(280) },
- { .display = {BLANK, BLANK, THREE, TWO},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(320) },
- { .display = {BLANK, BLANK, THREE, SIX},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(360) },
- { .display = {BLANK, BLANK, FOUR,  ZERO},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(400) },
- { .display = {BLANK, BLANK, FOUR,  FOUR},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(440) },
- { .display = {BLANK, BLANK, FOUR,  EIGHT}, .leds = LED_THREAD | LED_TPI, TPI_FRACTION(480) },
- { .display = {BLANK, BLANK, FIVE,  SIX},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(560) },
- { .display = {BLANK, BLANK, SIX,   FOUR},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(640) },
- { .display = {BLANK, BLANK, SEVEN, TWO},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(720) },
- { .display = {BLANK, BLANK, EIGHT, ZERO},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(800) },
+ { .display = "8 tpi",    TPI_FRACTION(80) },
+ { .display = "9 tpi",    TPI_FRACTION(90) },
+ { .display = "10 tpi",   TPI_FRACTION(100) },
+ { .display = "11 tpi",   TPI_FRACTION(110) },
+ { .display = "11.5 tpi", TPI_FRACTION(115) },
+ { .display = "12 tpi",   TPI_FRACTION(120) },
+ { .display = "13 tpi",   TPI_FRACTION(130) },
+ { .display = "14 tpi",   TPI_FRACTION(140) },
+ { .display = "16 tpi",   TPI_FRACTION(160) },
+ { .display = "18 tpi",   TPI_FRACTION(180) },
+ { .display = "19 tpi",   TPI_FRACTION(190) },
+ { .display = "20 tpi",   TPI_FRACTION(200) },
+ { .display = "24 tpi",   TPI_FRACTION(240) },
+ { .display = "26 tpi",   TPI_FRACTION(260) },
+ { .display = "27 tpi",   TPI_FRACTION(270) },
+ { .display = "28 tpi",   TPI_FRACTION(280) },
+ { .display = "32 tpi",   TPI_FRACTION(320) },
+ { .display = "36 tpi",   TPI_FRACTION(360) },
+ { .display = "40 tpi",   TPI_FRACTION(400) },
+ { .display = "44 tpi",   TPI_FRACTION(440) },
+ { .display = "48 tpi",   TPI_FRACTION(480) },
+ { .display = "56 tpi",   TPI_FRACTION(560) },
+ { .display = "64 tpi",   TPI_FRACTION(640) },
+ { .display = "72 tpi",   TPI_FRACTION(720) },
+ { .display = "80 tpi",   TPI_FRACTION(800) },
 };
 
 
@@ -93,27 +98,27 @@ const FEED_THREAD inch_thread_table[] =
 
 const FEED_THREAD inch_feed_table[] =
 {
- { .display = {POINT, ZERO, ZERO,  ONE},    .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(1) },
- { .display = {POINT, ZERO, ZERO,  TWO},    .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(2) },
- { .display = {POINT, ZERO, ZERO,  THREE},  .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(3) },
- { .display = {POINT, ZERO, ZERO,  FOUR},   .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(4) },
- { .display = {POINT, ZERO, ZERO,  FIVE},   .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(5) },
- { .display = {POINT, ZERO, ZERO,  SIX},    .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(6) },
- { .display = {POINT, ZERO, ZERO,  SEVEN},  .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(7) },
- { .display = {POINT, ZERO, ZERO,  EIGHT},  .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(8) },
- { .display = {POINT, ZERO, ZERO,  NINE},   .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(9) },
- { .display = {POINT, ZERO, ONE,   ZERO},   .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(10) },
- { .display = {POINT, ZERO, ONE,   ONE},    .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(11) },
- { .display = {POINT, ZERO, ONE,   TWO},    .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(12) },
- { .display = {POINT, ZERO, ONE,   THREE},  .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(13) },
- { .display = {POINT, ZERO, ONE,   FIVE},   .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(15) },
- { .display = {POINT, ZERO, ONE,   SEVEN},  .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(17) },
- { .display = {POINT, ZERO, TWO,   ZERO},   .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(20) },
- { .display = {POINT, ZERO, TWO,   THREE},  .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(23) },
- { .display = {POINT, ZERO, TWO,   SIX},    .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(26) },
- { .display = {POINT, ZERO, THREE, ZERO},   .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(30) },
- { .display = {POINT, ZERO, THREE, FIVE},   .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(35) },
- { .display = {POINT, ZERO, FOUR,  ZERO},   .leds = LED_FEED | LED_INCH, THOU_IN_FRACTION(40) },
+ { .display = "0.001in", THOU_IN_FRACTION(1) },
+ { .display = "0.002in", THOU_IN_FRACTION(2) },
+ { .display = "0.003in", THOU_IN_FRACTION(3) },
+ { .display = "0.004in", THOU_IN_FRACTION(4) },
+ { .display = "0.005in", THOU_IN_FRACTION(5) },
+ { .display = "0.006in", THOU_IN_FRACTION(6) },
+ { .display = "0.007in", THOU_IN_FRACTION(7) },
+ { .display = "0.008in", THOU_IN_FRACTION(8) },
+ { .display = "0.009in", THOU_IN_FRACTION(9) },
+ { .display = "0.010in", THOU_IN_FRACTION(10) },
+ { .display = "0.011in", THOU_IN_FRACTION(11) },
+ { .display = "0.012in", THOU_IN_FRACTION(12) },
+ { .display = "0.013in", THOU_IN_FRACTION(13) },
+ { .display = "0.015in", THOU_IN_FRACTION(15) },
+ { .display = "0.017in", THOU_IN_FRACTION(17) },
+ { .display = "0.020in", THOU_IN_FRACTION(20) },
+ { .display = "0.023in", THOU_IN_FRACTION(23) },
+ { .display = "0.026in", THOU_IN_FRACTION(26) },
+ { .display = "0.030in", THOU_IN_FRACTION(30) },
+ { .display = "0.035in", THOU_IN_FRACTION(35) },
+ { .display = "0.040in", THOU_IN_FRACTION(40) },
 };
 
 
@@ -137,30 +142,30 @@ const FEED_THREAD inch_feed_table[] =
 
 const FEED_THREAD metric_thread_table[] =
 {
- { .display = {BLANK, POINT,         TWO,   BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(20) },
- { .display = {BLANK, POINT,         TWO,   FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(25) },
- { .display = {BLANK, POINT,         THREE, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(30) },
- { .display = {BLANK, POINT,         THREE, FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(35) },
- { .display = {BLANK, POINT,         FOUR,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(40) },
- { .display = {BLANK, POINT,         FOUR,  FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(45) },
- { .display = {BLANK, POINT,         FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(50) },
- { .display = {BLANK, POINT,         SIX,   BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(60) },
- { .display = {BLANK, POINT,         SEVEN, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(70) },
- { .display = {BLANK, POINT,         SEVEN, FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(75) },
- { .display = {BLANK, POINT,         EIGHT, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(80) },
- { .display = {BLANK, ONE,           BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(100) },
- { .display = {BLANK, ONE | POINT,   TWO,   FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(125) },
- { .display = {BLANK, ONE | POINT,   FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(150) },
- { .display = {BLANK, ONE | POINT,   SEVEN, FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(175) },
- { .display = {BLANK, TWO,           BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(200) },
- { .display = {BLANK, TWO | POINT,   FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(250) },
- { .display = {BLANK, THREE,         BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(300) },
- { .display = {BLANK, THREE | POINT, FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(350) },
- { .display = {BLANK, FOUR,          BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(400) },
- { .display = {BLANK, FOUR | POINT,  FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(450) },
- { .display = {BLANK, FIVE,          BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(500) },
- { .display = {BLANK, FIVE | POINT,  FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(550) },
- { .display = {BLANK, SIX,           BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(600) },
+ { .display = "0.2mm",  HMM_FRACTION(20) },
+ { .display = "0.25mm", HMM_FRACTION(25) },
+ { .display = "0.3mm",  HMM_FRACTION(30) },
+ { .display = "0.35mm", HMM_FRACTION(35) },
+ { .display = "0.4mm",  HMM_FRACTION(40) },
+ { .display = "0.45mm", HMM_FRACTION(45) },
+ { .display = "0.5mm",  HMM_FRACTION(50) },
+ { .display = "0.6mm",  HMM_FRACTION(60) },
+ { .display = "0.7mm",  HMM_FRACTION(70) },
+ { .display = "0.75mm", HMM_FRACTION(75) },
+ { .display = "0.8mm",  HMM_FRACTION(80) },
+ { .display = "1mm",    HMM_FRACTION(100) },
+ { .display = "1.25mm", HMM_FRACTION(125) },
+ { .display = "1.5mm",  HMM_FRACTION(150) },
+ { .display = "1.75mm", HMM_FRACTION(175) },
+ { .display = "2.0mm",  HMM_FRACTION(200) },
+ { .display = "2.5mm",  HMM_FRACTION(250) },
+ { .display = "3mm",    HMM_FRACTION(300) },
+ { .display = "3.5mm",  HMM_FRACTION(350) },
+ { .display = "4mm",    HMM_FRACTION(400) },
+ { .display = "4.5mm",  HMM_FRACTION(450) },
+ { .display = "5mm",    HMM_FRACTION(500) },
+ { .display = "5.5mm",  HMM_FRACTION(550) },
+ { .display = "6mm",    HMM_FRACTION(600) },
 };
 
 
@@ -173,27 +178,27 @@ const FEED_THREAD metric_thread_table[] =
 //
 const FEED_THREAD metric_feed_table[] =
 {
- { .display = {BLANK, POINT,       ZERO,  TWO},   .leds = LED_FEED | LED_MM, HMM_FRACTION(2) },
- { .display = {BLANK, POINT,       ZERO,  FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION(5) },
- { .display = {BLANK, POINT,       ZERO,  SEVEN}, .leds = LED_FEED | LED_MM, HMM_FRACTION(7) },
- { .display = {BLANK, POINT,       ONE,   ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION(10) },
- { .display = {BLANK, POINT,       ONE,   TWO},   .leds = LED_FEED | LED_MM, HMM_FRACTION(12) },
- { .display = {BLANK, POINT,       ONE,   FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION(15) },
- { .display = {BLANK, POINT,       ONE,   SEVEN}, .leds = LED_FEED | LED_MM, HMM_FRACTION(17) },
- { .display = {BLANK, POINT,       TWO,   ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION(20) },
- { .display = {BLANK, POINT,       TWO,   TWO},   .leds = LED_FEED | LED_MM, HMM_FRACTION(22) },
- { .display = {BLANK, POINT,       TWO,   FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION(25) },
- { .display = {BLANK, POINT,       TWO,   SEVEN}, .leds = LED_FEED | LED_MM, HMM_FRACTION(27) },
- { .display = {BLANK, POINT,       THREE, ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION(30) },
- { .display = {BLANK, POINT,       THREE, FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION(35) },
- { .display = {BLANK, POINT,       FOUR,  ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION(40) },
- { .display = {BLANK, POINT,       FOUR,  FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION(45) },
- { .display = {BLANK, POINT,       FIVE,  ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION(50) },
- { .display = {BLANK, POINT,       FIVE,  FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION(55) },
- { .display = {BLANK, POINT,       SIX,   ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION(60) },
- { .display = {BLANK, POINT,       SEVEN, ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION(70) },
- { .display = {BLANK, POINT,       EIGHT, FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION(85) },
- { .display = {BLANK, ONE | POINT, ZERO,  ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION(100) },
+ { .display = "0.02mm", HMM_FRACTION(2) },
+ { .display = "0.05mm", HMM_FRACTION(5) },
+ { .display = "0.07mm", HMM_FRACTION(7) },
+ { .display = "0.1mm",  HMM_FRACTION(10) },
+ { .display = "0.12mm", HMM_FRACTION(12) },
+ { .display = "0.15mm", HMM_FRACTION(15) },
+ { .display = "0.17mm", HMM_FRACTION(17) },
+ { .display = "0.2mm",  HMM_FRACTION(20) },
+ { .display = "0.22mm", HMM_FRACTION(22) },
+ { .display = "0.25mm", HMM_FRACTION(25) },
+ { .display = "0.27mm", HMM_FRACTION(27) },
+ { .display = "0.3mm",  HMM_FRACTION(30) },
+ { .display = "0.35mm", HMM_FRACTION(35) },
+ { .display = "0.4mm",  HMM_FRACTION(40) },
+ { .display = "0.45mm", HMM_FRACTION(45) },
+ { .display = "0.5mm",  HMM_FRACTION(50) },
+ { .display = "0.55mm", HMM_FRACTION(55) },
+ { .display = "0.6mm",  HMM_FRACTION(60) },
+ { .display = "0.7mm",  HMM_FRACTION(70) },
+ { .display = "0.85mm", HMM_FRACTION(85) },
+ { .display = "1.0mm",  HMM_FRACTION(100) },
 };
 
 
@@ -226,6 +231,15 @@ const FEED_THREAD *FeedTable :: previous(void)
     if( this->selectedRow > 0 )
     {
         this->selectedRow--;
+    }
+    return this->current();
+}
+
+const FEED_THREAD *FeedTable :: select(Uint16 index)
+{
+    if( index < this->numRows )
+    {
+        this->selectedRow = index;
     }
     return this->current();
 }

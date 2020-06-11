@@ -1,3 +1,9 @@
+// Electronic Leadscrew
+// https://github.com/alexphredorg/electronic-leadscrew
+//
+// Copyright (c) 2020 Alex Wetmore
+//
+// Derived from:
 // Clough42 Electronic Leadscrew
 // https://github.com/clough42/electronic-leadscrew
 //
@@ -23,19 +29,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #ifndef __ENCODER_H
 #define __ENCODER_H
 
-#include "F28x_Project.h"
-#include "Configuration.h"
-
-#ifdef ENCODER_USE_EQEP1
-#define ENCODER_REGS EQep1Regs
-#endif
-#ifdef ENCODER_USE_EQEP2
-#define ENCODER_REGS EQep2Regs
-#endif
+#include "eqep.h"
 
 #define _ENCODER_MAX_COUNT 0x00ffffff
 
@@ -53,19 +50,19 @@ public:
     Uint16 getRPM( void );
     Uint32 getPosition( void );
     Uint32 getMaxCount( void );
-};
 
+    Uint32 base;
+};
 
 inline Uint32 Encoder :: getPosition(void)
 {
-    return ENCODER_REGS.QPOSCNT;
+    return EQEP_getPosition(this->base);
+    //return ENCODER_REGS.QPOSCNT;
 }
 
 inline Uint32 Encoder :: getMaxCount(void)
 {
     return _ENCODER_MAX_COUNT;
 }
-
-
 
 #endif // __ENCODER_H

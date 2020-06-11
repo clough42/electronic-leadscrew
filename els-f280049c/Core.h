@@ -1,3 +1,9 @@
+// Electronic Leadscrew
+// https://github.com/alexphredorg/electronic-leadscrew
+//
+// Copyright (c) 2020 Alex Wetmore
+//
+// Derived from:
 // Clough42 Electronic Leadscrew
 // https://github.com/clough42/electronic-leadscrew
 //
@@ -27,11 +33,7 @@
 #ifndef __CORE_H
 #define __CORE_H
 
-#include "StepperDrive.h"
-#include "Encoder.h"
-#include "ControlPanel.h"
-#include "Tables.h"
-
+#include "els.h"
 
 class Core
 {

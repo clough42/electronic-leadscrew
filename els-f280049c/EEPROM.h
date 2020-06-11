@@ -1,3 +1,9 @@
+// Electronic Leadscrew
+// https://github.com/alexphredorg/electronic-leadscrew
+//
+// Copyright (c) 2020 Alex Wetmore
+//
+// Derived from:
 // Clough42 Electronic Leadscrew
 // https://github.com/clough42/electronic-leadscrew
 //
@@ -24,11 +30,10 @@
 // SOFTWARE.
 
 
+#if 0
 #ifndef __EEPROM_H
 #define __EEPROM_H
 
-#include "F28x_Project.h"
-#include "SPIBus.h"
 #include "Configuration.h"
 
 #if HARDWARE_VERSION == 1
@@ -72,3 +77,4 @@ public:
 
 
 #endif // __EEPROM_H
+#endif

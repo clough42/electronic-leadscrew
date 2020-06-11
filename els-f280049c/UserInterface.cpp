@@ -1,3 +1,9 @@
+// Electronic Leadscrew
+// https://github.com/alexphredorg/electronic-leadscrew
+//
+// Copyright (c) 2020 Alex Wetmore
+//
+// Derived from:
 // Clough42 Electronic Leadscrew
 // https://github.com/clough42/electronic-leadscrew
 //
@@ -23,134 +29,63 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #include "UserInterface.h"
 
-const MESSAGE STARTUP_MESSAGE_2 =
-{
-  .message = { LETTER_E, LETTER_L, LETTER_S, DASH, ONE | POINT, TWO | POINT, ZERO, ZERO },
-  .displayTime = UI_REFRESH_RATE_HZ * 1.5
-};
-
-const MESSAGE STARTUP_MESSAGE_1 =
-{
- .message = { LETTER_C, LETTER_L, LETTER_O, LETTER_U, LETTER_G, LETTER_H, FOUR, TWO },
- .displayTime = UI_REFRESH_RATE_HZ * 1.5,
- .next = &STARTUP_MESSAGE_2
-};
-
-const MESSAGE SETTINGS_MESSAGE_SPINDLE_RPM =
-{
- .message = { LETTER_S, LETTER_P, LETTER_I, LETTER_N | POINT, BLANK, LETTER_R, LETTER_P, LETTER_M },
- .displayTime = UI_REFRESH_RATE_HZ * 0.7
-};
-
-const MESSAGE SETTINGS_MESSAGE_LEADSCREW_RPM =
-{
- .message = { LETTER_L, LETTER_E, LETTER_A, LETTER_D | POINT, BLANK, LETTER_R, LETTER_P, LETTER_M },
- .displayTime = UI_REFRESH_RATE_HZ * 0.7
-};
-
-const MESSAGE ALARM_MESSAGE_TOO_FAST_WARNING =
-{
- .message = { LETTER_S, LETTER_P, LETTER_E, LETTER_E, LETTER_D, BLANK, LETTER_W, LETTER_N },
- .displayTime = UI_REFRESH_RATE_HZ * .2
-};
-
-const MESSAGE ALARM_MESSAGE_TOO_FAST_ERROR_2 =
-{
- .message = { LETTER_P, LETTER_W, LETTER_R, BLANK, LETTER_O, LETTER_F, LETTER_F, BLANK },
- .displayTime = UI_REFRESH_RATE_HZ * 2.5
-};
-
-const MESSAGE ALARM_MESSAGE_TOO_FAST_ERROR =
-{
- .message = { LETTER_S, LETTER_P, LETTER_E, LETTER_E, LETTER_D, BLANK, LETTER_E, LETTER_R },
- .displayTime = UI_REFRESH_RATE_HZ * 2.5,
- .next = &ALARM_MESSAGE_TOO_FAST_ERROR_2
-};
-
-const MESSAGE ALARM_MESSAGE_STEPPER_DRIVER =
-{
- .message = { LETTER_S, LETTER_T, LETTER_P, LETTER_P, LETTER_R, BLANK, LETTER_E, LETTER_R },
- // on most drives this is permanent until shutdown, so it will restart every second
- .displayTime = UI_REFRESH_RATE_HZ * 0.7
-};
-
-UserInterface :: UserInterface(ControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory)
+UserInterface :: UserInterface(NextionControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory)
 {
     this->controlPanel = controlPanel;
     this->core = core;
     this->feedTableFactory = feedTableFactory;
 
-    this->metric = false; // start out with imperial
-    this->thread = false; // start out with feeds
-    this->reverse = false; // start out going forward
-    this->power = true; // power on by default
-    this->displaySpindleRpm = true; // start out with spindle rpm
+    this->metric = false;           // start out with imperial
+    this->thread = false;           // start out with feeds
+    this->reverse = false;          // start out going forward
+    this->power = false;            // power on by default
+    this->messageClearCount = 2 * UI_REFRESH_RATE_HZ;
+    this->welcomePage = true;       // we're showing the logo page
 
     this->feedTable = NULL;
 
-    this->keys.all = 0xff;
-
     this->checkInterval = 0;
-
-    setMessage(&STARTUP_MESSAGE_1);
 }
 
 const FEED_THREAD *UserInterface::loadFeedTable()
 {
+    // load the feed table
     this->feedTable = this->feedTableFactory->getFeedTable(this->metric, this->thread);
+    // configure the user interface to handle this feed table
+    this->controlPanel->setScrollLimit(this->feedTable->count() - 1);
+    this->controlPanel->setFeedRate(this->feedTable->index(), this->feedTable->current());
+    // return selected entry to user
     return this->feedTable->current();
 }
 
-LED_REG UserInterface::calculateLEDs(const FEED_THREAD *selectedFeed)
+void UserInterface::setStatus(const char *msg, uint32_t seconds)
 {
-    // get the LEDs for this feed
-    LED_REG leds = selectedFeed->leds;
-
-    // and add a few of our own
-    leds.bit.POWER = this->power;
-    leds.bit.REVERSE = this->reverse;
-    leds.bit.FORWARD = ! this->reverse;
-
-    return leds;
+    controlPanel->setStatus(msg);
+    this->messageClearCount = seconds * UI_REFRESH_RATE_HZ;
 }
 
-void UserInterface :: setMessage(const MESSAGE *message)
-{
-    this->message = message;
-    this->messageTime = message->displayTime;
-}
-
-void UserInterface :: overrideMessage( void )
-{
-    if( this->message != NULL )
-    {
-        if( this->messageTime > 0 ) {
-            this->messageTime--;
-            controlPanel->setMessage(this->message->message);
-        }
-        else {
-            this->message = this->message->next;
-            if( this->message == NULL )
-                controlPanel->setMessage(NULL);
-            else
-                this->messageTime = this->message->displayTime;
-        }
-    }
-}
-
+//
+// Core user interface loop.  This is called at UI_REFRESH_RATE_HZ
 void UserInterface :: loop( void )
 {
-    const FEED_THREAD *newFeed = NULL;
+    // clear status if it's time
+    if (this->messageClearCount > 0)
+    {
+        this->messageClearCount--;
+        if (this->messageClearCount == 0)
+        {
+            if (this->welcomePage)
+            {
+                controlPanel->selectPage(1);
+                this->welcomePage = false;
+                loadFeedTable();
+                this->setStatus("version 2.0", 5);
+            }
 
-    // display an override message, if there is one
-    overrideMessage();
-
-    // just in case, initialize the first time through
-    if( feedTable == NULL ) {
-        newFeed = loadFeedTable();
+            this->setStatus("ready", 0);
+        }
     }
 
     // do periodic checks
@@ -164,26 +99,84 @@ void UserInterface :: loop( void )
 
         if (core->isAlarm())
         {
-            setMessage(&ALARM_MESSAGE_STEPPER_DRIVER);
+            this->setStatus("Alarm on stepper drive", 5);
+            controlPanel->setPowerOff();
         }
         else if (core->isOverShutoffSpeed())
         {
-            setMessage(&ALARM_MESSAGE_TOO_FAST_ERROR);
-            // turn off the stepper drive
-            this->power = false;
-            GPIO_CLEAR_ENABLE;
-            // feed table hasn't changed, but we need to trigger an update
-            newFeed = loadFeedTable();
+            this->setStatus("Error: Too fast", 5);
+            controlPanel->setPowerOff();
         }
         else if (core->isOverWarningSpeed())
         {
-            setMessage(&ALARM_MESSAGE_TOO_FAST_WARNING);
+            this->setStatus("Warning: Close to speed limit", 1);
         }
     }
 
-    // read keypresses from the control panel
-    keys = controlPanel->getKeys();
+    // update the RPM display
+    uint16_t spindleRpm = core->getSpindleRPM();
+    controlPanel->setSpindleRpm(spindleRpm);
 
+    // put useful status on the status line when it's otherwise idle
+    if (messageClearCount == 0)
+    {
+        if (!this->power)
+        {
+            controlPanel->setStatus("leadscrew off");
+        }
+        else if (spindleRpm == 0)
+        {
+            controlPanel->setStatus("idle");
+        }
+        else
+        {
+            char buffer[32];
+            itoa(core->getLeadscrewRPM(), buffer, 10);
+            controlPanel->setStatus("leadscrew rpm: ");
+            controlPanel->appendStatus(buffer);
+        }
+    }
+
+    // read input from the control panel
+    controlPanel->checkForInput();
+
+    /*
+    if (this->power != controlPanel->_stepperPower)
+    {
+        this->power = controlPanel->_stepperPower;
+        GPIO_CLEAR_STEP;
+        GPIO_CLEAR_DIRECTION;
+        if (this->power)
+        {
+            GPIO_SET_ENABLE;
+            this->messageClearCount = 0;
+        }
+        else
+        {
+            GPIO_CLEAR_ENABLE;
+        }
+    }
+
+    if (this->metric != controlPanel->_mm)
+    {
+        this->metric = controlPanel->_mm;
+        newFeed = loadFeedTable();
+    }
+
+    if (this->thread != controlPanel->_thread)
+    {
+        this->thread = controlPanel->_thread;
+        newFeed = loadFeedTable();
+    }
+
+    if (this->reverse != controlPanel->_reverse)
+    {
+        this->reverse = controlPanel->_reverse;
+        core->setReverse(this->reverse);
+    }
+    */
+
+    /*
     // respond to keypresses
     if( keys.bit.IN_MM )
     {
@@ -238,22 +231,94 @@ void UserInterface :: loop( void )
         // feed table hasn't changed, but we need to trigger an update
         newFeed = loadFeedTable();
     }
+    */
 
+    /*
     // if we have changed the feed
     if( newFeed != NULL ) {
         // update the display
-        LED_REG leds = this->calculateLEDs(newFeed);
-        controlPanel->setLEDs(leds);
-        controlPanel->setValue(newFeed->display);
+        controlPanel->setFeedTable(this->feedTable);
 
         // update the core
         core->setFeed(newFeed);
         core->setReverse(this->reverse);
+    }*/
+
+}
+
+void UserInterface::powerButton(bool powerOn)
+{
+    this->power = powerOn;
+    GPIO_CLEAR_STEP;
+    GPIO_CLEAR_DIRECTION;
+    if (this->power)
+    {
+        GPIO_SET_ENABLE;
+        this->messageClearCount = 0;
     }
+    else
+    {
+        GPIO_CLEAR_ENABLE;
+    }
+}
 
-    // update the RPM display
-    controlPanel->setRPM((this->displaySpindleRpm) ? core->getSpindleRPM() : core->getLeadscrewRPM());
+void UserInterface::upButton(void)
+{
+    const FEED_THREAD *feed = this->feedTable->next();
+    controlPanel->setFeedRate(this->feedTable->index(), this->feedTable->current());
+}
 
-    // write data out to the display
-    controlPanel->refresh();
+void UserInterface::downButton(void)
+{
+    const FEED_THREAD *feed = this->feedTable->previous();
+    controlPanel->setFeedRate(this->feedTable->index(), this->feedTable->current());
+}
+
+void UserInterface::selectFeed(uint32_t index)
+{
+    const FEED_THREAD *feed = this->feedTable->select(index);
+    controlPanel->setFeedRate(this->feedTable->index(), this->feedTable->current());
+}
+
+void UserInterface::inchMm(bool metric)
+{
+    // toggles metric or inch mode
+    this->metric = metric;
+    const FEED_THREAD *newFeed = loadFeedTable();
+    core->setFeed(newFeed);
+}
+
+void UserInterface::feedThread(bool thread)
+{
+    // toggles feed or threading mode
+    this->thread = thread;
+    const FEED_THREAD *newFeed = loadFeedTable();
+    core->setFeed(newFeed);
+}
+
+void UserInterface::forwardReverse(bool reverse)
+{
+    // toggles forward or reverse
+    this->reverse = reverse;
+    const FEED_THREAD *newFeed = loadFeedTable();
+    core->setFeed(newFeed);
+    core->setReverse(this->reverse);
+}
+
+void UserInterface::pageChanged(uint32_t pageId)
+{
+    if (pageId == 1)
+    {
+        controlPanel->setState(this->metric, this->thread, this->reverse, this->power);
+        if (this->feedTable == NULL)
+        {
+            this->loadFeedTable();
+        }
+        else
+        {
+            this->controlPanel->setFeedRate(this->feedTable->index(), this->feedTable->current());
+        }
+        controlPanel->setSpindleRpm(core->getSpindleRPM());
+        this->setStatus("version 2.0", 5);
+    }
 }
