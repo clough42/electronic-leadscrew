@@ -1,3 +1,9 @@
+// Electronic Leadscrew
+// https://github.com/alexphredorg/electronic-leadscrew
+//
+// Copyright (c) 2020 Alex Wetmore
+//
+// Derived from:
 // Clough42 Electronic Leadscrew
 // https://github.com/clough42/electronic-leadscrew
 //
@@ -23,7 +29,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
+#if 0
+//
+// TODO -- move to devicelib and re-enable
+//
 #include "EEPROM.h"
 
 // Raise the EEPROM CS line
@@ -196,3 +205,4 @@ bool EEPROM :: writePage(Uint16 pageNum, Uint16 *buffer)
 
     return true;
 }
+#endif

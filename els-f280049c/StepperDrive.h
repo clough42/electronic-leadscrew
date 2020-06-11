@@ -1,3 +1,9 @@
+// Electronic Leadscrew
+// https://github.com/alexphredorg/electronic-leadscrew
+//
+// Copyright (c) 2020 Alex Wetmore
+//
+// Derived from:
 // Clough42 Electronic Leadscrew
 // https://github.com/clough42/electronic-leadscrew
 //
@@ -23,22 +29,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #ifndef __STEPPERDRIVE_H
 #define __STEPPERDRIVE_H
 
-#include "F28x_Project.h"
-#include "Configuration.h"
+#define STEP_PIN 0
+#define DIRECTION_PIN 1
+#define ENABLE_PIN 6
+#define ALARM_PIN 7
 
-
-#define STEP_PIN GPIO0
-#define DIRECTION_PIN GPIO1
-#define ENABLE_PIN GPIO6
-#define ALARM_PIN GPIO7
-
-#define GPIO_SET(pin) GpioDataRegs.GPASET.bit.pin = 1
-#define GPIO_CLEAR(pin) GpioDataRegs.GPACLEAR.bit.pin = 1
-#define GPIO_GET(pin) GpioDataRegs.GPADAT.bit.pin
+#define GPIO_SET(pin) GPIO_writePin(pin, 1)
+#define GPIO_CLEAR(pin) GPIO_writePin(pin, 0)
+#define GPIO_GET(pin) GPIO_readPin(pin)
 
 #ifdef INVERT_STEP_PIN
 #define GPIO_SET_STEP GPIO_CLEAR(STEP_PIN)
