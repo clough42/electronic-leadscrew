@@ -1,14 +1,18 @@
-//###########################################################################
+#ifndef _SCI_IO_H_
+#define _SCI_IO_H_
+
+//#############################################################################
 //
-// FILE:   f28004x_pie_defines.h
+// FILE:   launchxl_ex1_sci_io.h
 //
-// TITLE:  #defines used in PIE examples
+// TITLE:  Contains public interface to various functions related
+//         to the serial communications interface (SCI) object
 //
-//###########################################################################
-// $TI Release: F28004x Support Library v1.05.00.00 $
-// $Release Date: Thu Oct 18 15:43:57 CDT 2018 $
+//#############################################################################
+// $TI Release: F28004x Support Library v1.10.00.00 $
+// $Release Date: Tue May 26 17:06:03 IST 2020 $
 // $Copyright:
-// Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
+// Copyright (C) 2020 Texas Instruments Incorporated - http://www.ti.com/
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -38,35 +42,44 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // $
-//###########################################################################
-
-#ifndef F28004x_PIE_DEFINES_H
-#define F28004x_PIE_DEFINES_H
+//#############################################################################
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define PIEACK_GROUP1   0x0001
-#define PIEACK_GROUP2   0x0002
-#define PIEACK_GROUP3   0x0004
-#define PIEACK_GROUP4   0x0008
-#define PIEACK_GROUP5   0x0010
-#define PIEACK_GROUP6   0x0020
-#define PIEACK_GROUP7   0x0040
-#define PIEACK_GROUP8   0x0080
-#define PIEACK_GROUP9   0x0100
-#define PIEACK_GROUP10  0x0200
-#define PIEACK_GROUP11  0x0400
-#define PIEACK_GROUP12  0x0800
+//
+// Globals
+//
+
+// 
+// Function prototypes
+//
+int SCI_open(const char * path, unsigned flags, int llv_fd);
+int SCI_close(int dev_fd);
+int SCI_read(int dev_fd, char * buf, unsigned count);
+int SCI_write(int dev_fd, const char * buf, unsigned count);
+off_t SCI_lseek(int dev_fd, off_t offset, int origin);
+int SCI_unlink(const char * path);
+int SCI_rename(const char * old_name, const char * new_name);
+
+// KVV
+int SCIB_open(const char * path, unsigned flags, int llv_fd);
+int SCIB_close(int dev_fd);
+int SCIB_read(int dev_fd, char * buf, unsigned count);
+int SCIB_write(int dev_fd, const char * buf, unsigned count);
+off_t SCIB_lseek(int dev_fd, off_t offset, int origin);
+int SCIB_unlink(const char * path);
+int SCIB_rename(const char * old_name, const char * new_name);
+
 
 #ifdef __cplusplus
 }
-#endif /* extern "C" */
+#endif // extern "C"
 
-#endif   // - end of F28004x_PIE_DEFINES_H
+#endif // end of _SCI_H_ definition
 
 //
-// End of file.
+// End of File
 //
 

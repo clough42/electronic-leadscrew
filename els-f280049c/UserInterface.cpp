@@ -25,6 +25,8 @@
 
 
 #include "UserInterface.h"
+// KVV
+#include "nextion.h"
 
 const MESSAGE STARTUP_MESSAGE_2 =
 {
@@ -127,6 +129,21 @@ void UserInterface :: loop( void )
     // read keypresses from the control panel
     keys = controlPanel->getKeys();
 
+    // KVV
+    {
+        bool at_stop;
+        bool enabled = core->isEnabled();
+        bool nextion_init = false;
+        KEY_REG nkeys = nextion_loop(core->isAlarm(), enabled, at_stop, nextion_init);
+        core->setEnabled(enabled);
+        if (nkeys.all) {
+            keys = nkeys;
+        }
+        if( nextion_init ) {
+            newFeed = loadFeedTable();
+        }
+    }
+
     // respond to keypresses
     if( keys.bit.IN_MM )
     {
@@ -163,6 +180,9 @@ void UserInterface :: loop( void )
         LED_REG leds = this->calculateLEDs(newFeed);
         controlPanel->setLEDs(leds);
         controlPanel->setValue(newFeed->display);
+        // KVV
+        // Must pass leds as newFeed->leds is out of date, and may not have foward/reverse set.
+        nextion_feed(newFeed, leds);
 
         // update the core
         core->setFeed(newFeed);
@@ -171,6 +191,8 @@ void UserInterface :: loop( void )
 
     // update the RPM display
     controlPanel->setRPM(core->getRPM());
+    // KVV
+    nextion_rpm(core->getRPM());
 
     // write data out to the display
     controlPanel->refresh();

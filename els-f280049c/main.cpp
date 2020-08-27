@@ -36,6 +36,9 @@
 #include "UserInterface.h"
 #include "Debug.h"
 
+// KVV
+#include "nextion.h"
+
 
 __interrupt void cpu_timer0_isr(void);
 
@@ -96,6 +99,9 @@ void main(void)
     // Initialize the PIE control registers to their default state.
     InitPieCtrl();
 
+    // KVV
+    InitGpio();
+
     // Disable CPU interrupts and clear all CPU interrupt flags
     IER = 0x0000;
     IFR = 0x0000;
@@ -124,6 +130,9 @@ void main(void)
     stepperDrive.initHardware();
     encoder.initHardware();
 
+    // KVV
+    nextion_init();
+
     // Enable CPU INT1 which is connected to CPU-Timer 0
     IER |= M_INT1;
 
@@ -133,6 +142,9 @@ void main(void)
     // Enable global Interrupts and higher priority real-time debug events
     EINT;
     ERTM;
+
+    // KVV
+    nextion_wait();
 
     // User interface loop
     for(;;) {

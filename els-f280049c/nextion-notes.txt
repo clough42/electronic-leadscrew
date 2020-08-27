@@ -1,0 +1,22 @@
+To compile the Nextion HMI file, you'll need the Nextion Editor. A precompiled 
+Nextion TFT file is included. To load the TFT file to the display, copy the file
+to a uSD card, insert into the Nextion display, power it on, and watch
+the messages. Once firmware is loaded, remove card and power cycle everything.  
+https://nextion.tech/nextion-editor/
+ 
+The ELS code was built using Code Composer Studio 10.1.0 and C2000Ware 3.02.00.
+
+The ELS code can be compiled in legacy COFF or to the new eabi (ELF) formats. 
+However, until C2000Ware is fixed, references to F28x_usDelay may need to be 
+changed to _F28x_usDelay. Places in C2000Ware that must be updated are 
+f28004x_sysctrl.c and f28004x_examples.h. Here is the message about the problem.
+First try without making any changes and if undefined references to F28x_usDelay
+are seen, switch to COFF or make the changes. 
+
+https://e2e.ti.com/support/microcontrollers/c2000/f/171/p/893565/3303362?tisearch=e2e-sitesearch&keymatch=F28x_usDelay#3303362
+
+BUT I only managed to get ELF files to work with RAM, not with FLASH. I only
+managed to get COFF files to work with FLASH.
+
+August 2020
+Kent A. Vander Velden (kent.vandervelden@gmail.com)

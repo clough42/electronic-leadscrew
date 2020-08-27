@@ -23,14 +23,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 MEMORY
 {
 PAGE 0 :
    /* BEGIN is used for the "boot to Flash" bootloader mode   */
 
    BEGIN           	: origin = 0x080000, length = 0x000002
-   RAMM0           	: origin = 0x0000F5, length = 0x00030B
+   RAMM0           	: origin = 0x0000F3, length = 0x00030D
 
    RAMLS0          	: origin = 0x008000, length = 0x000800
    RAMLS1          	: origin = 0x008800, length = 0x000800
@@ -74,12 +73,15 @@ PAGE 0 :
    FLASH_BANK1_SEC12 : origin = 0x09C000, length = 0x001000	/* on-chip Flash */
    FLASH_BANK1_SEC13 : origin = 0x09D000, length = 0x001000	/* on-chip Flash */
    FLASH_BANK1_SEC14 : origin = 0x09E000, length = 0x001000	/* on-chip Flash */
-   FLASH_BANK1_SEC15 : origin = 0x09F000, length = 0x001000	/* on-chip Flash */
+   FLASH_BANK1_SEC15 : origin = 0x09F000, length = 0x000FF0	/* on-chip Flash */
+
+//   FLASH_BANK1_SEC15_RSVD : origin = 0x09FFF0, length = 0x000010  /* Reserve and do not use for code as per the errata advisory "Memory: Prefetching Beyond Valid Memory" */
 
 PAGE 1 :
 
-   BOOT_RSVD       : origin = 0x000002, length = 0x0000F3     /* Part of M0, BOOT rom will use this for stack */
-   RAMM1           : origin = 0x000400, length = 0x000400     /* on-chip RAM block M1 */
+   BOOT_RSVD       : origin = 0x000002, length = 0x0000F1     /* Part of M0, BOOT rom will use this for stack */
+   RAMM1           : origin = 0x000400, length = 0x0003F8     /* on-chip RAM block M1 */
+//   RAMM1_RSVD      : origin = 0x0007F8, length = 0x000008     /* Reserve and do not use for code as per the errata advisory "Memory: Prefetching Beyond Valid Memory" */
 
    RAMLS5      : origin = 0x00A800, length = 0x000800
    RAMLS6      : origin = 0x00B000, length = 0x000800
@@ -88,28 +90,53 @@ PAGE 1 :
    RAMGS0      : origin = 0x00C000, length = 0x002000
    RAMGS1      : origin = 0x00E000, length = 0x002000
    RAMGS2      : origin = 0x010000, length = 0x002000
-   RAMGS3      : origin = 0x012000, length = 0x002000
+   RAMGS3      : origin = 0x012000, length = 0x001FF8
+//   RAMGS3_RSVD : origin = 0x013FF8, length = 0x000008     /* Reserve and do not use for code as per the errata advisory "Memory: Prefetching Beyond Valid Memory" */
 }
 
 
 SECTIONS
 {
    codestart        : > BEGIN,     PAGE = 0, ALIGN(4)
-   .text            : >>FLASH_BANK0_SEC1 | FLASH_BANK0_SEC2 | FLASH_BANK0_SEC3,   PAGE = 0, ALIGN(4)
+   .text            : >>FLASH_BANK0_SEC2 | FLASH_BANK0_SEC3 | FLASH_BANK0_SEC4 | FLASH_BANK0_SEC5,   PAGE = 0, ALIGN(4)
    .cinit           : > FLASH_BANK0_SEC1,     PAGE = 0, ALIGN(4)
-   .pinit           : > FLASH_BANK0_SEC1,     PAGE = 0, ALIGN(4)
    .switch          : > FLASH_BANK0_SEC1,     PAGE = 0, ALIGN(4)
    .reset           : > RESET,     PAGE = 0, TYPE = DSECT /* not used, */
 
-   .cio             : > RAMLS0,    PAGE = 0
    .stack           : > RAMM1,     PAGE = 1
-   .ebss            : > RAMLS5,    PAGE = 1
-   .esysmem         : > RAMLS5,    PAGE = 1   
-   .econst          : > FLASH_BANK0_SEC4,    PAGE = 0, ALIGN(4)
+
+#if defined(__TI_EABI__)
+   .init_array      : > FLASH_BANK0_SEC1,       PAGE = 0,       ALIGN(4)
+   .bss             : > RAMLS5,       PAGE = 1
+   .bss:output      : > RAMLS3,       PAGE = 0
+   .bss:cio         : > RAMLS0,       PAGE = 0
+   .data            : > RAMLS5,       PAGE = 1
+   .sysmem          : > RAMLS5,       PAGE = 1
+   /* Initalized sections go in Flash */
+   .const           : >>FLASH_BANK0_SEC6 | FLASH_BANK0_SEC7,    PAGE = 0, ALIGN(4)
+#else
+   .pinit           : > FLASH_BANK0_SEC1,       PAGE = 0,       ALIGN(4)
+   .ebss            : > RAMLS5,       PAGE = 1
+   .esysmem         : > RAMLS5,       PAGE = 1
+   .cio             : > RAMLS0,       PAGE = 0
+   .econst          : >>FLASH_BANK0_SEC6 | FLASH_BANK0_SEC7,    PAGE = 0, ALIGN(4)
+#endif
 
    ramgs0           : > RAMGS0,    PAGE = 1
    ramgs1           : > RAMGS1,    PAGE = 1
 
+ 
+#if defined(__TI_EABI__) 
+   .TI.ramfunc      : LOAD = FLASH_BANK0_SEC1,
+                      RUN = RAMLS0 | RAMLS1 | RAMLS2 |RAMLS3,
+                      LOAD_START(RamfuncsLoadStart),
+                      LOAD_SIZE(RamfuncsLoadSize),
+                      LOAD_END(RamfuncsLoadEnd),
+                      RUN_START(RamfuncsRunStart),
+                      RUN_SIZE(RamfuncsRunSize),
+                      RUN_END(RamfuncsRunEnd),
+                      PAGE = 0, ALIGN(4)
+#else					  
    .TI.ramfunc      : LOAD = FLASH_BANK0_SEC1,
                          RUN = RAMLS0 | RAMLS1 | RAMLS2 |RAMLS3,
                          LOAD_START(_RamfuncsLoadStart),
@@ -119,6 +146,12 @@ SECTIONS
                          RUN_SIZE(_RamfuncsRunSize),
                          RUN_END(_RamfuncsRunEnd),
                          PAGE = 0, ALIGN(4)
+#endif
 
 }
 
+/*
+//===========================================================================
+// End of file.
+//===========================================================================
+*/
