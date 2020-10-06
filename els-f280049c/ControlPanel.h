@@ -137,6 +137,10 @@ private:
     // current key states
     KEY_REG keys;
 
+    // number of times current key state has been seen
+    KEY_REG stableKeys;
+    Uint16 stableCount;
+
     // current override message, or NULL if none
     const Uint16 *message;
 
@@ -159,6 +163,8 @@ private:
     Uint16 reverse_byte(Uint16 x);
     void initSpi();
     void configureSpiBus(void);
+    bool isValidKeyState(KEY_REG);
+    bool isStable(KEY_REG);
 
 public:
     ControlPanel(SPIBus *spiBus);

@@ -32,6 +32,9 @@
 // Time delay after sending read command, before clocking in data
 #define DELAY_BEFORE_READING_US 3
 
+// Number of times a key state must be read consecutively to be considered stable
+#define MIN_CONSECUTIVE_READS 3
+
 
 // Lower the TM1638 CS (STB) line
 #define CS_ASSERT GpioDataRegs.GPBCLEAR.bit.GPIO33 = 1
@@ -47,6 +50,8 @@ ControlPanel :: ControlPanel(SPIBus *spiBus)
     this->value = NULL;
     this->leds.all = 0;
     this->keys.all = 0;
+    this->stableKeys.all = 0;
+    this->stableCount = 0;
     this->message = NULL;
     this->brightness = 3;
 }
@@ -236,11 +241,51 @@ KEY_REG ControlPanel :: getKeys()
     configureSpiBus();
 
     newKeys = readKeys();
-    if( newKeys.all != this->keys.all ) {
+    if( isValidKeyState(newKeys) && isStable(newKeys) && newKeys.all != this->keys.all ) {
+        KEY_REG previousKeys = this->keys; // remember the previous stable value
         this->keys = newKeys;
-        return newKeys;
+
+        if( previousKeys.all == 0 ) {     // only act if the previous stable value was no keys pressed
+            return newKeys;
+        }
     }
     return noKeys;
+}
+
+bool ControlPanel :: isValidKeyState(KEY_REG testKeys) {
+    // filter out any states with multiple keys pressed (bad communication filter)
+    switch(testKeys.all) {
+    case 0:
+    case 1 << 0:
+    case 1 << 2:
+    case 1 << 3:
+    case 1 << 4:
+    case 1 << 5:
+    case 1 << 6:
+    case 1 << 7:
+        return true;
+    }
+
+    return false;
+}
+
+
+bool ControlPanel :: isStable(KEY_REG testKeys) {
+    // don't trust any read key state until we've seen it multiple times consecutively (noise filter)
+    if( testKeys.all != stableKeys.all )
+    {
+        this->stableKeys = testKeys;
+        this->stableCount = 1;
+    }
+    else
+    {
+        if( this->stableCount < MIN_CONSECUTIVE_READS )
+        {
+            this->stableCount++;
+        }
+    }
+
+    return this->stableCount >= MIN_CONSECUTIVE_READS;
 }
 
 void ControlPanel :: setMessage( const Uint16 *message )
