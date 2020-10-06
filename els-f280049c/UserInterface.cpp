@@ -156,15 +156,24 @@ void UserInterface :: loop( void )
         }
     }
 
-    // these keys can be operated when the machine is running
-    if( keys.bit.UP )
-    {
-        newFeed = feedTable->next();
+#ifdef IGNORE_ALL_KEYS_WHEN_RUNNING
+    if( currentRpm == 0 )
+        {
+#endif // IGNORE_ALL_KEYS_WHEN_RUNNING
+
+        // these keys can be operated when the machine is running
+        if( keys.bit.UP )
+        {
+            newFeed = feedTable->next();
+        }
+        if( keys.bit.DOWN )
+        {
+            newFeed = feedTable->previous();
+        }
+
+#ifdef IGNORE_ALL_KEYS_WHEN_RUNNING
     }
-    if( keys.bit.DOWN )
-    {
-        newFeed = feedTable->previous();
-    }
+#endif // IGNORE_ALL_KEYS_WHEN_RUNNING
 
     // if we have changed the feed
     if( newFeed != NULL ) {
