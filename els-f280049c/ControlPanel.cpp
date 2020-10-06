@@ -27,10 +27,10 @@
 #include "ControlPanel.h"
 
 // Time delay to allow CS (STB) line to reach high state and be registered
-#define CS_RISE_TIME_US 5
+#define CS_RISE_TIME_US 10
 
 // Time delay after sending read command, before clocking in data
-#define DELAY_BEFORE_READING_US 1
+#define DELAY_BEFORE_READING_US 3
 
 
 // Lower the TM1638 CS (STB) line
