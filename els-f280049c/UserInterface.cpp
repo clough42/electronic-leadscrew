@@ -116,6 +116,9 @@ void UserInterface :: loop( void )
 {
     const FEED_THREAD *newFeed = NULL;
 
+    // read the RPM up front so we can use it to make decisions
+    Uint16 currentRpm = core->getRPM();
+
     // display an override message, if there is one
     overrideMessage();
 
@@ -128,22 +131,32 @@ void UserInterface :: loop( void )
     keys = controlPanel->getKeys();
 
     // respond to keypresses
-    if( keys.bit.IN_MM )
+    if( currentRpm == 0 )
     {
-        this->metric = ! this->metric;
-        newFeed = loadFeedTable();
+        // these keys should only be sensitive when the machine is stopped
+        if( keys.bit.IN_MM )
+        {
+            this->metric = ! this->metric;
+            newFeed = loadFeedTable();
+        }
+        if( keys.bit.FEED_THREAD )
+        {
+            this->thread = ! this->thread;
+            newFeed = loadFeedTable();
+        }
+        if( keys.bit.FWD_REV )
+        {
+            this->reverse = ! this->reverse;
+            // feed table hasn't changed, but we need to trigger an update
+            newFeed = loadFeedTable();
+        }
+        if( keys.bit.SET )
+        {
+            setMessage(&SETTINGS_MESSAGE_1);
+        }
     }
-    if( keys.bit.FEED_THREAD )
-    {
-        this->thread = ! this->thread;
-        newFeed = loadFeedTable();
-    }
-    if( keys.bit.FWD_REV )
-    {
-        this->reverse = ! this->reverse;
-        // feed table hasn't changed, but we need to trigger an update
-        newFeed = loadFeedTable();
-    }
+
+    // these keys can be operated when the machine is running
     if( keys.bit.UP )
     {
         newFeed = feedTable->next();
@@ -151,10 +164,6 @@ void UserInterface :: loop( void )
     if( keys.bit.DOWN )
     {
         newFeed = feedTable->previous();
-    }
-    if( keys.bit.SET )
-    {
-        setMessage(&SETTINGS_MESSAGE_1);
     }
 
     // if we have changed the feed
@@ -170,7 +179,7 @@ void UserInterface :: loop( void )
     }
 
     // update the RPM display
-    controlPanel->setRPM(core->getRPM());
+    controlPanel->setRPM(currentRpm);
 
     // write data out to the display
     controlPanel->refresh();
