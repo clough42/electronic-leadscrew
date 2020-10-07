@@ -5,21 +5,22 @@ gears or gearbox on a metalworking lathe with a stepper motor controlled electro
 lathe spindle.  The electronic controller allows setting different virtual gear ratios for feeds and threading.
 
 ## Project Status
-Design and prototyping.
+Beta.
 
-**NOTE: This is still a work in progress and is subject to change.  Many people have expressed interest in buying parts
-and following along with the build.  That's great!  Just be aware that this hasn't been tested and refined end-to-end yet, so
-things like stepper motors, servos, drivers, display boards are likely to change as the project progresses.**
+**NOTE: This is still a work in progress and is subject to change.  Hundreds of people all over the world have purchased parts
+and are following along with the build.  That's great!  I have had great success with mine, as have others.  Building an ELS
+for your lathe does require require basic electronics and troubleshooting skills, so keep that in mind if you decide to build one
+yourself.**
 
 ## Documentation
 For documentation, please [**visit the project wiki**](https://github.com/clough42/electronic-leadscrew/wiki).
 
 ## Current Concept
-The project is still in the early stages of development.  The current hardware looks like this:
+The project is still in active development.  The current hardware looks like this:
 * Use a TI F280049C Piccolo microcontroller on a LaunchXL prototyping board
 * Use an inexpensive SPI "LED&Key" import display and keypad for the user interface
-* Read the spindle position using a rotary encoder with a 3D-printed gear
-* Use a standard stepper motor and driver on the lathe leadscrew
+* Read the spindle position using a rotary encoder with a 3D-printed gear or belt drive
+* Use a standard stepper motor (or servo) and driver on the lathe leadscrew
 * Make as few modifications to the lathe as possible:
   * Use the original leadscrew and halfnuts without machining
   * Drive the leadscrew through the factory input shaft
