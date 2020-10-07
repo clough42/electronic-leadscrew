@@ -4,6 +4,8 @@ This is the firmware for an experimental lathe electronic leadscrew controller. 
 gears or gearbox on a metalworking lathe with a stepper motor controlled electronically based on an encoder on the
 lathe spindle.  The electronic controller allows setting different virtual gear ratios for feeds and threading.
 
+![Silkscreened Control Panel](https://raw.githubusercontent.com/clough42/electronic-leadscrew/master/docs/images/CPKit.jpg)
+
 ## Project Status
 Beta.
 
@@ -15,7 +17,7 @@ yourself.**
 ## Documentation
 For documentation, please [**visit the project wiki**](https://github.com/clough42/electronic-leadscrew/wiki).
 
-## Current Concept
+## Concept
 The project is still in active development.  The current hardware looks like this:
 * Use a TI F280049C Piccolo microcontroller on a LaunchXL prototyping board
 * Use an inexpensive SPI "LED&Key" import display and keypad for the user interface
@@ -27,13 +29,20 @@ The project is still in active development.  The current hardware looks like thi
   * Drive the encoder from the factory spindle gear train
   * Make it easy to restore the lathe to the original change gear configuration  
 
-The current plan is to support the following operations:
-* Multiple feeds in thousandths of an inch per revolution
-* Multiple feeds in hundredths of a millimeter per revolution
-* Multiple imperial thread pitches (in threads-per-inch)
-* Multiple metric thread pitches (in millimeters)
+The ELS firmware currently supports the following:
+* Feeds in thousandths of an inch per revolution
+* Feeds in hundredths of a millimeter per revolution
+* Imperial thread pitches (in threads-per-inch)
+* Metric thread pitches (in millimeters)
+* Imperial and Metric lead screws
 
-## Future Goals
+Items on the short list for future development:
+* Support for dual-shaft lathes that have different drive ratios for feeding and threading
+* Support for powering down the leadscrew while leaving the tachometer active
+* Leadscrew speed limit warnings
+* Tachometer averaging (stabilization)
+
+## Possible Future Goals
 While this project is starting out as a simple gearbox replacement, some features seem attractive, even for
 that simple case:
 * Threading/feeding up to a hard shoulder with automatic stop
