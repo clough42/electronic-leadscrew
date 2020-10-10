@@ -57,7 +57,7 @@ private:
     Uint16 messageTime;
 
     const FEED_THREAD *loadFeedTable();
-    LED_REG calculateLEDs();
+    LED_REG calculateLEDs(const FEED_THREAD *selectedFeed);
     void setMessage(const MESSAGE *message);
     void overrideMessage( void );
 
