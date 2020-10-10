@@ -68,7 +68,9 @@ UserInterface :: UserInterface(ControlPanel *controlPanel, Core *core, FeedTable
 
     this->keys.all = 0xff;
 
-    loadFeedTable();
+    // initialize the core so we start up correctly
+    core->setReverse(this->reverse);
+    core->setFeed(loadFeedTable());
 
     setMessage(&STARTUP_MESSAGE_1);
 }
