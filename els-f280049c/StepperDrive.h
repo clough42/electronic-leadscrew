@@ -99,6 +99,8 @@ public:
     void incrementCurrentPosition(int32 increment);
     void setCurrentPosition(int32 position);
 
+    void setEnabled(bool);
+
     bool isAlarm();
 
     void ISR(void);
@@ -117,6 +119,17 @@ inline void StepperDrive :: incrementCurrentPosition(int32 increment)
 inline void StepperDrive :: setCurrentPosition(int32 position)
 {
     this->currentPosition = position;
+}
+
+inline void StepperDrive :: setEnabled(bool enabled)
+{
+    if( enabled ) {
+        GPIO_SET_ENABLE;
+    }
+    else
+    {
+        GPIO_CLEAR_ENABLE;
+    }
 }
 
 inline bool StepperDrive :: isAlarm()
