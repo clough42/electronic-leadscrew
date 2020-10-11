@@ -40,6 +40,8 @@ Core :: Core( Encoder *encoder, StepperDrive *stepperDrive )
     this->previousSpindlePosition = 0;
     this->previousFeedDirection = 0;
     this->previousFeed = NULL;
+
+    this->powerOn = true; // default to power on
 }
 
 void Core :: setReverse(bool reverse)
@@ -54,6 +56,11 @@ void Core :: setReverse(bool reverse)
     }
 }
 
+void Core :: setPowerOn(bool powerOn)
+{
+    this->powerOn = powerOn;
+    this->stepperDrive->setEnabled(powerOn);
+}
 
 
 
