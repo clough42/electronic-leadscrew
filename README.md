@@ -4,35 +4,45 @@ This is the firmware for an experimental lathe electronic leadscrew controller. 
 gears or gearbox on a metalworking lathe with a stepper motor controlled electronically based on an encoder on the
 lathe spindle.  The electronic controller allows setting different virtual gear ratios for feeds and threading.
 
-## Project Status
-Design and prototyping.
+![Silkscreened Control Panel](https://raw.githubusercontent.com/clough42/electronic-leadscrew/master/docs/images/CPKit.jpg)
 
-**NOTE: This is still a work in progress and is subject to change.  Many people have expressed interest in buying parts
-and following along with the build.  That's great!  Just be aware that this hasn't been tested and refined end-to-end yet, so
-things like stepper motors, servos, drivers, display boards are likely to change as the project progresses.**
+## Project Status
+Beta.
+
+**NOTE: This is still a work in progress and is subject to change.  Hundreds of people all over the world have purchased parts
+and are following along with the build.  That's great!  I have had great success with mine, as have others.  Building an ELS
+for your lathe does require require basic electronics and troubleshooting skills, so keep that in mind if you decide to build one
+yourself.**
 
 ## Documentation
 For documentation, please [**visit the project wiki**](https://github.com/clough42/electronic-leadscrew/wiki).
 
-## Current Concept
-The project is still in the early stages of development.  The current hardware looks like this:
+## Concept
+The project is still in active development.  The current hardware looks like this:
 * Use a TI F280049C Piccolo microcontroller on a LaunchXL prototyping board
 * Use an inexpensive SPI "LED&Key" import display and keypad for the user interface
-* Read the spindle position using a rotary encoder with a 3D-printed gear
-* Use a standard stepper motor and driver on the lathe leadscrew
+* Read the spindle position using a rotary encoder with a 3D-printed gear or belt drive
+* Use a standard stepper motor (or servo) and driver on the lathe leadscrew
 * Make as few modifications to the lathe as possible:
   * Use the original leadscrew and halfnuts without machining
   * Drive the leadscrew through the factory input shaft
   * Drive the encoder from the factory spindle gear train
   * Make it easy to restore the lathe to the original change gear configuration  
 
-The current plan is to support the following operations:
-* Multiple feeds in thousandths of an inch per revolution
-* Multiple feeds in hundredths of a millimeter per revolution
-* Multiple imperial thread pitches (in threads-per-inch)
-* Multiple metric thread pitches (in millimeters)
+The ELS firmware currently supports the following:
+* Feeds in thousandths of an inch per revolution
+* Feeds in hundredths of a millimeter per revolution
+* Imperial thread pitches (in threads-per-inch)
+* Metric thread pitches (in millimeters)
+* Imperial and Metric lead screws
 
-## Future Goals
+Items on the short list for future development:
+* Support for dual-shaft lathes that have different drive ratios for feeding and threading
+* Support for powering down the leadscrew while leaving the tachometer active
+* Leadscrew speed limit warnings
+* Tachometer averaging (stabilization)
+
+## Possible Future Goals
 While this project is starting out as a simple gearbox replacement, some features seem attractive, even for
 that simple case:
 * Threading/feeding up to a hard shoulder with automatic stop

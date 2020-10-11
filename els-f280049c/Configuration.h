@@ -126,6 +126,21 @@
 #define HARDWARE_VERSION 2
 
 
+
+
+//================================================================================
+//                                FEATURES
+//
+// Additional features that can be enabled for your configuration.
+//================================================================================
+
+// Ignore all key presses when the machine is running.  Normally, only the mode
+// and direction keys are ignored.
+//#define IGNORE_ALL_KEYS_WHEN_RUNNING
+
+
+
+
 //================================================================================
 //                               CPU / TIMING
 //

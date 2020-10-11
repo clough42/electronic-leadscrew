@@ -19,13 +19,18 @@ SPIBus :: SPIBus( void )
 
 void SPIBus :: initHardware(void)
 {
+    // Set up slow speed clock
+    EALLOW;
+    ClkCfgRegs.LOSPCP.bit.LSPCLKDIV = 0b100; // LPSCLK = SYSCLK/8 = 12.5MHz
+    EDIS;
+
     // Set up SPI B
     SpibRegs.SPICCR.bit.SPISWRESET = 0; // Enter RESET state
     setEightBits();
     SpibRegs.SPICCR.bit.CLKPOLARITY = 1; // data latched on rising edge
     SpibRegs.SPICTL.bit.CLK_PHASE = 0; // normal clocking scheme
     SpibRegs.SPICTL.bit.MASTER_SLAVE = 1; // master
-    SpibRegs.SPIBRR.bit.SPI_BIT_RATE = ((25000000 / 250000) - 1); // baud rate = 250k LSPCLK
+    SpibRegs.SPIBRR.bit.SPI_BIT_RATE = 127; // SPI bit rate = LPSCLK/128 ~ 98Kbps
     setThreeWire();
     SpibRegs.SPICCR.bit.SPISWRESET = 1; // clear reset state; ready to transmit
 
