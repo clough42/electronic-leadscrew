@@ -6,6 +6,18 @@ lathe spindle.  The electronic controller allows setting different virtual gear 
 
 ![Silkscreened Control Panel](https://raw.githubusercontent.com/clough42/electronic-leadscrew/master/docs/images/CPKit.jpg)
 
+## Latest Version
+
+The latest version of the firmware has been updated with several new features and fixes:
+* Fix phantom control panel button presses
+* Add power button support
+* Fix integer overflow for large metric threads
+* Prevent mode and direction changes while running
+* Smooth tachometer display
+* Add support for lathes with separate feed and thread gearing
+
+[DOWNLOAD HERE](https://github.com/clough42/electronic-leadscrew/releases)
+
 ## Project Status
 Beta.
 
@@ -15,7 +27,7 @@ for your lathe does require require basic electronics and troubleshooting skills
 yourself.**
 
 ## Documentation
-For documentation, please [**visit the project wiki**](https://github.com/clough42/electronic-leadscrew/wiki).
+For documentation, please [**VISIT THE PROJECT WIKI**](https://github.com/clough42/electronic-leadscrew/wiki).
 
 ## Concept
 The project is still in active development.  The current hardware looks like this:
