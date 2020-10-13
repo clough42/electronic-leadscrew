@@ -30,10 +30,11 @@
 typedef unsigned char uchar_t;
 
 // Set to 1 to enable debugging of the Nextion messages over the
-// virtual COM port.
+// virtual COM port (57600, 8N1)
 #define NEXTION_DEBUG 0
 
 #if NEXTION_DEBUG
+#include <ctype.h>
 #include "launchxl_ex1_sci_io.h"
 
 static void scia_init();
@@ -83,6 +84,30 @@ static int nextion_read(uchar_t buf[], const int nmax)
 static void nextion_send(const uchar_t *msg)
 {
     transmitSCIBMessage((const unsigned char*) msg);
+
+#if NEXTION_DEBUG
+    {
+        const uchar_t *p;
+        printf("Send: ");
+        p = msg;
+        while(*p != '\0') {
+            if(isprint(*p)) {
+              putchar(*p);
+            } else {
+              putchar(0xff);
+            }
+            p++;
+        }
+        printf(" : ");
+        p = msg;
+        while(*p != '\0') {
+            printf(" %02x", *p);
+            p++;
+        }
+        putchar('\r');
+        putchar('\n');
+    }
+#endif
 }
 
 void nextion_init()
@@ -134,7 +159,7 @@ void nextion_wait()
     // But the required time, while short, is unspecified. Instead, wait for
     // the Nextion to send a ready message, eventually timing out if necessary.
     //
-    // Nexiton will send
+    // Nextion will send
     //   0x00 0x00 0x00 0xff 0xff 0xff
     // on start up, and
     //   0x88 0xff 0xff 0xff
@@ -405,7 +430,7 @@ KEY_REG nextion_loop(bool alarm, bool &enabled, bool &at_stop, bool &init)
     // Set credits message once
     if (do_once)
     {
-        const uchar_t *msg = { "t2.txt=\"ELS 1.1.02\r\n"
+        const uchar_t *msg = { "t2.txt=\"ELS 1.3.01\r\n"
                                "James Clough - Clough42\r\n"
                                "\r\n"
                                "Nextion display\r\n"
@@ -510,10 +535,11 @@ static void scia_init()
     SciaRegs.SCICTL2.bit.RXBKINTENA = 1;
 
     //
-    // 115200 baud @LSPCLK = 25MHz (100 MHz SYSCLK)
+    // 57600 baud @LSPCLK = 12.5MHz (100 MHz SYSCLK)
+    // (1152kBaud didn't work with LPSCLK = 12.5MHz)
     //
     SciaRegs.SCIHBAUD.all = 0x00;
-    SciaRegs.SCILBAUD.all = 0x1A;
+    SciaRegs.SCILBAUD.all = 0x1B;
 
     //
     // Relinquish SCI from Reset
@@ -549,18 +575,20 @@ static void scib_init()
     ScibRegs.SCICTL2.bit.TXINTENA = 1;
     ScibRegs.SCICTL2.bit.RXBKINTENA = 1;
 
+    // Calculate baud rate bits using BRR = LPSCLK / ((Baud rate + 1) * 8)
+    // Round to
 #if 0
     //
-    // 9600 baud @LSPCLK = 25MHz (100 MHz SYSCLK)
-    //
-    ScibRegs.SCIHBAUD.all = 0x01;
-    ScibRegs.SCILBAUD.all = 0x44;
-#else
-    //
-    // 38400 baud @LSPCLK = 25MHz (100 MHz SYSCLK)
+    // 9600 baud @LSPCLK = 12.5MHz (100 MHz SYSCLK)
     //
     ScibRegs.SCIHBAUD.all = 0x00;
-    ScibRegs.SCILBAUD.all = 0x50;
+    ScibRegs.SCILBAUD.all = 0xA3;
+#else
+    //
+    // 38400 baud @LSPCLK = 12.5MHz (100 MHz SYSCLK)
+    //
+    ScibRegs.SCIHBAUD.all = 0x00;
+    ScibRegs.SCILBAUD.all = 0x29;
 #endif
 
     //
