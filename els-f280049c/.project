@@ -26,84 +26,59 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>device_support_f28004x/device.c</name>
+			<name>driverlib.lib</name>
 			<type>1</type>
-			<locationURI>TI_PRODUCTS_DIR/c2000/C2000Ware_3_02_00_00/device_support/f28004x/common/source/device.c</locationURI>
+			<locationURI>$%7BC2000WARE_DLIB_ROOT%7D/ccs/Release/driverlib.lib</locationURI>
 		</link>
 		<link>
-			<name>device_support_f28004x/f28004x_adc.c</name>
+			<name>device/f28004x_codestartbranch.asm</name>
 			<type>1</type>
-			<locationURI>TI_PRODUCTS_DIR/c2000/C2000Ware_3_02_00_00/device_support/f28004x/common/source/f28004x_adc.c</locationURI>
+			<locationURI>PARENT-3-C2000WARE_DLIB_ROOT/device_support/f28004x/common/source/f28004x_codestartbranch.asm</locationURI>
 		</link>
 		<link>
-			<name>device_support_f28004x/f28004x_codestartbranch.asm</name>
+			<name>device/f28004x_cputimers.c</name>
 			<type>1</type>
-			<locationURI>TI_PRODUCTS_DIR/c2000/C2000Ware_3_02_00_00/device_support/f28004x/common/source/f28004x_codestartbranch.asm</locationURI>
+			<locationURI>PARENT-3-C2000WARE_DLIB_ROOT/device_support/f28004x/common/source/f28004x_cputimers.c</locationURI>
 		</link>
 		<link>
-			<name>device_support_f28004x/f28004x_cputimers.c</name>
+			<name>device/f28004x_defaultisr.c</name>
 			<type>1</type>
-			<locationURI>TI_PRODUCTS_DIR/c2000/C2000Ware_3_02_00_00/device_support/f28004x/common/source/f28004x_cputimers.c</locationURI>
+			<locationURI>PARENT-3-C2000WARE_DLIB_ROOT/device_support/f28004x/common/source/f28004x_defaultisr.c</locationURI>
 		</link>
 		<link>
-			<name>device_support_f28004x/f28004x_dcsm_z1otp.asm</name>
+			<name>device/f28004x_globalvariabledefs.c</name>
 			<type>1</type>
-			<locationURI>TI_PRODUCTS_DIR/c2000/C2000Ware_3_02_00_00/device_support/f28004x/common/source/f28004x_dcsm_z1otp.asm</locationURI>
+			<locationURI>PARENT-3-C2000WARE_DLIB_ROOT/device_support/f28004x/headers/source/f28004x_globalvariabledefs.c</locationURI>
 		</link>
 		<link>
-			<name>device_support_f28004x/f28004x_dcsm_z2otp.asm</name>
+			<name>device/f28004x_headers_nonbios.cmd</name>
 			<type>1</type>
-			<locationURI>TI_PRODUCTS_DIR/c2000/C2000Ware_3_02_00_00/device_support/f28004x/common/source/f28004x_dcsm_z2otp.asm</locationURI>
+			<locationURI>PARENT-3-C2000WARE_DLIB_ROOT/device_support/f28004x/headers/cmd/f28004x_headers_nonbios.cmd</locationURI>
 		</link>
 		<link>
-			<name>device_support_f28004x/f28004x_defaultisr.c</name>
+			<name>device/f28004x_piectrl.c</name>
 			<type>1</type>
-			<locationURI>TI_PRODUCTS_DIR/c2000/C2000Ware_3_02_00_00/device_support/f28004x/common/source/f28004x_defaultisr.c</locationURI>
+			<locationURI>PARENT-3-C2000WARE_DLIB_ROOT/device_support/f28004x/common/source/f28004x_piectrl.c</locationURI>
 		</link>
 		<link>
-			<name>device_support_f28004x/f28004x_dma.c</name>
+			<name>device/f28004x_pievect.c</name>
 			<type>1</type>
-			<locationURI>TI_PRODUCTS_DIR/c2000/C2000Ware_3_02_00_00/device_support/f28004x/common/source/f28004x_dma.c</locationURI>
+			<locationURI>PARENT-3-C2000WARE_DLIB_ROOT/device_support/f28004x/common/source/f28004x_pievect.c</locationURI>
 		</link>
 		<link>
-			<name>device_support_f28004x/f28004x_globalvariabledefs.c</name>
+			<name>device/f28004x_spi.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/ti/c2000/C2000Ware_3_02_00_00/device_support/f28004x/headers/source/f28004x_globalvariabledefs.c</locationURI>
+			<locationURI>PARENT-3-C2000WARE_DLIB_ROOT/device_support/f28004x/common/source/f28004x_spi.c</locationURI>
 		</link>
 		<link>
-			<name>device_support_f28004x/f28004x_gpio.c</name>
+			<name>device/f28004x_sysctrl.c</name>
 			<type>1</type>
-			<locationURI>TI_PRODUCTS_DIR/c2000/C2000Ware_3_02_00_00/device_support/f28004x/common/source/f28004x_gpio.c</locationURI>
+			<locationURI>PARENT-3-C2000WARE_DLIB_ROOT/device_support/f28004x/common/source/f28004x_sysctrl.c</locationURI>
 		</link>
 		<link>
-			<name>device_support_f28004x/f28004x_headers_nonbios.cmd</name>
+			<name>device/f28004x_usdelay.asm</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/ti/c2000/C2000Ware_3_02_00_00/device_support/f28004x/headers/cmd/f28004x_headers_nonbios.cmd</locationURI>
-		</link>
-		<link>
-			<name>device_support_f28004x/f28004x_piectrl.c</name>
-			<type>1</type>
-			<locationURI>TI_PRODUCTS_DIR/c2000/C2000Ware_3_02_00_00/device_support/f28004x/common/source/f28004x_piectrl.c</locationURI>
-		</link>
-		<link>
-			<name>device_support_f28004x/f28004x_pievect.c</name>
-			<type>1</type>
-			<locationURI>TI_PRODUCTS_DIR/c2000/C2000Ware_3_02_00_00/device_support/f28004x/common/source/f28004x_pievect.c</locationURI>
-		</link>
-		<link>
-			<name>device_support_f28004x/f28004x_spi.c</name>
-			<type>1</type>
-			<locationURI>TI_PRODUCTS_DIR/c2000/C2000Ware_3_02_00_00/device_support/f28004x/common/source/f28004x_spi.c</locationURI>
-		</link>
-		<link>
-			<name>device_support_f28004x/f28004x_sysctrl.c</name>
-			<type>1</type>
-			<locationURI>TI_PRODUCTS_DIR/c2000/C2000Ware_3_02_00_00/device_support/f28004x/common/source/f28004x_sysctrl.c</locationURI>
-		</link>
-		<link>
-			<name>device_support_f28004x/f28004x_usdelay.asm</name>
-			<type>1</type>
-			<locationURI>TI_PRODUCTS_DIR/c2000/C2000Ware_3_02_00_00/device_support/f28004x/common/source/f28004x_usdelay.asm</locationURI>
+			<locationURI>PARENT-3-C2000WARE_DLIB_ROOT/device_support/f28004x/common/source/f28004x_usdelay.asm</locationURI>
 		</link>
 	</linkedResources>
 	<variableList>
