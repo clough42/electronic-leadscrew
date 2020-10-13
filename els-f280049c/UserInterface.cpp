@@ -25,6 +25,8 @@
 
 
 #include "UserInterface.h"
+// KVV
+#include "nextion.h"
 
 const MESSAGE STARTUP_MESSAGE_2 =
 {
@@ -128,14 +130,36 @@ void UserInterface :: overrideMessage( void )
 
 void UserInterface :: loop( void )
 {
+    const FEED_THREAD *newFeed = NULL;
+
     // read the RPM up front so we can use it to make decisions
     Uint16 currentRpm = core->getRPM();
 
     // display an override message, if there is one
     overrideMessage();
 
+    // just in case, initialize the first time through
+    if( feedTable == NULL ) {
+        newFeed = loadFeedTable();
+    }
+
     // read keypresses from the control panel
     keys = controlPanel->getKeys();
+
+    // KVV
+    {
+        bool at_stop;
+        bool enabled = core->isEnabled();
+        bool nextion_init = false;
+        KEY_REG nkeys = nextion_loop(core->isAlarm(), enabled, at_stop, nextion_init);
+        core->setEnabled(enabled);
+        if (nkeys.all) {
+            keys = nkeys;
+        }
+        if( nextion_init ) {
+            newFeed = loadFeedTable();
+        }
+    }
 
     // respond to keypresses
     if( currentRpm == 0 )
@@ -150,17 +174,19 @@ void UserInterface :: loop( void )
             if( keys.bit.IN_MM )
             {
                 this->metric = ! this->metric;
-                core->setFeed(loadFeedTable());
+                newFeed = loadFeedTable();
             }
             if( keys.bit.FEED_THREAD )
             {
                 this->thread = ! this->thread;
-                core->setFeed(loadFeedTable());
+                newFeed = loadFeedTable();
             }
             if( keys.bit.FWD_REV )
             {
                 this->reverse = ! this->reverse;
                 core->setReverse(this->reverse);
+                // feed table hasn't changed, but we need to trigger an update
+                newFeed = loadFeedTable();
             }
             if( keys.bit.SET )
             {
@@ -179,11 +205,11 @@ void UserInterface :: loop( void )
             // these keys can be operated when the machine is running
             if( keys.bit.UP )
             {
-                core->setFeed(feedTable->next());
+                newFeed = feedTable->next();
             }
             if( keys.bit.DOWN )
             {
-                core->setFeed(feedTable->previous());
+                newFeed = feedTable->previous();
             }
         }
 
@@ -191,15 +217,31 @@ void UserInterface :: loop( void )
     }
 #endif // IGNORE_ALL_KEYS_WHEN_RUNNING
 
-    // update the control panel
-    controlPanel->setLEDs(calculateLEDs());
-    controlPanel->setValue(feedTable->current()->display);
-    controlPanel->setRPM(currentRpm);
+    // if we have changed the feed
+    if( newFeed != NULL ) {
+        // update the control panel
+        LED_REG leds = this->calculateLEDs(newFeed);
+        controlPanel->setLEDs(leds);
+        controlPanel->setValue(newFeed->display);
+	
+        // KVV
+        // Must pass leds as newFeed->leds is out of date, and may not have foward/reverse set.
+        nextion_feed(newFeed, leds);
 
+        // update the core
+        core->setFeed(newFeed);
+        core->setReverse(this->reverse);
+    }
     if( ! core->isPowerOn() )
     {
         controlPanel->setValue(VALUE_BLANK);
     }
 
+    // update the RPM display
+    controlPanel->setRPM(currentRpm);
+    // KVV
+    nextion_rpm(currentRpm);
+
+    // write data out to the display
     controlPanel->refresh();
 }
