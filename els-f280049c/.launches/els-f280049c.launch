@@ -16,7 +16,7 @@
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROGRAM.TMS320F280049C.ccxml.Texas Instruments XDS110 USB Debug Probe/C28xx_CPU1" value="${build_artifact:els-f280049c}"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROJECT.TMS320F280049C.ccxml.Texas Instruments XDS110 USB Debug Probe/C28xx_CPU1" value="els-f280049c"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_TARGET_CONFIG" value="${target_config_active_default:els-f280049c}"/>
-<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.TMS320F280049C.ccxml.Texas Instruments XDS110 USB Debug Probe/C28xx_CPU1" value="C:\Users\kent\workspace_v10\electronic-leadscrew\els-f280049c\Release\els-f280049c.out"/>
+<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.TMS320F280049C.ccxml.Texas Instruments XDS110 USB Debug Probe/C28xx_CPU1" value="C:\Users\kent\workspace_v10\electronic-leadscrew\els-f280049c\Debug\els-f280049c.out"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/els-f280049c"/>
 </listAttribute>

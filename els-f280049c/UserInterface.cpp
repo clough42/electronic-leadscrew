@@ -220,7 +220,7 @@ void UserInterface :: loop( void )
     // if we have changed the feed
     if( newFeed != NULL ) {
         // update the control panel
-        LED_REG leds = this->calculateLEDs(newFeed);
+        LED_REG leds = this->calculateLEDs();
         controlPanel->setLEDs(leds);
         controlPanel->setValue(newFeed->display);
 	
