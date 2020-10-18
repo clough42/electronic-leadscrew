@@ -167,5 +167,6 @@
 #define CPU_CLOCK_MHZ 100
 #define CPU_CLOCK_HZ (CPU_CLOCK_MHZ * 1000000)
 
+#include "Configuration_overrides.h"
 
 #endif // __CONFIGURATION_H
