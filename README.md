@@ -4,7 +4,7 @@ This is the firmware for an experimental lathe electronic leadscrew controller. 
 gears or gearbox on a metalworking lathe with a stepper motor controlled electronically based on an encoder on the
 lathe spindle.  The electronic controller allows setting different virtual gear ratios for feeds and threading.
 
-![Silkscreened Control Panel](https://raw.githubusercontent.com/clough42/electronic-leadscrew/master/docs/images/CPKit.jpg)
+![Silkscreened Control Panel](https://raw.githubusercontent.com/kentavv/electronic-leadscrew/feature-nextion/docs/images/Touchscreen.png)
 
 ## Latest Version
 

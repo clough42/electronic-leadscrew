@@ -42,6 +42,10 @@ Core :: Core( Encoder *encoder, StepperDrive *stepperDrive )
     this->previousFeed = NULL;
 
     this->powerOn = true; // default to power on
+
+    // KVV
+    this->enabled = true;
+    this->reenabled = true;
 }
 
 void Core :: setReverse(bool reverse)

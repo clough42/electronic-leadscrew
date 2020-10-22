@@ -56,6 +56,10 @@ private:
 
     bool powerOn;
 
+    // KVV
+    bool enabled;
+    bool reenabled;
+
 public:
     Core( Encoder *encoder, StepperDrive *stepperDrive );
 
@@ -68,7 +72,25 @@ public:
     void setPowerOn(bool);
 
     void ISR( void );
+
+    // KVV
+    void setEnabled(bool v);
+    bool isEnabled() const;
 };
+
+// KVV
+inline void Core :: setEnabled(bool v)
+{
+    if(enabled != v) {
+        enabled = v;
+        reenabled = enabled;
+    }
+}
+
+inline bool Core :: isEnabled() const
+{
+    return enabled;
+}
 
 inline void Core :: setFeed(const FEED_THREAD *feed)
 {
@@ -105,7 +127,7 @@ inline int32 Core :: feedRatio(Uint32 count)
 
 inline void Core :: ISR( void )
 {
-    if( this->feed != NULL ) {
+    if( this->enabled && this->feed != NULL ) {
         // read the encoder
         Uint32 spindlePosition = encoder->getPosition();
 
@@ -122,8 +144,10 @@ inline void Core :: ISR( void )
         }
 
         // if the feed or direction changed, reset sync to avoid a big step
-        if( feed != previousFeed || feedDirection != previousFeedDirection) {
+        if( feed != previousFeed || feedDirection != previousFeedDirection || reenabled) {
             stepperDrive->setCurrentPosition(desiredSteps);
+            // KVV
+            reenabled = false;
         }
 
         // remember values for next time
