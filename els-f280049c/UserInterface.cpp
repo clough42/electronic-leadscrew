@@ -60,7 +60,11 @@ UserInterface :: UserInterface(ControlPanel *controlPanel, Core *core, FeedTable
     this->core = core;
     this->feedTableFactory = feedTableFactory;
 
+    #if defined(LEADSCREW_HMM)
+    this->metric = true; // start out with metric
+    #else
     this->metric = false; // start out with imperial
+    #endif
     this->thread = false; // start out with feeds
     this->reverse = false; // start out going forward
 
