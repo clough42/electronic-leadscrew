@@ -35,13 +35,24 @@ Debug :: Debug( void )
 
 void Debug :: initHardware( void )
 {
+    // Initialize GPIO
+    // Doesn't work if put after EALLOW
+    InitGpio();
+
     // set up GPIO pins as output for debugging
     EALLOW;
     GpioCtrlRegs.GPAMUX1.bit.GPIO2 = 0;
     GpioCtrlRegs.GPADIR.bit.GPIO2 = 1;
     GpioDataRegs.GPACLEAR.bit.GPIO2 = 1;
+
     GpioCtrlRegs.GPAMUX1.bit.GPIO3 = 0;
     GpioCtrlRegs.GPADIR.bit.GPIO3 = 1;
     GpioDataRegs.GPACLEAR.bit.GPIO3 = 1;
+
+    // LED4 on LAUNCHXL (red)
+    GpioCtrlRegs.GPAMUX2.bit.GPIO23 = 0;
+    GpioCtrlRegs.GPADIR.bit.GPIO23 = 1;
+    GpioDataRegs.GPACLEAR.bit.GPIO23 = 1;
+
     EDIS;
 }

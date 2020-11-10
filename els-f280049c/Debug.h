@@ -31,6 +31,9 @@
 
 class Debug
 {
+    private:
+    Uint16 heartbeatCount = 0;
+
 public:
     Debug(void);
     void initHardware(void);
@@ -42,6 +45,8 @@ public:
     // analyzer pin 2
     void begin2( void );
     void end2( void );
+
+    void heartbeat( void );
 };
 
 
@@ -65,5 +70,28 @@ inline void Debug :: end2( void )
     GpioDataRegs.GPACLEAR.bit.GPIO3 = 1;
 }
 
+inline void Debug :: heartbeat( void )
+{
+    ++heartbeatCount;
+
+    if (heartbeatCount > 50)
+    {
+        heartbeatCount = 1;
+    }
+
+    if (heartbeatCount == 15)
+    {
+        // Turn off red LED and turn on green LED
+        GpioDataRegs.GPASET.bit.GPIO23 = 1;
+        GpioDataRegs.GPBCLEAR.bit.GPIO34 = 1;
+    }
+
+    if (heartbeatCount == 1)
+    {
+        // Turn on red LED and turn off green LED
+        GpioDataRegs.GPACLEAR.bit.GPIO23 = 1;
+        GpioDataRegs.GPBSET.bit.GPIO34 = 1;
+    }
+}
 
 #endif // __DEBUG_H
