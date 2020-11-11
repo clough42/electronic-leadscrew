@@ -225,7 +225,7 @@ void UserInterface :: loop( void )
                 break;
 
                 case UI_STATE_ADJ_BRT:
-                    userInterfaceState = UI_STATE_ADJ_uSTPS;
+                    userInterfaceState = UI_STATE_uSTPS;
 
                     USER_INTERFACE_STATE.message[0] = LETTER_L;
                     USER_INTERFACE_STATE.message[1] = LETTER_E;
@@ -238,7 +238,7 @@ void UserInterface :: loop( void )
                     setMessage(&USER_INTERFACE_STATE);
                 break;
 
-                case UI_STATE_ADJ_uSTPS:
+                case UI_STATE_uSTPS:
                     userInterfaceState = UI_STATE_STEPPER_RES;
 
                     USER_INTERFACE_STATE.message[0] = LETTER_u;
@@ -255,7 +255,7 @@ void UserInterface :: loop( void )
                 case UI_STATE_STEPPER_RES:
                     userInterfaceState = UI_STATE_ENCODER_RES;
 
-                    USER_INTERFACE_STATE.message[0] = LETTER_S;
+                    USER_INTERFACE_STATE.message[0] = LETTER_S | POINT;
                     USER_INTERFACE_STATE.message[1] = LETTER_r;
                     USER_INTERFACE_STATE.message[2] = LETTER_E;
                     USER_INTERFACE_STATE.message[3] = LETTER_S;
@@ -271,7 +271,7 @@ void UserInterface :: loop( void )
                 case UI_STATE_ENCODER_RES:
                     userInterfaceState = UI_STATE_NORMAL;
 
-                    USER_INTERFACE_STATE.message[0] = LETTER_E;
+                    USER_INTERFACE_STATE.message[0] = LETTER_E | POINT;
                     USER_INTERFACE_STATE.message[1] = LETTER_r;
                     USER_INTERFACE_STATE.message[2] = LETTER_E;
                     USER_INTERFACE_STATE.message[3] = LETTER_S;
