@@ -32,7 +32,7 @@
 class Debug
 {
     private:
-    Uint16 heartbeatCount = 0;
+    Uint16 heartbeatCount;
 
 public:
     Debug(void);

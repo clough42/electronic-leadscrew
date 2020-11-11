@@ -293,11 +293,47 @@ void ControlPanel :: setMessage( const Uint16 *message )
     this->message = message;
 }
 
-void ControlPanel :: setBrightness( Uint16 brightness )
+void ControlPanel :: increaseBrightness()
 {
+    ++brightness;
+
+    if (brightness == 5) brightness = 8;
+
+    setBrightness(brightness);
+}
+
+void ControlPanel :: decreaseBrightness()
+{
+    --brightness;
+
+    if(brightness == 7) brightness = 4;
+
+    setBrightness(brightness);
+}
+
+void ControlPanel :: setBrightness( Uint16 brightness )
+//  Limit brightness value sent to control panel to 1, 2, 3, 4, or 8.
+//  0 = off.
+//  5, 6, and 7 are indistinguishable from 4.
+{
+    if (brightness == 0) brightness = 1;
+
     if( brightness > 8 ) brightness = 8;
 
     this->brightness = brightness;
+
+//    EEPROM eeprom;
+//
+//    this->brightness = eeprom.setBrightness;
+}
+
+Uint16 ControlPanel :: getBrightness(void)
+{
+    return this->brightness;
+
+//    EEPROM eeprom;
+//
+//    return eeprom.getBrightness();
 }
 
 void ControlPanel :: refresh()

@@ -31,6 +31,13 @@
 #include "Core.h"
 #include "Tables.h"
 
+#define UI_STATE_NORMAL 0
+#define UI_STATE_ADJ_BRT 1
+#define UI_STATE_LEADSCREW 2
+#define UI_STATE_ADJ_uSTPS 3
+#define UI_STATE_STEPPER_RES 4
+#define UI_STATE_ENCODER_RES 5
+
 typedef struct MESSAGE
 {
     Uint16 message[8];
@@ -56,15 +63,20 @@ private:
     const MESSAGE *message;
     Uint16 messageTime;
 
+    Uint16 userInterfaceState;
+
     const FEED_THREAD *loadFeedTable();
     LED_REG calculateLEDs();
     void setMessage(const MESSAGE *message);
     void overrideMessage( void );
 
 public:
+
     UserInterface(ControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory);
 
     void loop( void );
+
+    Uint16 digitToSevenSegmentPattern(Uint16 x);
 };
 
 #endif // __USERINTERFACE_H
