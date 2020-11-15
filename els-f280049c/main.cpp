@@ -139,6 +139,9 @@ void main(void)
         // mark beginning of loop for debugging
         debug.begin2();
 
+        // service heartbeat
+        debug.heartbeat();
+
         // service the user interface
         userInterface.loop();
 
