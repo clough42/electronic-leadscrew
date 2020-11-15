@@ -293,11 +293,42 @@ void ControlPanel :: setMessage( const Uint16 *message )
     this->message = message;
 }
 
-void ControlPanel :: setBrightness( Uint16 brightness )
+void ControlPanel :: increaseBrightness()
 {
+    ++brightness;
+
+    if (brightness == 5) brightness = 8;
+
+    setBrightness(brightness);
+}
+
+void ControlPanel :: decreaseBrightness()
+{
+    --brightness;
+
+    if(brightness == 7) brightness = 4;
+
+    setBrightness(brightness);
+}
+
+void ControlPanel :: setBrightness( Uint16 brightness )
+//  Because of the screwy way the TM1638 controls brightness in steps of 1/16,
+//      2/16, 4/16, 10/16, 11/16, 12/16, 13/16, and 14/16,
+//      there are really only five distinct levels.
+//  Limit brightness value sent to control panel to 1, 2, 3, 4, or 8.
+//      0 = off.
+//      5, 6, and 7 are indistinguishable from 4.
+{
+    if (brightness == 0) brightness = 1;
+
     if( brightness > 8 ) brightness = 8;
 
     this->brightness = brightness;
+}
+
+Uint16 ControlPanel :: getBrightness(void)
+{
+    return this->brightness;
 }
 
 void ControlPanel :: refresh()
