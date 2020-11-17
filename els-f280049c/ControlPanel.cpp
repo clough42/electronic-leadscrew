@@ -230,6 +230,9 @@ KEY_REG ControlPanel :: readKeys(void)
     CS_RELEASE;
     DELAY_US(CS_RISE_TIME_US);              // give CS line time to register high
 
+    // keyMask = (MSb) POWER, SET, FWD/REV, FEED/THREAD, IN/MM, DOWN, x, UP (LSb)
+    // 0 = up
+    // 1 = down
     return keyMask;
 }
 
@@ -240,39 +243,102 @@ KEY_REG ControlPanel :: getKeys()
 
     configureSpiBus();
 
+    // newKeys.all = (MSb) POWER, SET, FWD/REV, FEED/THREAD, IN/MM, DOWN, x, UP (LSb)
+    // 0 = up
+    // 1 = down
     newKeys = readKeys();
-    if( isValidKeyState(newKeys) && isStable(newKeys) && newKeys.all != this->keys.all ) {
+
+    // Original:   if( isValidKeyState(newKeys) && isStable(newKeys) && newKeys.all != this->keys.all )
+    // Apply three filters to eliminate spurious key presses due to noise.
+    // With the exception of the UP/DOWN keys:
+    //  1) Reject multiple keys down.
+    //  2) Reject any data that isn't the same for several (now 3) consecutive reads.
+    //  3) Accept a key press only if the previous stable value showed no keys pressed.
+    if( isValidKeyState(newKeys) && isStable(newKeys) )
+    {
         KEY_REG previousKeys = this->keys; // remember the previous stable value
         this->keys = newKeys;
 
-        if( previousKeys.all == 0 ) {     // only act if the previous stable value was no keys pressed
+        if( (previousKeys.all & 0xF8) == 0 )
+        {     // only act if the previous stable value was no keys pressed
             return newKeys;
         }
     }
     return noKeys;
 }
 
-bool ControlPanel :: isValidKeyState(KEY_REG testKeys) {
+bool ControlPanel :: isValidKeyState(KEY_REG testKeys)
+{
     // filter out any states with multiple keys pressed (bad communication filter)
-    switch(testKeys.all) {
-    case 0:
-    case 1 << 0:
-    case 1 << 2:
-    case 1 << 3:
-    case 1 << 4:
-    case 1 << 5:
-    case 1 << 6:
-    case 1 << 7:
+    // testKeys = (MSb) POWER, SET, FWD/REV, FEED/THREAD, IN/MM, DOWN, x, UP (LSb)
+    // 0 = up
+    // 1 = down
+    switch(testKeys.all & 0xF8) // ignore UP/DOWN keys
+    {
+    case 0:         // no keys pressed
+    case 1 << 0:    // only UP pressed
+    case 1 << 2:    // only DOWN pressed
+    case 1 << 3:    // only IN/MM pressed
+    case 1 << 4:    // only FEED/THREAD pressed
+    case 1 << 5:    // only FWD/REV pressed
+    case 1 << 6:    // only SET pressed
+    case 1 << 7:    // only POWER pressed
         return true;
     }
 
-    return false;
+    return false;   // two or more keys are pressed
 }
 
-
-bool ControlPanel :: isStable(KEY_REG testKeys) {
+bool ControlPanel :: isStable(KEY_REG testKeys)
+{
     // don't trust any read key state until we've seen it multiple times consecutively (noise filter)
-    if( testKeys.all != stableKeys.all )
+    // ignore UP/DOWN keys
+    // How does this work?
+    // Initial conditions:
+    //      stableKeys.all == 0
+    //      stableCount == 0
+    // First loop:
+    //      We can assume all keys are up, so
+    //      The comparison is false and stableCount 0 is less than MIN_CONSECUTIVE_READS (assumed to be 3), so
+    //          stableCount = 1.
+    //          stableCount is not >= 3, so the function returns false
+    // Second loop:
+    //      All keys are still up, so
+    //      The comparison is false and stableCount 1 is less than 3, so
+    //          stableCount = 2.
+    //          stableCount is not >= 3, so the function again returns false
+    // Third loop:
+    //      All keys are still up, so
+    //      The comparison is false and stableCount 2 is less than 3, so
+    //          stableCount = 3.
+    //          stableCount is now >= 3, so the function again returns true
+    // Fourth and subsequent loops:
+    //      All keys are still up, so
+    //      The comparison is false but stableCount 3 is not less than 3, so
+    //          stableCount = 3.
+    //          stableCount is now >= 3, so the function again returns true
+    //
+    // Now suppose the PWR key is pressed:
+    //      testKeys.all == 0x80 and stableKeys == 0, so the first predicate is true.
+    //          stableKeys == testKeys
+    //          stableCount == 1
+    //      stableCount is not >= 3, so the function returns false
+    // At the third loop:
+    //      testKeys.all == stableKeys, so the first predicate is false.
+    //      stableCount == 3, which is not < 3, so the second predicate is false
+    //      stableCount == 3, which is >= 3, so the function returns true
+    // As long as PWR is pressed,
+    //      testKeys.all == stableKeys, so the first predicate is false.
+    //      stableCount == 3, which is not < 3, so the second predicate is false
+    //      stableCount == 3, which is >= 3, so the function returns true
+    // When PWR is released,
+    //      testKeys.all != stableKeys, so the first predicate is true.
+    //          stableKeys == testKeys
+    //          stableCount == 1
+    //      stableCount is < 3, so the second predicate is true, so
+    //      stableCount == 2
+    //      stableCount is not >= 3, so the function returns false
+    if( (testKeys.all & 0xF8) != (stableKeys.all & 0xF8) )  // was if( testKeys.all != stableKeys.all )
     {
         this->stableKeys = testKeys;
         this->stableCount = 1;
@@ -341,7 +407,282 @@ void ControlPanel :: refresh()
     sendData();
 }
 
+Uint16 ControlPanel :: buttonStateMachine(bool incrementButtonPressed, bool decrementButtonPressed)
+{
+static  Uint16 loopCount = 0;
+static  Uint16 state = BSM_STATE_IDLE;
+char    buttonConfiguration;
 
+Uint16  returnValue = BSM_NO_ACTION;
+
+    ++loopCount;
+
+        // get button configuration for input to state machine
+    if (decrementButtonPressed && incrementButtonPressed)
+    {
+        buttonConfiguration = BSM_INPUT_BOTH_BUTTONS_PRESSED;
+    }
+    else if (decrementButtonPressed)
+    {
+        buttonConfiguration = BSM_INPUT_DECREMENT_BUTTON_PRESSED;
+    }
+    else if (incrementButtonPressed)
+    {
+        buttonConfiguration = BSM_INPUT_INCREMENT_BUTTON_PRESSED;
+    }
+    else
+    {
+        buttonConfiguration = BSM_INPUT_NEITHER_BUTTON_PRESSED;
+    }
+
+    // set default returned action
+    returnValue = BSM_NO_ACTION;
+
+    switch (state)
+    {
+    case BSM_STATE_IDLE:
+
+        switch (buttonConfiguration)
+        {
+        case BSM_INPUT_NEITHER_BUTTON_PRESSED:
+            state = BSM_STATE_IDLE;
+        break;
+
+        case BSM_INPUT_INCREMENT_BUTTON_PRESSED:
+            loopCount = 0;
+            state = BSM_STATE_WAIT_FOR_AUTO_SLOW_INCREMENT;
+            returnValue = BSM_INCREMENT;
+        break;
+
+        case BSM_INPUT_DECREMENT_BUTTON_PRESSED:
+            loopCount = 0;
+            state = BSM_STATE_WAIT_FOR_AUTO_SLOW_DECREMENT;
+            returnValue = BSM_DECREMENT;
+        break;
+
+        case BSM_INPUT_BOTH_BUTTONS_PRESSED:
+                // It would be difficult to press both buttons simultaneously
+                //   enough that one would not be read first.
+            state = BSM_STATE_IDLE;
+        break;
+        }
+
+    break;
+
+    case BSM_STATE_WAIT_FOR_AUTO_SLOW_INCREMENT:
+
+        switch (buttonConfiguration)
+        {
+        case BSM_INPUT_NEITHER_BUTTON_PRESSED:
+            state = BSM_STATE_IDLE;
+        break;
+
+        case BSM_INPUT_INCREMENT_BUTTON_PRESSED:
+            if (loopCount >= BSM_INITIAL_DELAY)
+            {
+                loopCount = 0;
+                state = BSM_STATE_AUTO_SLOW_INCREMENT;
+                returnValue = BSM_INCREMENT;
+            }
+            else
+            {
+                state = BSM_STATE_WAIT_FOR_AUTO_SLOW_INCREMENT;
+            }
+        break;
+
+        case BSM_INPUT_DECREMENT_BUTTON_PRESSED:
+            loopCount = 0;
+            state = BSM_STATE_WAIT_FOR_AUTO_SLOW_DECREMENT;
+            returnValue = BSM_DECREMENT;
+        break;
+
+        case BSM_INPUT_BOTH_BUTTONS_PRESSED:
+            loopCount = 0;
+            state = BSM_STATE_AUTO_FAST_INCREMENT;
+            returnValue = BSM_INCREMENT;
+        break;
+        }
+
+    break;
+
+    case BSM_STATE_WAIT_FOR_AUTO_SLOW_DECREMENT:
+
+        switch (buttonConfiguration)
+        {
+        case BSM_INPUT_NEITHER_BUTTON_PRESSED:
+            state = BSM_STATE_IDLE;
+        break;
+
+        case BSM_INPUT_INCREMENT_BUTTON_PRESSED:
+            loopCount = 0;
+            state = BSM_STATE_WAIT_FOR_AUTO_SLOW_INCREMENT;
+            returnValue = BSM_INCREMENT;
+        break;
+
+        case BSM_INPUT_DECREMENT_BUTTON_PRESSED:
+            if (loopCount >= BSM_INITIAL_DELAY)
+            {
+                loopCount = 0;
+                state = BSM_STATE_AUTO_SLOW_DECREMENT;
+                returnValue = BSM_DECREMENT;
+            }
+            else
+            {
+                state = BSM_STATE_WAIT_FOR_AUTO_SLOW_DECREMENT;
+            }
+        break;
+
+        case BSM_INPUT_BOTH_BUTTONS_PRESSED:
+            loopCount = 0;
+            state = BSM_STATE_AUTO_FAST_DECREMENT;
+            returnValue = BSM_DECREMENT;
+        break;
+        }
+
+    break;
+
+    case BSM_STATE_AUTO_SLOW_INCREMENT:
+
+        switch (buttonConfiguration)
+        {
+        case BSM_INPUT_NEITHER_BUTTON_PRESSED:
+            state = BSM_STATE_IDLE;
+        break;
+
+        case BSM_INPUT_INCREMENT_BUTTON_PRESSED:
+            if (loopCount >= BSM_SLOW_DELAY)
+            {
+                loopCount = 0;
+                returnValue = BSM_INCREMENT;
+            }
+            state = BSM_STATE_AUTO_SLOW_INCREMENT;
+        break;
+
+        case BSM_INPUT_DECREMENT_BUTTON_PRESSED:
+            loopCount = 0;
+            state = BSM_STATE_WAIT_FOR_AUTO_SLOW_DECREMENT;
+            returnValue = BSM_DECREMENT;
+        break;
+
+        case BSM_INPUT_BOTH_BUTTONS_PRESSED:
+            loopCount = 0;
+            state = BSM_STATE_AUTO_FAST_INCREMENT;
+            returnValue = BSM_INCREMENT;
+        break;
+        }
+
+    break;
+
+    case BSM_STATE_AUTO_SLOW_DECREMENT:
+
+        switch (buttonConfiguration)
+        {
+        case BSM_INPUT_NEITHER_BUTTON_PRESSED:
+            state = BSM_STATE_IDLE;
+        break;
+
+        case BSM_INPUT_INCREMENT_BUTTON_PRESSED:
+            loopCount = 0;
+            state = BSM_STATE_WAIT_FOR_AUTO_SLOW_INCREMENT;
+            returnValue = BSM_INCREMENT;
+        break;
+
+        case BSM_INPUT_DECREMENT_BUTTON_PRESSED:
+            if (loopCount >= BSM_SLOW_DELAY)
+            {
+                loopCount = 0;
+                returnValue = BSM_DECREMENT;
+            }
+            state = BSM_STATE_AUTO_SLOW_DECREMENT;
+        break;
+
+        case BSM_INPUT_BOTH_BUTTONS_PRESSED:
+            loopCount = 0;
+            state = BSM_STATE_AUTO_FAST_DECREMENT;
+            returnValue = BSM_DECREMENT;
+        break;
+        }
+
+    break;
+
+    case BSM_STATE_AUTO_FAST_INCREMENT:
+
+        switch (buttonConfiguration)
+        {
+        case BSM_INPUT_NEITHER_BUTTON_PRESSED:
+            state = BSM_STATE_IDLE;
+        break;
+
+        case BSM_INPUT_INCREMENT_BUTTON_PRESSED:
+            // the decrement button has just been released
+            // stop the auto fast increment and return to auto slow increment
+            loopCount= 0;
+            state = BSM_STATE_AUTO_SLOW_INCREMENT;
+        break;
+
+        case BSM_INPUT_DECREMENT_BUTTON_PRESSED:
+            // the increment button has just been released
+            // stop auto fast decrement and go to auto slow decrement
+            loopCount = 0;
+            state = BSM_STATE_WAIT_FOR_AUTO_SLOW_DECREMENT;
+        break;
+
+        case BSM_INPUT_BOTH_BUTTONS_PRESSED:
+            // continue auto fast increment
+            if (loopCount >= BSM_FAST_DELAY)
+            {
+                loopCount = 0;
+                returnValue = BSM_INCREMENT;
+            }
+            state = BSM_STATE_AUTO_FAST_INCREMENT;
+        break;
+        }
+
+    break;
+
+    case BSM_STATE_AUTO_FAST_DECREMENT:
+
+        switch (buttonConfiguration)
+        {
+        case BSM_INPUT_NEITHER_BUTTON_PRESSED:
+            state = BSM_STATE_IDLE;
+        break;
+
+        case BSM_INPUT_INCREMENT_BUTTON_PRESSED:
+            // the decrement button has just been released
+            // return to auto slow increment
+            loopCount = 0;
+            state = BSM_STATE_WAIT_FOR_AUTO_SLOW_INCREMENT;
+        break;
+
+        case BSM_INPUT_DECREMENT_BUTTON_PRESSED:
+            // the increment button has just been released
+            // return to auto slow decrement
+            loopCount = 0;
+            state = BSM_STATE_AUTO_SLOW_DECREMENT;
+        break;
+
+        case BSM_INPUT_BOTH_BUTTONS_PRESSED:
+            // continue auto fast decrement
+            if (loopCount >= BSM_FAST_DELAY)
+            {
+                loopCount = 0;
+                returnValue = BSM_DECREMENT;
+            }
+            state = BSM_STATE_AUTO_FAST_DECREMENT;
+        break;
+        }
+
+    break;
+
+    default:
+        state = BSM_STATE_IDLE;
+    break;
+
+    }
+
+    return returnValue;
+}
 
 
 

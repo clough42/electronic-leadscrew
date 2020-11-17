@@ -111,6 +111,28 @@
 
 #define DASH 0b0000001000000000
 
+// button state machine constants
+#define BSM_NO_ACTION 0
+#define BSM_INCREMENT 1
+#define BSM_DECREMENT 2
+
+#define BSM_INITIAL_DELAY 30    // delay before auto slow increment/decrement begins
+#define BSM_SLOW_DELAY 15        // delay between changes in auto slow increment/decrement
+#define BSM_FAST_DELAY 5        // delay between changes in auto fast increment/decrement
+
+#define BSM_INPUT_NEITHER_BUTTON_PRESSED 0
+#define BSM_INPUT_INCREMENT_BUTTON_PRESSED 1
+#define BSM_INPUT_DECREMENT_BUTTON_PRESSED 2
+#define BSM_INPUT_BOTH_BUTTONS_PRESSED 3
+
+#define BSM_STATE_IDLE 0
+#define BSM_STATE_WAIT_FOR_AUTO_SLOW_INCREMENT 1
+#define BSM_STATE_WAIT_FOR_AUTO_SLOW_DECREMENT 2
+#define BSM_STATE_AUTO_SLOW_INCREMENT 3
+#define BSM_STATE_AUTO_SLOW_DECREMENT 4
+#define BSM_STATE_AUTO_FAST_INCREMENT 5
+#define BSM_STATE_AUTO_FAST_DECREMENT 6
+
 #define LED_TPI 1
 #define LED_INCH (1<<1)
 #define LED_MM (1<<2)
@@ -140,6 +162,7 @@ typedef union LED_REG
 
 struct KEY_BITS
 {
+    // MSb POWER, SET, FWD/REV, FEED/THREAD, IN/MM, DOWN, x, UP LSb
     Uint16 UP:1;
     Uint16 reserved1:1;
     Uint16 DOWN:1;
@@ -234,6 +257,8 @@ public:
 
     // refresh the hardware display
     void refresh(void);
+
+    Uint16 buttonStateMachine(bool x, bool y);
 };
 
 

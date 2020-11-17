@@ -37,6 +37,7 @@
 #define UI_STATE_uSTPS 3
 #define UI_STATE_STEPPER_RES 4
 #define UI_STATE_ENCODER_RES 5
+#define UI_STATE_CANCEL 6
 
 typedef struct MESSAGE
 {

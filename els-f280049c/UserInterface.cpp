@@ -25,6 +25,7 @@
 
 
 #include "UserInterface.h"
+#include "ControlPanel.h"
 
 const MESSAGE STARTUP_MESSAGE_2 =
 {
@@ -174,6 +175,7 @@ Uint16 UserInterface :: digitToSevenSegmentPattern(Uint16 digit)
 void UserInterface :: loop( void )
 {
     Uint16 number;
+    Uint16 action;
 
     // read the RPM up front so we can use it to make decisions
     Uint16 currentRpm = core->getRPM();
@@ -280,7 +282,7 @@ void UserInterface :: loop( void )
                     break;
 
                 case UI_STATE_ENCODER_RES:
-                    userInterfaceState = UI_STATE_NORMAL;
+                    userInterfaceState = UI_STATE_CANCEL;
 
                     USER_INTERFACE_STATE.message[0] = LETTER_E | POINT;
                     USER_INTERFACE_STATE.message[1] = LETTER_r;
@@ -295,6 +297,11 @@ void UserInterface :: loop( void )
 
                     setMessage(&USER_INTERFACE_STATE);
                     break;
+
+                case UI_STATE_CANCEL:
+                    userInterfaceState = UI_STATE_NORMAL;
+
+                    this->messageTime = 0;
 
                 default:
                     userInterfaceState = UI_STATE_NORMAL;
@@ -316,31 +323,57 @@ void UserInterface :: loop( void )
             {
             case UI_STATE_NORMAL:
 
-                if( keys.bit.UP )
+//                if( keys.bit.UP )
+//                {
+//                    core->setFeed(feedTable->next());
+//                }
+//                if( keys.bit.DOWN )
+//                {
+//                    core->setFeed(feedTable->previous());
+//                }
+
+                action = controlPanel->buttonStateMachine(keys.bit.UP, keys.bit.DOWN);
+
+                if( action == BSM_INCREMENT )
                 {
                     core->setFeed(feedTable->next());
                 }
-                if( keys.bit.DOWN )
+                if( action == BSM_DECREMENT )
                 {
                     core->setFeed(feedTable->previous());
                 }
-                break;
+            break;
 
             case UI_STATE_ADJ_BRT:
 
-                if( keys.bit.UP )
+                action = controlPanel->buttonStateMachine(keys.bit.UP, keys.bit.DOWN);
+
+                if( action == BSM_INCREMENT )
                 {
                     controlPanel->increaseBrightness();
                     USER_INTERFACE_STATE.message[7] = digitToSevenSegmentPattern(controlPanel->getBrightness());
                     setMessage(&USER_INTERFACE_STATE);
                 }
-
-                if( keys.bit.DOWN )
+                if( action == BSM_DECREMENT )
                 {
                     controlPanel->decreaseBrightness();
                     USER_INTERFACE_STATE.message[7] = digitToSevenSegmentPattern(controlPanel->getBrightness());
                     setMessage(&USER_INTERFACE_STATE);
                 }
+
+//                if( keys.bit.UP )
+//                {
+//                    controlPanel->increaseBrightness();
+//                   USER_INTERFACE_STATE.message[7] = digitToSevenSegmentPattern(controlPanel->getBrightness());
+//                    setMessage(&USER_INTERFACE_STATE);
+//                }
+//
+//                if( keys.bit.DOWN )
+//                {
+//                    controlPanel->decreaseBrightness();
+//                    USER_INTERFACE_STATE.message[7] = digitToSevenSegmentPattern(controlPanel->getBrightness());
+//                    setMessage(&USER_INTERFACE_STATE);
+//                }
 
                 break;
             } // switch
