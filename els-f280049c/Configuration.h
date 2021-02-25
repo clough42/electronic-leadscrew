@@ -147,6 +147,19 @@
 
 
 //================================================================================
+//                              VALIDATION/TRIP
+//
+// Validation thresholds and automatic trip behavior.
+//================================================================================
+
+// Maximum number of buffered steps
+// The ELS can only output steps at approximately 100KHz.  If you ask the ELS to
+// output steps faster than this, it will get behind and will stop automatically
+// when the buffered step count exceeds this value.
+#define MAX_BUFFERED_STEPS 100
+
+
+//================================================================================
 //                               CPU / TIMING
 //
 // Define the CPU clock, interrupt, and refresh timing.  Most users will not need
