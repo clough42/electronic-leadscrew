@@ -91,6 +91,11 @@ private:
     //
     Uint16 state;
 
+    //
+    // Is the drive enabled?
+    //
+    bool enabled;
+
 public:
     StepperDrive();
     void initHardware(void);
@@ -98,6 +103,8 @@ public:
     void setDesiredPosition(int32 steps);
     void incrementCurrentPosition(int32 increment);
     void setCurrentPosition(int32 position);
+
+    bool checkStepBacklog();
 
     void setEnabled(bool);
 
@@ -121,9 +128,19 @@ inline void StepperDrive :: setCurrentPosition(int32 position)
     this->currentPosition = position;
 }
 
+inline bool StepperDrive :: checkStepBacklog()
+{
+    if( abs(this->desiredPosition - this->currentPosition) > MAX_BUFFERED_STEPS ) {
+        setEnabled(false);
+        return true;
+    }
+    return false;
+}
+
 inline void StepperDrive :: setEnabled(bool enabled)
 {
-    if( enabled ) {
+    this->enabled = enabled;
+    if( this->enabled ) {
         GPIO_SET_ENABLE;
     }
     else
@@ -144,45 +161,52 @@ inline bool StepperDrive :: isAlarm()
 
 inline void StepperDrive :: ISR(void)
 {
-    switch( this->state ) {
+    if(enabled) {
 
-    case 0:
-        // Step = 0; Dir = 0
-        if( this->desiredPosition < this->currentPosition ) {
-            GPIO_SET_STEP;
-            this->state = 2;
-        }
-        else if( this->desiredPosition > this->currentPosition ) {
-            GPIO_SET_DIRECTION;
-            this->state = 1;
-        }
-        break;
+        switch( this->state ) {
 
-    case 1:
-        // Step = 0; Dir = 1
-        if( this->desiredPosition > this->currentPosition ) {
-            GPIO_SET_STEP;
-            this->state = 3;
-        }
-        else if( this->desiredPosition < this->currentPosition ) {
-            GPIO_CLEAR_DIRECTION;
+        case 0:
+            // Step = 0; Dir = 0
+            if( this->desiredPosition < this->currentPosition ) {
+                GPIO_SET_STEP;
+                this->state = 2;
+            }
+            else if( this->desiredPosition > this->currentPosition ) {
+                GPIO_SET_DIRECTION;
+                this->state = 1;
+            }
+            break;
+
+        case 1:
+            // Step = 0; Dir = 1
+            if( this->desiredPosition > this->currentPosition ) {
+                GPIO_SET_STEP;
+                this->state = 3;
+            }
+            else if( this->desiredPosition < this->currentPosition ) {
+                GPIO_CLEAR_DIRECTION;
+                this->state = 0;
+            }
+            break;
+
+        case 2:
+            // Step = 1; Dir = 0
+            GPIO_CLEAR_STEP;
+            this->currentPosition--;
             this->state = 0;
+            break;
+
+        case 3:
+            // Step = 1; Dir = 1
+            GPIO_CLEAR_STEP;
+            this->currentPosition++;
+            this->state = 1;
+            break;
         }
-        break;
 
-    case 2:
-        // Step = 1; Dir = 0
-        GPIO_CLEAR_STEP;
-        this->currentPosition--;
-        this->state = 0;
-        break;
-
-    case 3:
-        // Step = 1; Dir = 1
-        GPIO_CLEAR_STEP;
-        this->currentPosition++;
-        this->state = 1;
-        break;
+    } else {
+        // not enabled; just keep current position in sync
+        this->currentPosition = this->desiredPosition;
     }
 }
 

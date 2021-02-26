@@ -139,6 +139,11 @@ void main(void)
         // mark beginning of loop for debugging
         debug.begin2();
 
+        // check for step backlog and panic the system if it occurs
+        if( stepperDrive.checkStepBacklog() ) {
+            userInterface.panicStepBacklog();
+        }
+
         // service the user interface
         userInterface.loop();
 

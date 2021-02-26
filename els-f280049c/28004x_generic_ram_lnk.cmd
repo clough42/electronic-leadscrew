@@ -105,7 +105,7 @@ SECTIONS
 
    .stack           : > RAMM1,     PAGE = 1
    .ebss            : > RAMLS5|RAMLS6,    PAGE = 1
-   .econst          : > RAMLS5|RAMLS6,    PAGE = 1
+   .econst          : >> RAMLS5|RAMLS6,    PAGE = 1
    .esysmem         : > RAMLS5|RAMLS6,    PAGE = 1
 
    ramgs0           : > RAMGS0,    PAGE = 1

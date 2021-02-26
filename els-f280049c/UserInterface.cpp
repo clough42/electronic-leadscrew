@@ -28,7 +28,7 @@
 
 const MESSAGE STARTUP_MESSAGE_2 =
 {
-  .message = { LETTER_E, LETTER_L, LETTER_S, DASH, ONE | POINT, THREE | POINT, ZERO, ONE },
+  .message = { LETTER_E, LETTER_L, LETTER_S, DASH, ONE | POINT, FOUR | POINT, ZERO, ZERO },
   .displayTime = UI_REFRESH_RATE_HZ * 1.5
 };
 
@@ -51,6 +51,22 @@ const MESSAGE SETTINGS_MESSAGE_1 =
  .displayTime = UI_REFRESH_RATE_HZ * .5,
  .next = &SETTINGS_MESSAGE_2
 };
+
+extern const MESSAGE BACKLOG_PANIC_MESSAGE_2;
+const MESSAGE BACKLOG_PANIC_MESSAGE_1 =
+{
+ .message = { LETTER_T, LETTER_O, LETTER_O, BLANK, LETTER_F, LETTER_A, LETTER_S, LETTER_T },
+ .displayTime = UI_REFRESH_RATE_HZ * .5,
+ .next = &BACKLOG_PANIC_MESSAGE_2
+};
+const MESSAGE BACKLOG_PANIC_MESSAGE_2 =
+{
+ .message = { BLANK, LETTER_R, LETTER_E, LETTER_S, LETTER_E, LETTER_T, BLANK, BLANK },
+ .displayTime = UI_REFRESH_RATE_HZ * .5,
+ .next = &BACKLOG_PANIC_MESSAGE_1
+};
+
+
 
 const Uint16 VALUE_BLANK[4] = { BLANK, BLANK, BLANK, BLANK };
 
@@ -126,6 +142,18 @@ void UserInterface :: overrideMessage( void )
     }
 }
 
+void UserInterface :: clearMessage( void )
+{
+    this->message = NULL;
+    this->messageTime = 0;
+    controlPanel->setMessage(NULL);
+}
+
+void UserInterface :: panicStepBacklog( void )
+{
+    setMessage(&BACKLOG_PANIC_MESSAGE_1);
+}
+
 void UserInterface :: loop( void )
 {
     // read the RPM up front so we can use it to make decisions
@@ -143,6 +171,7 @@ void UserInterface :: loop( void )
         // these keys should only be sensitive when the machine is stopped
         if( keys.bit.POWER ) {
             this->core->setPowerOn(!this->core->isPowerOn());
+            clearMessage();
         }
 
         // these should only work when the power is on
