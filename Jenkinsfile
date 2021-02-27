@@ -1,6 +1,10 @@
 pipeline {
 	agent { label 'ccs9' }
 	
+	environment {
+		PATH = "$CCS10PATH:$PATH"
+	}
+	
 	stages {
 	
 		stage('Import Projects') {
