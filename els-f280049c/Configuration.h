@@ -106,19 +106,6 @@
 
 
 //================================================================================
-//                               CALCULATIONS
-//
-// Define how calculations should be performed.  Most users will not need to
-// touch these settings.
-//================================================================================
-
-// Use floating-point math for gear ratios
-#define USE_FLOATING_POINT
-
-
-
-
-//================================================================================
 //                                HARDWARE
 //
 // Define which hardware you're using:
@@ -157,6 +144,11 @@
 // output steps faster than this, it will get behind and will stop automatically
 // when the buffered step count exceeds this value.
 #define MAX_BUFFERED_STEPS 100
+
+// Leadscrew speed limit
+// The ELS will only allow the leadscrew to spin this fast.  If you try to go faster
+// it will panic and stop the leadscrew with an error message.
+#define LEADSCREW_MAX_RPM 500
 
 
 //================================================================================

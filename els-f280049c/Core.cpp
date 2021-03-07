@@ -34,12 +34,12 @@ Core :: Core( Encoder *encoder, StepperDrive *stepperDrive )
     this->encoder = encoder;
     this->stepperDrive = stepperDrive;
 
-    this->feed = NULL;
-    this->feedDirection = 0;
+    this->stepRatio = NULL;
+    this->direction = 0;
 
     this->previousSpindlePosition = 0;
-    this->previousFeedDirection = 0;
-    this->previousFeed = NULL;
+    this->previousDirection = 0;
+    this->previousStepRatio = NULL;
 
     this->powerOn = true; // default to power on
 }
@@ -48,11 +48,11 @@ void Core :: setReverse(bool reverse)
 {
     if( reverse )
     {
-        this->feedDirection = -1;
+        this->direction = -1;
     }
     else
     {
-        this->feedDirection = 1;
+        this->direction = 1;
     }
 }
 

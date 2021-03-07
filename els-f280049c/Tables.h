@@ -39,9 +39,21 @@ typedef struct FEED_THREAD
     union LED_REG leds;
     Uint64 numerator;
     Uint64 denominator;
+
+    float getStepRatio() const;
+    float getRpmRatio() const;
+
 } FEED_THREAD;
 
+inline float FEED_THREAD :: getStepRatio() const
+{
+    return (float)numerator / denominator;
+}
 
+inline float FEED_THREAD :: getRpmRatio() const
+{
+    return (float)numerator / denominator;
+}
 
 class FeedTable
 {
