@@ -29,10 +29,11 @@
 
 
 
-Safety :: Safety( StepperDrive *stepperDrive, UserInterface *userInterface)
+Safety :: Safety( StepperDrive *stepperDrive, UserInterface *userInterface, Core *core)
 {
     this->stepperDrive = stepperDrive;
     this->userInterface = userInterface;
+    this->core = core;
 }
 
 
@@ -44,5 +45,8 @@ void Safety :: loop( void )
     }
 
 
+    if( core->getLeadscrewRPM() > LEADSCREW_MAX_RPM ) {
+        userInterface->panicLeadscrewRpm();
+    }
 }
 

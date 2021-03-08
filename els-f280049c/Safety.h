@@ -36,9 +36,10 @@ class Safety
 private:
     StepperDrive *stepperDrive;
     UserInterface *userInterface;
+    Core *core;
 
 public:
-    Safety( StepperDrive *stepperDrive, UserInterface *userInterface);
+    Safety( StepperDrive *stepperDrive, UserInterface *userInterface, Core *core);
 
     void loop( void );
 };

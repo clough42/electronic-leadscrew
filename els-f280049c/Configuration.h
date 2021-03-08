@@ -134,9 +134,9 @@
 
 
 //================================================================================
-//                              VALIDATION/TRIP
+//                              SAFETY/TRIP
 //
-// Validation thresholds and automatic trip behavior.
+// Safety thresholds and automatic trip behavior.
 //================================================================================
 
 // Maximum number of buffered steps

@@ -52,7 +52,9 @@ inline float FEED_THREAD :: getStepRatio() const
 
 inline float FEED_THREAD :: getRpmRatio() const
 {
-    return (float)numerator / denominator;
+    // re-use the step ratio, but back out the effects of the encoder resolution and
+    // the stepper resolution to get at the RPM ratio directly
+    return getStepRatio() * ENCODER_RESOLUTION / (STEPPER_RESOLUTION * STEPPER_MICROSTEPS);
 }
 
 class FeedTable

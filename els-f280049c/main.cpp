@@ -75,7 +75,7 @@ Core core(&encoder, &stepperDrive);
 UserInterface userInterface(&controlPanel, &core, &feedTableFactory);
 
 // Safety monitor
-Safety safety(&stepperDrive, &userInterface);
+Safety safety(&stepperDrive, &userInterface, &core);
 
 void main(void)
 {

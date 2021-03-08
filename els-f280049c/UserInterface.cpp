@@ -53,6 +53,7 @@ const MESSAGE SETTINGS_MESSAGE_1 =
 };
 
 extern const MESSAGE BACKLOG_PANIC_MESSAGE_2;
+extern const MESSAGE BACKLOG_PANIC_MESSAGE_3;
 const MESSAGE BACKLOG_PANIC_MESSAGE_1 =
 {
  .message = { LETTER_T, LETTER_O, LETTER_O, BLANK, LETTER_F, LETTER_A, LETTER_S, LETTER_T },
@@ -61,9 +62,36 @@ const MESSAGE BACKLOG_PANIC_MESSAGE_1 =
 };
 const MESSAGE BACKLOG_PANIC_MESSAGE_2 =
 {
- .message = { BLANK, LETTER_R, LETTER_E, LETTER_S, LETTER_E, LETTER_T, BLANK, BLANK },
+ .message = { LETTER_P, LETTER_U, LETTER_L, LETTER_S, LETTER_E, BLANK, BLANK, BLANK },
+ .displayTime = UI_REFRESH_RATE_HZ * .5,
+ .next = &BACKLOG_PANIC_MESSAGE_3
+};
+const MESSAGE BACKLOG_PANIC_MESSAGE_3 =
+{
+ .message = { BLANK, BLANK, BLANK, BLANK, LETTER_R, LETTER_A, LETTER_T, LETTER_E },
  .displayTime = UI_REFRESH_RATE_HZ * .5,
  .next = &BACKLOG_PANIC_MESSAGE_1
+};
+
+extern const MESSAGE SCREW_RPM_PANIC_MESSAGE_2;
+extern const MESSAGE SCREW_RPM_PANIC_MESSAGE_3;
+const MESSAGE SCREW_RPM_PANIC_MESSAGE_1 =
+{
+ .message = { LETTER_T, LETTER_O, LETTER_O, BLANK, LETTER_F, LETTER_A, LETTER_S, LETTER_T },
+ .displayTime = UI_REFRESH_RATE_HZ * .5,
+ .next = &SCREW_RPM_PANIC_MESSAGE_2
+};
+const MESSAGE SCREW_RPM_PANIC_MESSAGE_2 =
+{
+ .message = { LETTER_L, LETTER_E, LETTER_A, LETTER_D, BLANK, BLANK, BLANK, BLANK },
+ .displayTime = UI_REFRESH_RATE_HZ * .5,
+ .next = &SCREW_RPM_PANIC_MESSAGE_3
+};
+const MESSAGE SCREW_RPM_PANIC_MESSAGE_3 =
+{
+ .message = { BLANK, BLANK, LETTER_S, LETTER_C, LETTER_R, LETTER_E, LETTER_W, LETTER_W },
+ .displayTime = UI_REFRESH_RATE_HZ * .5,
+ .next = &SCREW_RPM_PANIC_MESSAGE_1
 };
 
 
@@ -151,8 +179,18 @@ void UserInterface :: clearMessage( void )
 
 void UserInterface :: panicStepBacklog( void )
 {
-    this->core->setPowerOn(false);
-    setMessage(&BACKLOG_PANIC_MESSAGE_1);
+    if( this->core->isPowerOn() ) {
+        this->core->setPowerOn(false);
+        setMessage(&BACKLOG_PANIC_MESSAGE_1);
+    }
+}
+
+void UserInterface :: panicLeadscrewRpm( void )
+{
+    if( this->core->isPowerOn() ) {
+        this->core->setPowerOn(false);
+        setMessage(&SCREW_RPM_PANIC_MESSAGE_1);
+    }
 }
 
 void UserInterface :: loop( void )

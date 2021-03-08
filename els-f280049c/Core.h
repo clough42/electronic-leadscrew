@@ -42,6 +42,8 @@ private:
     float stepRatio;
     float previousStepRatio;
 
+    float rpmRatio;
+
     int16 direction;
     int16 previousDirection;
 
@@ -57,6 +59,7 @@ public:
     void setFeed(const FEED_THREAD *feed);
     void setReverse(bool reverse);
     Uint16 getRPM(void);
+    Uint16 getLeadscrewRPM(void);
     bool isAlarm();
 
     bool isPowerOn();
@@ -68,11 +71,17 @@ public:
 inline void Core :: setFeed(const FEED_THREAD *feed)
 {
     this->stepRatio = feed->getStepRatio();
+    this->rpmRatio = feed->getRpmRatio();
 }
 
 inline Uint16 Core :: getRPM(void)
 {
     return encoder->getRPM();
+}
+
+inline Uint16 Core :: getLeadscrewRPM(void)
+{
+    return ((float)getRPM()) * rpmRatio;
 }
 
 inline bool Core :: isAlarm()

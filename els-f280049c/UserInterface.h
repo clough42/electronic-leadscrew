@@ -68,6 +68,7 @@ public:
     void loop( void );
 
     void panicStepBacklog( void );
+    void panicLeadscrewRpm( void );
 };
 
 #endif // __USERINTERFACE_H
