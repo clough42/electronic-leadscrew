@@ -104,7 +104,7 @@ public:
     void incrementCurrentPosition(int32 increment);
     void setCurrentPosition(int32 position);
 
-    bool checkStepBacklog();
+    bool isTooFarBehind();
 
     void setEnabled(bool);
 
@@ -128,13 +128,9 @@ inline void StepperDrive :: setCurrentPosition(int32 position)
     this->currentPosition = position;
 }
 
-inline bool StepperDrive :: checkStepBacklog()
+inline bool StepperDrive :: isTooFarBehind()
 {
-    if( abs(this->desiredPosition - this->currentPosition) > MAX_BUFFERED_STEPS ) {
-        setEnabled(false);
-        return true;
-    }
-    return false;
+    return abs(this->desiredPosition - this->currentPosition) > MAX_BUFFERED_STEPS;
 }
 
 inline void StepperDrive :: setEnabled(bool enabled)

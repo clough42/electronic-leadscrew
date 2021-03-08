@@ -35,6 +35,7 @@
 #include "Core.h"
 #include "UserInterface.h"
 #include "Debug.h"
+#include "Safety.h"
 
 
 __interrupt void cpu_timer0_isr(void);
@@ -72,6 +73,9 @@ Core core(&encoder, &stepperDrive);
 
 // User interface
 UserInterface userInterface(&controlPanel, &core, &feedTableFactory);
+
+// Safety monitor
+Safety safety(&stepperDrive, &userInterface);
 
 void main(void)
 {
@@ -139,10 +143,8 @@ void main(void)
         // mark beginning of loop for debugging
         debug.begin2();
 
-        // check for step backlog and panic the system if it occurs
-        if( stepperDrive.checkStepBacklog() ) {
-            userInterface.panicStepBacklog();
-        }
+        // perform safety checks
+        safety.loop();
 
         // service the user interface
         userInterface.loop();

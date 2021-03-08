@@ -151,6 +151,7 @@ void UserInterface :: clearMessage( void )
 
 void UserInterface :: panicStepBacklog( void )
 {
+    this->core->setPowerOn(false);
     setMessage(&BACKLOG_PANIC_MESSAGE_1);
 }
 
