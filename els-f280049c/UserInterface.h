@@ -43,11 +43,13 @@ class UserInterface
 private:
     ControlPanel *controlPanel;
     Core *core;
+    Encoder *encoder;
     FeedTableFactory *feedTableFactory;
 
     bool metric;
     bool thread;
     bool reverse;
+    bool sposition;
 
     FeedTable *feedTable;
 

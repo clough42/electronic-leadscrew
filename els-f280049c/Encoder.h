@@ -37,20 +37,25 @@
 #define ENCODER_REGS EQep2Regs
 #endif
 
-#define _ENCODER_MAX_COUNT 0x00ffffff
+#define _ENCODER_MAX_COUNT 0xffffffff
 
 
 class Encoder
 {
 private:
     Uint32 previous;
+    Uint32 pcount;
+    Uint32 pprevious;
+    Uint32 pcurrent;
     Uint16 rpm;
+    Uint16 sposition;
 
 public:
     Encoder( void );
     void initHardware( void );
 
     Uint16 getRPM( void );
+    Uint16 getSPosition(void);
     Uint32 getPosition( void );
     Uint32 getMaxCount( void );
 };

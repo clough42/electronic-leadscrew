@@ -47,6 +47,7 @@ ControlPanel :: ControlPanel(SPIBus *spiBus)
 {
     this->spiBus = spiBus;
     this->rpm = 0;
+    this->sposition = 0;
     this->value = NULL;
     this->leds.all = 0;
     this->keys.all = 0;
@@ -127,7 +128,17 @@ Uint16 ControlPanel :: lcd_char(Uint16 x)
         0b1110000000000000, // 7
         0b1111111000000000, // 8
         0b1111011000000000, // 9
-        0b0000000100000000  // .
+        0b0000000100000000,  // .
+        0b1111110100000000, // 0.
+        0b0110000100000000, // 1.
+        0b1101101100000000, // 2.
+        0b1111001100000000, // 3.
+        0b0110011100000000, // 4.
+        0b1011011100000000, // 5.
+        0b1011111100000000, // 6.
+        0b1110000100000000, // 7.
+        0b1111111100000000, // 8.
+        0b1111011100000000 // 9.
     };
     if( x < sizeof(table) ) {
         return table[x];
@@ -184,6 +195,21 @@ void ControlPanel :: decomposeRPM()
     for(i=3; i>=0; i--) {
         this->sevenSegmentData[i] = (rpm == 0 && i != 3) ? 0 : lcd_char(rpm % 10);
         rpm = rpm / 10;
+    }
+}
+
+void ControlPanel :: decomposeSPosition()
+{
+    Uint16 sposition = this->sposition;
+    int i;
+
+    for(i=3; i>=0; i--) {
+        if (i == 2 ) {
+            this->sevenSegmentData[i] = (sposition == 0 && i != 3) ? 0 : lcd_char((sposition % 10) + 11);
+        } else {
+            this->sevenSegmentData[i] = (sposition == 0 && i != 3) ? 0 : lcd_char(sposition % 10);
+        }
+        sposition = sposition / 10;
     }
 }
 
@@ -300,11 +326,17 @@ void ControlPanel :: setBrightness( Uint16 brightness )
     this->brightness = brightness;
 }
 
-void ControlPanel :: refresh()
+void ControlPanel :: refresh(bool showposition)
 {
     configureSpiBus();
 
-    decomposeRPM();
+    if ( showposition )
+    {
+        decomposeSPosition();
+    } else {
+        decomposeRPM();
+    }
+
     decomposeValue();
 
     sendData();

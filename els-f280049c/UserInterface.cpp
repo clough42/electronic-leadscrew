@@ -29,27 +29,26 @@
 const MESSAGE STARTUP_MESSAGE_2 =
 {
   .message = { LETTER_E, LETTER_L, LETTER_S, DASH, ONE | POINT, FOUR | POINT, ZERO, ZERO },
-  .displayTime = UI_REFRESH_RATE_HZ * 1.5
+  .displayTime = UI_REFRESH_RATE_HZ * .5
 };
 
 const MESSAGE STARTUP_MESSAGE_1 =
 {
  .message = { LETTER_C, LETTER_L, LETTER_O, LETTER_U, LETTER_G, LETTER_H, FOUR, TWO },
- .displayTime = UI_REFRESH_RATE_HZ * 1.5,
+ .displayTime = UI_REFRESH_RATE_HZ * .5,
  .next = &STARTUP_MESSAGE_2
 };
 
-const MESSAGE SETTINGS_MESSAGE_2 =
+const MESSAGE SETTINGS_MESSAGE_RPM =
 {
- .message = { LETTER_S, LETTER_E, LETTER_T, LETTER_T, LETTER_I, LETTER_N, LETTER_G, LETTER_S },
+ .message = { BLANK, BLANK, LETTER_R, LETTER_P, LETTER_M, BLANK, BLANK, BLANK },
  .displayTime = UI_REFRESH_RATE_HZ * .5
 };
 
-const MESSAGE SETTINGS_MESSAGE_1 =
+const MESSAGE SETTINGS_MESSAGE_POSITION =
 {
- .message = { BLANK, BLANK, BLANK, LETTER_N, LETTER_O, BLANK, BLANK, BLANK },
- .displayTime = UI_REFRESH_RATE_HZ * .5,
- .next = &SETTINGS_MESSAGE_2
+ .message = { LETTER_P, LETTER_O, LETTER_S, LETTER_I, LETTER_T, LETTER_I, LETTER_O, LETTER_N},
+ .displayTime = UI_REFRESH_RATE_HZ * .5
 };
 
 extern const MESSAGE BACKLOG_PANIC_MESSAGE_2;
@@ -76,9 +75,10 @@ UserInterface :: UserInterface(ControlPanel *controlPanel, Core *core, FeedTable
     this->core = core;
     this->feedTableFactory = feedTableFactory;
 
-    this->metric = false; // start out with imperial
+    this->metric = true; // start out with metric
     this->thread = false; // start out with feeds
     this->reverse = false; // start out going forward
+    this->sposition = false; // start out showing RPM
 
     this->feedTable = NULL;
 
@@ -159,6 +159,9 @@ void UserInterface :: loop( void )
     // read the RPM up front so we can use it to make decisions
     Uint16 currentRpm = core->getRPM();
 
+    // read the current spindle position to keep this up to date
+    Uint16 currentSPosition = encoder->getSPosition();
+
     // display an override message, if there is one
     overrideMessage();
 
@@ -166,6 +169,17 @@ void UserInterface :: loop( void )
     keys = controlPanel->getKeys();
 
     // respond to keypresses
+    // respond regardless of machine state
+    if( keys.bit.SET ) {
+        this->sposition =! this->sposition;
+        if ( sposition ) {
+            setMessage(&SETTINGS_MESSAGE_POSITION);
+        } else {
+            setMessage(&SETTINGS_MESSAGE_RPM);
+        }
+    }
+
+
     if( currentRpm == 0 )
     {
         // these keys should only be sensitive when the machine is stopped
@@ -190,10 +204,6 @@ void UserInterface :: loop( void )
             {
                 this->reverse = ! this->reverse;
                 core->setReverse(this->reverse);
-            }
-            if( keys.bit.SET )
-            {
-                setMessage(&SETTINGS_MESSAGE_1);
             }
         }
     }
@@ -223,12 +233,17 @@ void UserInterface :: loop( void )
     // update the control panel
     controlPanel->setLEDs(calculateLEDs());
     controlPanel->setValue(feedTable->current()->display);
-    controlPanel->setRPM(currentRpm);
+
+    if ( sposition ) {
+        controlPanel->setSPosition(currentSPosition);
+    } else {
+        controlPanel->setRPM(currentRpm);
+    }
 
     if( ! core->isPowerOn() )
     {
         controlPanel->setValue(VALUE_BLANK);
     }
 
-    controlPanel->refresh();
+    controlPanel->refresh(sposition);
 }

@@ -128,6 +128,9 @@ private:
     // Current RPM value; 4 decimal digits
     Uint16 rpm;
 
+    // Current spindle position value
+    Uint16 sposition;
+
     // Current displayed setting value, 4 digits
     const Uint16 *value;
 
@@ -153,7 +156,11 @@ private:
     // dummy register, for SPI
     Uint16 dummy;
 
+    // show spindle position
+    bool showposition;
+
     void decomposeRPM(void);
+    void decomposeSPosition(void);
     void decomposeValue(void);
     KEY_REG readKeys(void);
     Uint16 lcd_char(Uint16 x);
@@ -178,6 +185,9 @@ public:
     // set the RPM value to display
     void setRPM(Uint16 rpm);
 
+    // set the Spindle Position value to display
+    void setSPosition(Uint16 sposition);
+
     // set the value to display
     void setValue(const Uint16 *value);
 
@@ -191,13 +201,18 @@ public:
     void setBrightness(Uint16 brightness);
 
     // refresh the hardware display
-    void refresh(void);
+    void refresh(bool showposition);
 };
 
 
 inline void ControlPanel :: setRPM(Uint16 rpm)
 {
     this->rpm = rpm;
+}
+
+inline void ControlPanel :: setSPosition(Uint16 sposition)
+{
+    this->sposition = sposition;
 }
 
 inline void ControlPanel :: setValue(const Uint16 *value)
