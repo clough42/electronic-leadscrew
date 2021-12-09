@@ -40,11 +40,11 @@
 //================================================================================
 
 // For Imperial leadscrews: pitch in Threads Per Inch (TPI)
-#define LEADSCREW_TPI 12
+//#define LEADSCREW_TPI 12
 
 // For metric leadscrews: pitch in hundredths of a millimeter (HMM)
 // Example: 200hmm = 2mm
-//#define LEADSCREW_HMM 200
+#define LEADSCREW_HMM 300
 
 
 
@@ -96,7 +96,7 @@
 //================================================================================
 
 // Encoder resolution (counts per revolution)
-#define ENCODER_RESOLUTION 4096
+#define ENCODER_RESOLUTION 8192
 
 // Which encoder input to use
 #define ENCODER_USE_EQEP1
