@@ -127,6 +127,15 @@ Uint16 Encoder :: getSPosition(void)
 
     pcurrent = ENCODER_REGS.QPOSCNT;
 
+    // Basic over/underflow management - if there's a large difference between pcurrent and pprevious
+    // that means encoder register QPOSCNT has over or under flowed. Imperfect handling, but simply
+    // make pcurrent and pprevious equal. Will introduce inaccuracy, but this over / under flow should
+    // happen seldom and the operator shouldnt be spinning the spindle a lot while using the position.
+
+    if ( (int) pcurrent - (int) pprevious > 100000 || (int) pcurrent - (int) pprevious < -100000 ) {
+        pprevious = pcurrent;
+    }
+    
     // if result would be less than zero, wrap around
     if ( pcount + pcurrent < pprevious ) {
         pcount += ENCODER_RESOLUTION + pcurrent - pprevious;
