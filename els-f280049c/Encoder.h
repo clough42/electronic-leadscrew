@@ -48,7 +48,7 @@ private:
     Uint32 pprevious;
     Uint32 pcurrent;
     Uint16 rpm;
-    Uint16 sposition;
+    Uint32 sposition;
 
 public:
     Encoder( void );

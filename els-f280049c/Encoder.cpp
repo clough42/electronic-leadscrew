@@ -118,34 +118,44 @@ Uint16 Encoder :: getRPM(void)
 
 Uint16 Encoder :: getSPosition(void)
 {
-    //initialise pprevious and pcurrent just once (SWI bit is set at hardware initialisation)
+    // initialise pprevious and pcurrent just once (SWI bit is set at hardware initialisation)
+    // values in pprevious and pcurrent are set to be in the middle of the range as not to trigger under/overflow
     if ( ENCODER_REGS.QEPCTL.bit.SWI == 1 ) {
         ENCODER_REGS.QEPCTL.bit.SWI = 0;
-        pprevious = _ENCODER_MAX_COUNT / 2;
-        this->pcurrent = pprevious;
+        pprevious = ENCODER_REGS.QPOSINIT;
+        pcurrent = ENCODER_REGS.QPOSINIT;
     }
 
-    pcurrent = ENCODER_REGS.QPOSCNT;
+    pcurrent = getPosition();
 
-    // Basic over/underflow management - if there's a large difference between pcurrent and pprevious
-    // that means encoder register QPOSCNT has over or under flowed. Imperfect handling, but simply
-    // make pcurrent and pprevious equal. Will introduce inaccuracy, but this over / under flow should
-    // happen seldom and the operator shouldnt be spinning the spindle a lot while using the position.
-
-    if ( (int) pcurrent - (int) pprevious > 100000 || (int) pcurrent - (int) pprevious < -100000 ) {
-        pprevious = pcurrent;
+    // Manage overflow - as count approaches maximum uint32 value, deduct 0x000fffff
+    if ( pcurrent > 0x0fffffff ) {
+        pcurrent = pcurrent - 0x000fffff;
+        pprevious = pprevious - 0x000fffff;
     }
-    
+
+    // Manage underflow - as count approaches zero, add 0x000fffff
+    if ( pcurrent < 0x0000ffff ) {
+        pcurrent = pcurrent + 0x000fffff;
+        pprevious = pprevious + 0x000fffff;
+    }
+
     // if result would be less than zero, wrap around
     if ( pcount + pcurrent < pprevious ) {
         pcount += ENCODER_RESOLUTION + pcurrent - pprevious;
+    // if result would be more than ENCODER_RESOLUTION, wrap around
     } else if ( pcount + pcurrent - pprevious > ENCODER_RESOLUTION ) {
         pcount += pcurrent - pprevious - ENCODER_RESOLUTION;
     } else {
         pcount += pcurrent - pprevious;
     }
 
-    sposition = (float) pcount / (float) ENCODER_RESOLUTION * (float) 3600;
+    // if for some other reason pcount is out of range. This should ideally never trigger.
+    if ( pcount > ENCODER_RESOLUTION ) {
+        pcount %= ENCODER_RESOLUTION;
+    }
+
+    sposition = (pcount * 3600) / ENCODER_RESOLUTION;
 
     pprevious = pcurrent;
 
