@@ -130,14 +130,14 @@ Uint16 Encoder :: getSPosition(void)
 
     // Manage overflow - as count approaches maximum uint32 value, deduct 0x000fffff
     if ( pcurrent > 0x0fffffff ) {
-        pcurrent = pcurrent - 0x000fffff;
-        pprevious = pprevious - 0x000fffff;
+        pcurrent -= 0x000fffff;
+        pprevious -= 0x000fffff;
     }
 
     // Manage underflow - as count approaches zero, add 0x000fffff
     if ( pcurrent < 0x0000ffff ) {
-        pcurrent = pcurrent + 0x000fffff;
-        pprevious = pprevious + 0x000fffff;
+        pcurrent += 0x000fffff;
+        pprevious += 0x000fffff;
     }
 
     // if result would be less than zero, wrap around
