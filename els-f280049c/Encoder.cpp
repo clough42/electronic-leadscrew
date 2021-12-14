@@ -144,7 +144,7 @@ Uint16 Encoder :: getSPosition(void)
     if ( pcount + pcurrent < pprevious ) {
         pcount += ENCODER_RESOLUTION + pcurrent - pprevious;
     // if result would be more than ENCODER_RESOLUTION, wrap around
-    } else if ( pcount + pcurrent - pprevious > ENCODER_RESOLUTION ) {
+    } else if ( pcount + pcurrent - pprevious >= ENCODER_RESOLUTION ) {
         pcount += pcurrent - pprevious - ENCODER_RESOLUTION;
     } else {
         pcount += pcurrent - pprevious;
