@@ -124,6 +124,7 @@ Uint16 Encoder :: getSPosition(void)
         ENCODER_REGS.QEPCTL.bit.SWI = 0;
         pprevious = ENCODER_REGS.QPOSINIT;
         pcurrent = ENCODER_REGS.QPOSINIT;
+        pcount = 0;
     }
 
     pcurrent = getPosition();
