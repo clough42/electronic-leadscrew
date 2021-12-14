@@ -31,7 +31,6 @@
 Encoder :: Encoder( void )
 {
     this->previous = 0;
-    this->pprevious = 0;
     this->rpm = 0;
     this->sposition = 0;
 }
@@ -118,47 +117,14 @@ Uint16 Encoder :: getRPM(void)
 
 Uint16 Encoder :: getSPosition(void)
 {
-    // initialise pprevious and pcurrent just once (SWI bit is set at hardware initialisation)
-    // values in pprevious and pcurrent are set to be in the middle of the range as not to trigger under/overflow
+    // Initialise values
     if ( ENCODER_REGS.QEPCTL.bit.SWI == 1 ) {
         ENCODER_REGS.QEPCTL.bit.SWI = 0;
-        pprevious = ENCODER_REGS.QPOSINIT;
-        pcurrent = ENCODER_REGS.QPOSINIT;
         pcount = 0;
     }
 
-    pcurrent = getPosition();
-
-    // Manage overflow - as count approaches maximum uint32 value, deduct 0x000fffff
-    if ( pcurrent > 0x0fffffff ) {
-        pcurrent -= 0x000fffff;
-        pprevious -= 0x000fffff;
-    }
-
-    // Manage underflow - as count approaches zero, add 0x000fffff
-    if ( pcurrent < 0x0000ffff ) {
-        pcurrent += 0x000fffff;
-        pprevious += 0x000fffff;
-    }
-
-    // if result would be less than zero, wrap around
-    if ( pcount + pcurrent < pprevious ) {
-        pcount += ENCODER_RESOLUTION + pcurrent - pprevious;
-    // if result would be more than ENCODER_RESOLUTION, wrap around
-    } else if ( pcount + pcurrent - pprevious >= ENCODER_RESOLUTION ) {
-        pcount += pcurrent - pprevious - ENCODER_RESOLUTION;
-    } else {
-        pcount += pcurrent - pprevious;
-    }
-
-    // if for some other reason pcount is out of range. This should ideally never trigger.
-    if ( pcount > ENCODER_RESOLUTION ) {
-        pcount %= ENCODER_RESOLUTION;
-    }
-
+    pcount = getPosition() % ENCODER_RESOLUTION
     sposition = (pcount * 3600) / ENCODER_RESOLUTION;
-
-    pprevious = pcurrent;
 
     return sposition;
 }
