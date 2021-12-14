@@ -38,7 +38,7 @@
 #endif
 
 // define _ENCODER_MAX_COUNT as a multiple of ENCODER_RESOLUTION so that the modulo function in getSPosition() overflows correctly.
-#define _ENCODER_MAX_COUNT ENCODER_RESOLUTION * 0x800
+#define _ENCODER_MAX_COUNT (ENCODER_RESOLUTION * 0x800)
 
 
 class Encoder
