@@ -38,7 +38,7 @@
 #endif
 
 //#define _ENCODER_MAX_COUNT 0x00ffffff
-#define _ENCOVER_MAX_COUNT ENCODER_RESOLUTION * 0x800
+#define _ENCODER_MAX_COUNT ENCODER_RESOLUTION * 0x800
 
 
 class Encoder
