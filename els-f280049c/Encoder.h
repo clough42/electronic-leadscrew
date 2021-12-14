@@ -45,9 +45,6 @@ class Encoder
 {
 private:
     Uint32 previous;
-    Uint32 pcount;
-    Uint32 pprevious;
-    Uint32 pcurrent;
     Uint16 rpm;
     Uint32 sposition;
 
@@ -55,6 +52,7 @@ public:
     Encoder( void );
     void initHardware( void );
 
+    Uint16 pcount;
     Uint16 getRPM( void );
     Uint16 getSPosition(void);
     Uint32 getPosition( void );
