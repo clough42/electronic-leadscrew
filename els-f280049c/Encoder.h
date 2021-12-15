@@ -37,8 +37,8 @@
 #define ENCODER_REGS EQep2Regs
 #endif
 
-// define _ENCODER_MAX_COUNT as a multiple of ENCODER_RESOLUTION so that the modulo function in getSPosition() overflows correctly.
-#define _ENCODER_MAX_COUNT (ENCODER_RESOLUTION * 0x800)
+// define _ENCODER_MAX_COUNT as a multiple of ENCODER_RESOLUTION so that the modulo function in getSPosition() overflows correctly (8,092 * 1,024)
+#define _ENCODER_MAX_COUNT 0x7E7000
 
 
 class Encoder
@@ -52,7 +52,6 @@ public:
     Encoder( void );
     void initHardware( void );
 
-    Uint16 pcount;
     Uint16 getRPM( void );
     Uint16 getSPosition(void);
     Uint32 getPosition( void );

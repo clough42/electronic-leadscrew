@@ -205,7 +205,7 @@ void ControlPanel :: decomposeSPosition()
 
     for(i=3; i>=0; i--) {
         if (i == 2 ) {
-            this->sevenSegmentData[i] = (sposition == 0 && i != 3) ? 0 : lcd_char((sposition % 10) + 11);
+              this->sevenSegmentData[i] = lcd_char((sposition % 10) + 11);
         } else {
             this->sevenSegmentData[i] = (sposition == 0 && i != 3) ? 0 : lcd_char(sposition % 10);
         }
