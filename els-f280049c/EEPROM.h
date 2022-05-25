@@ -39,6 +39,12 @@
 #  error Must define a valid HARDWARE_VERSION
 #endif
 
+#ifdef TARGET_F28004X
+#define EEPROM_CS GPIO34
+#endif
+#ifdef TARGET_F2806X
+#define EEPROM_CS GPIO53
+#endif
 
 
 #define EEPROM_PAGE_SIZE 8 // 2-byte words

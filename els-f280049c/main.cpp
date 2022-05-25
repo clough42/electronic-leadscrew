@@ -106,7 +106,12 @@ void main(void)
 
     // Set up the CPU0 timer ISR
     EALLOW;
+#ifdef TARGET_F28004X
     PieVectTable.TIMER0_INT = &cpu_timer0_isr;
+#endif
+#ifdef TARGET_F2806X
+    PieVectTable.TINT0 = &cpu_timer0_isr;
+#endif
     EDIS;
 
     // initialize the CPU timer

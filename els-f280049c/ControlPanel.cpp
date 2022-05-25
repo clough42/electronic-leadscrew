@@ -37,10 +37,10 @@
 
 
 // Lower the TM1638 CS (STB) line
-#define CS_ASSERT GpioDataRegs.GPBCLEAR.bit.GPIO33 = 1
+#define CS_ASSERT GpioDataRegs.GPBCLEAR.bit.DISPLAY_CS = 1
 
 // Raise the TM1638 CS (STB) line
-#define CS_RELEASE GpioDataRegs.GPBSET.bit.GPIO33 = 1
+#define CS_RELEASE GpioDataRegs.GPBSET.bit.DISPLAY_CS = 1
 
 
 ControlPanel :: ControlPanel(SPIBus *spiBus)
@@ -60,9 +60,14 @@ void ControlPanel :: initHardware(void)
 {
     EALLOW;
 
-    // use GPIO33 as the chip select so we can control it ourselves
-    GpioCtrlRegs.GPBMUX1.bit.GPIO33 = 0x0;      // SELECT GPIO33
-    GpioCtrlRegs.GPBDIR.bit.GPIO33 = 1;         // output
+    // use a GPIO as the chip select so we can control it ourselves
+#ifdef TARGET_F28004X
+    GpioCtrlRegs.GPBMUX1.bit.DISPLAY_CS = 0x0;      // SELECT GPIO
+#endif
+#ifdef TARGET_F2806X
+    GpioCtrlRegs.GPBMUX2.bit.DISPLAY_CS = 0x0;      // SELECT GPIO
+#endif
+    GpioCtrlRegs.GPBDIR.bit.DISPLAY_CS = 1;         // output
     CS_RELEASE;                                 // set it to high
 
     EDIS;
@@ -237,6 +242,7 @@ KEY_REG ControlPanel :: getKeys()
 {
     KEY_REG newKeys;
     static KEY_REG noKeys;
+    noKeys.all = 0;
 
     configureSpiBus();
 

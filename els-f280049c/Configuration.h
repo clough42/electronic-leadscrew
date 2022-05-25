@@ -27,6 +27,10 @@
 #ifndef __CONFIGURATION_H
 #define __CONFIGURATION_H
 
+//Configure which LauchPad board we are targeting
+//  Preference is to set these in Build Configuration Predefined Symbols
+//#define TARGET_F28004X
+//#define TARGET_F2806X
 
 
 
@@ -177,7 +181,12 @@
 #define RPM_CALC_RATE_HZ 2
 
 // Microprocessor system clock
+#ifdef TARGET_F28004X
 #define CPU_CLOCK_MHZ 100
+#endif
+#ifdef TARGET_F2806X
+#define CPU_CLOCK_MHZ 90
+#endif
 #define CPU_CLOCK_HZ (CPU_CLOCK_MHZ * 1000000)
 
 

@@ -38,7 +38,8 @@ void Encoder :: initHardware(void)
 {
     EALLOW;
 
-#ifdef ENCODER_USE_EQEP1
+#ifdef TARGET_F28004X
+  #ifdef ENCODER_USE_EQEP1
     GpioCtrlRegs.GPBPUD.bit.GPIO35 = 0;     // Enable pull-up on GPIO35 (EQEP1A)
     GpioCtrlRegs.GPBPUD.bit.GPIO37 = 0;     // Enable pull-up on GPIO371 (EQEP1B)
     GpioCtrlRegs.GPBPUD.bit.GPIO59 = 0;     // Enable pull-up on GPIO59 (EQEP1I)
@@ -53,8 +54,8 @@ void Encoder :: initHardware(void)
     GpioCtrlRegs.GPBGMUX1.bit.GPIO37 = 2;
     GpioCtrlRegs.GPBMUX2.bit.GPIO59 = 3;    // Configure GPIO59 as EQEP1I
     GpioCtrlRegs.GPBGMUX2.bit.GPIO59 = 2;
-#endif
-#ifdef ENCODER_USE_EQEP2
+  #endif
+  #ifdef ENCODER_USE_EQEP2
     GpioCtrlRegs.GPAPUD.bit.GPIO14 = 0;     // Enable pull-up on GPIO14 (EQEP2A)
     GpioCtrlRegs.GPAPUD.bit.GPIO15 = 0;     // Enable pull-up on GPIO15 (EQEP2B)
     GpioCtrlRegs.GPAPUD.bit.GPIO26 = 0;     // Enable pull-up on GPIO26 (EQEP2I)
@@ -69,6 +70,36 @@ void Encoder :: initHardware(void)
     GpioCtrlRegs.GPAGMUX1.bit.GPIO15 = 2;
     GpioCtrlRegs.GPAMUX2.bit.GPIO26 = 2;    // Configure GPIO26 as EQEP2I
     GpioCtrlRegs.GPAGMUX2.bit.GPIO26 = 0;
+  #endif
+#endif
+
+#ifdef TARGET_F2806X
+  #ifdef ENCODER_USE_EQEP1
+    GpioCtrlRegs.GPAPUD.bit.GPIO20 = 0;   // Enable pull-up on GPIO20 (EQEP1A)
+    GpioCtrlRegs.GPAPUD.bit.GPIO21 = 0;   // Enable pull-up on GPIO21 (EQEP1B)
+    GpioCtrlRegs.GPAPUD.bit.GPIO23 = 0;   // Enable pull-up on GPIO23 (EQEP1I)
+
+    GpioCtrlRegs.GPAQSEL2.bit.GPIO20 = 0;  // Sync to SYSCLKOUT GPIO20 (EQEP1A)
+    GpioCtrlRegs.GPAQSEL2.bit.GPIO21 = 0;  // Sync to SYSCLKOUT GPIO21 (EQEP1B)
+    GpioCtrlRegs.GPAQSEL2.bit.GPIO23 = 0;  // Sync to SYSCLKOUT GPIO23 (EQEP1I)
+
+    GpioCtrlRegs.GPAMUX2.bit.GPIO20 = 1;   // Configure GPIO20 as EQEP1A
+    GpioCtrlRegs.GPAMUX2.bit.GPIO21 = 1;   // Configure GPIO21 as EQEP1B
+    GpioCtrlRegs.GPAMUX2.bit.GPIO23 = 1;   // Configure GPIO23 as EQEP1I
+  #endif
+  #ifdef ENCODER_USE_EQEP2
+    GpioCtrlRegs.GPBPUD.bit.GPIO54 = 0;   // Enable pull-up on GPIO54 (EQEP2A)
+    GpioCtrlRegs.GPBPUD.bit.GPIO55 = 0;   // Enable pull-up on GPIO55 (EQEP2B)
+    GpioCtrlRegs.GPBPUD.bit.GPIO56 = 0;   // Enable pull-up on GPIO56 (EQEP2I)
+
+    GpioCtrlRegs.GPBQSEL2.bit.GPIO54 = 0; // Sync to SYSCLKOUT GPIO54 (EQEP2A)
+    GpioCtrlRegs.GPBQSEL2.bit.GPIO55 = 0; // Sync to SYSCLKOUT GPIO55 (EQEP2B)
+    GpioCtrlRegs.GPBQSEL2.bit.GPIO56 = 0; // Sync to SYSCLKOUT GPIO56 (EQEP2I)
+
+    GpioCtrlRegs.GPBMUX2.bit.GPIO54 = 2;   // Configure GPIO54 as EQEP2A
+    GpioCtrlRegs.GPBMUX2.bit.GPIO55 = 2;   // Configure GPIO55 as EQEP2B
+    GpioCtrlRegs.GPBMUX2.bit.GPIO56 = 2;   // Configure GPIO56 as EQEP2I
+  #endif
 #endif
 
     EDIS;
@@ -87,7 +118,6 @@ void Encoder :: initHardware(void)
     ENCODER_REGS.QEPCTL.bit.QCLM=1;            // Latch on unit time out
 
     ENCODER_REGS.QEPCTL.bit.QPEN=1;            // QEP enable
-
 }
 
 Uint16 Encoder :: getRPM(void)
