@@ -147,6 +147,9 @@
 // and direction keys are ignored.
 //#define IGNORE_ALL_KEYS_WHEN_RUNNING
 
+// Store the state of the machine in EEPROM and restore on power up
+#define ENABLE_STORED_STATE
+
 
 
 

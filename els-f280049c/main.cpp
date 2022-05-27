@@ -31,6 +31,7 @@
 #include "EEPROM.h"
 #include "StepperDrive.h"
 #include "Encoder.h"
+#include "MachineState.h"
 
 #include "Core.h"
 #include "UserInterface.h"
@@ -72,6 +73,9 @@ Core core(&encoder, &stepperDrive);
 
 // User interface
 UserInterface userInterface(&controlPanel, &core, &feedTableFactory);
+
+//Machine State
+MachineState machineState(&eeprom);
 
 void main(void)
 {
@@ -139,6 +143,16 @@ void main(void)
     EINT;
     ERTM;
 
+    //Try to restore state from EEPROM
+#ifdef ENABLE_STORED_STATE
+    machineState.restoreState();
+    if (machineState.isValid()) {
+        feedTableFactory.setState(machineState.getState()->tabState);
+        userInterface.setState(machineState.getState()->uiState);
+        core.setPowerOn(machineState.getState()->powerOn);
+    }
+#endif
+
     // User interface loop
     for(;;) {
         // mark beginning of loop for debugging
@@ -151,6 +165,28 @@ void main(void)
 
         // service the user interface
         userInterface.loop();
+
+#ifdef ENABLE_STORED_STATE
+        if (userInterface.stateChanged()) {
+            State *mState = machineState.getState();
+
+            TableState tState = feedTableFactory.getState();
+            mState->tabState.inchFeedRow = tState.inchFeedRow;
+            mState->tabState.inchThreadRow = tState.inchThreadRow;
+            mState->tabState.metricFeedRow = tState.metricFeedRow;
+            mState->tabState.metricThreadRow = tState.metricThreadRow;
+
+            UIState uiState = userInterface.getState();
+            mState->uiState.metric = uiState.metric;
+            mState->uiState.thread = uiState.thread;
+            mState->uiState.reverse = uiState.reverse;
+
+            mState->powerOn = core.isPowerOn();
+            mState->version = STATE_VERSION;
+
+            machineState.saveState();
+        }
+#endif
 
         // mark end of loop for debugging
         debug.end2();
