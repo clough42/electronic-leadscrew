@@ -33,7 +33,7 @@
 
 #if HARDWARE_VERSION == 1
 #  define EEPROM_CHIP_25AA040A
-#elif HARDWARE_VERSION == 2
+#elif (HARDWARE_VERSION == 2) || (HARDWARE_VERSION == 3)
 #  define EEPROM_CHIP_AT25080B
 #else
 #  error Must define a valid HARDWARE_VERSION

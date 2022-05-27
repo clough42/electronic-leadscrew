@@ -27,11 +27,6 @@
 #ifndef __CONFIGURATION_H
 #define __CONFIGURATION_H
 
-//Configure which LauchPad board we are targeting
-//  Preference is to set these in Build Configuration Predefined Symbols
-//#define TARGET_F28004X
-//#define TARGET_F2806X
-
 
 
 //================================================================================
@@ -127,12 +122,18 @@
 //
 // Define which hardware you're using:
 //
-//  1 - LaunchXL F280049C with ELS BoostXL v1
-//  2 - LaunchXL F280049C with ELS BoostXL v2
+//  1 - ELS BoostXL v1
+//  2 - ELS BoostXL v2
+//  3 - ELS BoostXL v2.1 (with SPIClk Modification)
 //================================================================================
 
 // See hardware version table above
-#define HARDWARE_VERSION 2
+#define HARDWARE_VERSION 3
+
+//Configure which LauchPad board we are targeting
+//  Preference is to set these in Build Configuration Predefined Symbols
+//#define TARGET_F28004X
+//#define TARGET_F2806X
 
 
 

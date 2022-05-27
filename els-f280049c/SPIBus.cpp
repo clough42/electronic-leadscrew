@@ -56,11 +56,21 @@ void SPIBus :: initHardware(void)
     GpioCtrlRegs.GPAGMUX2.bit.GPIO24 = 0x1;
     GpioCtrlRegs.GPAMUX2.bit.GPIO31 = 0x3;      // select SPIB_SOMI
     GpioCtrlRegs.GPAGMUX2.bit.GPIO31 = 0x0;
+#if (HARDWARE_VERSION == 1) || (HARDWARE_VERSION == 2)
     GpioCtrlRegs.GPBMUX1.bit.GPIO32 = 0x3;      // select SPIB_CLK
     GpioCtrlRegs.GPBGMUX1.bit.GPIO32 = 0x0;
+#elif (HARDWARE_VERSION == 3)
+    GpioCtrlRegs.GPBMUX1.bit.GPIO22 = 0x3;      // select SPIB_CLK
+    GpioCtrlRegs.GPBGMUX1.bit.GPIO22 = 0x0;
+#else
+#  error Must define a valid HARDWARE_VERSION
+#endif
 #endif
 
 #ifdef TARGET_F2806X
+#if (HARDWARE_VERSION != 3)
+#  error Boost hardware version must have the SPIClk modification if using F28069 Lauchpad
+#endif
     GpioCtrlRegs.GPAPUD.bit.GPIO24 = 0;   // Enable pull-up on GPIO24 (SPISIMOB)
     GpioCtrlRegs.GPAPUD.bit.GPIO25 = 0;   // Enable pull-up on GPIO25 (SPISOMIB)
     GpioCtrlRegs.GPAPUD.bit.GPIO14 = 0;   // Enable pull-up on GPIO14 (SPICLKB)
