@@ -69,7 +69,7 @@ UserInterface :: UserInterface(ControlPanel *controlPanel, Core *core, FeedTable
     this->core = core;
     this->feedTableFactory = feedTableFactory;
 
-    this->metric = false; // start out with imperial
+    this->metric = true; // start out with metric
     this->thread = false; // start out with feeds
     this->reverse = false; // start out going forward
 
