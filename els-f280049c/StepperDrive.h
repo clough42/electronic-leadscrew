@@ -158,6 +158,12 @@ inline bool StepperDrive :: isAlarm()
 #endif
 }
 
+// backlash value
+// This fixes an issue which may only apply to me in that the encoder at certain positions 'dithered' causing the stepper to 'vibrate' resulting in noise when the lathe was stopped.
+// This value effectively adds backlash to the system so that the minimum number of steps have to be issued before the motor will move
+// set to zero if not required.
+#define backlash 4
+
 
 inline void StepperDrive :: ISR(void)
 {
