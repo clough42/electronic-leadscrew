@@ -161,17 +161,21 @@ inline bool StepperDrive :: isAlarm()
 
 inline void StepperDrive :: ISR(void)
 {
+    int32 diff;
+
     if(enabled) {
 
         switch( this->state ) {
 
         case 0:
             // Step = 0; Dir = 0
-            if( this->desiredPosition < this->currentPosition ) {
+            diff = this->desiredPosition - this->currentPosition;
+
+            if( diff < -backlash ) {
                 GPIO_SET_STEP;
                 this->state = 2;
             }
-            else if( this->desiredPosition > this->currentPosition ) {
+            else if( diff > backlash ) {
                 GPIO_SET_DIRECTION;
                 this->state = 1;
             }
@@ -179,11 +183,13 @@ inline void StepperDrive :: ISR(void)
 
         case 1:
             // Step = 0; Dir = 1
-            if( this->desiredPosition > this->currentPosition ) {
+            diff = this->desiredPosition - this->currentPosition;
+
+            if( diff > backlash ) {
                 GPIO_SET_STEP;
                 this->state = 3;
             }
-            else if( this->desiredPosition < this->currentPosition ) {
+            else if( diff < -backlash ) {
                 GPIO_CLEAR_DIRECTION;
                 this->state = 0;
             }
