@@ -28,7 +28,7 @@
 
 const MESSAGE STARTUP_MESSAGE_2 =
 {
-  .message = { LETTER_E, LETTER_L, LETTER_S, DASH, ONE | POINT, FOUR | POINT, ZERO, ZERO },
+  .message = { LETTER_E, LETTER_L, LETTER_S, DASH, ONE | POINT, FIVE | POINT, ZERO, ZERO },
   .displayTime = UI_REFRESH_RATE_HZ * 1.5
 };
 
@@ -39,17 +39,10 @@ const MESSAGE STARTUP_MESSAGE_1 =
  .next = &STARTUP_MESSAGE_2
 };
 
-const MESSAGE SETTINGS_MESSAGE_2 =
+const MESSAGE CUSTOM_THREAD =
 {
- .message = { LETTER_S, LETTER_E, LETTER_T, LETTER_T, LETTER_I, LETTER_N, LETTER_G, LETTER_S },
- .displayTime = UI_REFRESH_RATE_HZ * .5
-};
-
-const MESSAGE SETTINGS_MESSAGE_1 =
-{
- .message = { BLANK, BLANK, BLANK, LETTER_N, LETTER_O, BLANK, BLANK, BLANK },
- .displayTime = UI_REFRESH_RATE_HZ * .5,
- .next = &SETTINGS_MESSAGE_2
+ .message = { LETTER_C, LETTER_U, LETTER_S, LETTER_T, BLANK, LETTER_T, LETTER_H, LETTER_D },
+ .displayTime = UI_REFRESH_RATE_HZ * 2.0
 };
 
 extern const MESSAGE BACKLOG_PANIC_MESSAGE_2;
@@ -83,6 +76,8 @@ UserInterface :: UserInterface(ControlPanel *controlPanel, Core *core, FeedTable
     this->feedTable = NULL;
 
     this->keys.all = 0xff;
+
+    this->isInMenu = false;
 
     // initialize the core so we start up correctly
     core->setReverse(this->reverse);
@@ -165,6 +160,28 @@ void UserInterface :: loop( void )
     // read keypresses from the control panel
     keys = controlPanel->getKeys();
 
+    // handle appropriate loop
+    if (isInMenu)
+        menuLoop(currentRpm);
+    else
+        mainLoop(currentRpm);
+
+    // update the control panel
+    controlPanel->setLEDs(calculateLEDs());
+    controlPanel->setValue(feedTable->current()->display);
+    controlPanel->setRPM(currentRpm);
+
+    if( ! core->isPowerOn() )
+    {
+        controlPanel->setValue(VALUE_BLANK);
+    }
+
+    controlPanel->refresh();
+}
+
+
+void UserInterface :: mainLoop( Uint16 currentRpm )
+{
     // respond to keypresses
     if( currentRpm == 0 )
     {
@@ -193,7 +210,7 @@ void UserInterface :: loop( void )
             }
             if( keys.bit.SET )
             {
-                setMessage(&SETTINGS_MESSAGE_1);
+                beginMenu();
             }
         }
     }
@@ -220,15 +237,130 @@ void UserInterface :: loop( void )
     }
 #endif // IGNORE_ALL_KEYS_WHEN_RUNNING
 
-    // update the control panel
-    controlPanel->setLEDs(calculateLEDs());
-    controlPanel->setValue(feedTable->current()->display);
-    controlPanel->setRPM(currentRpm);
+}
 
-    if( ! core->isPowerOn() )
+
+// menu loop code
+
+void UserInterface :: beginMenu()
+{
+    this->isInMenu = true;
+    this->menuState = 0;
+    this->menuSubState = 0;
+}
+
+
+// 'set' menu states, note spacing to allow for 'sub-states'.
+enum menuStates {kCustomThread = 0, kSomeOtherOption = 0x10,  kQuitMenu = 0x100};
+
+void UserInterface :: cycleOptions(Uint16 next, Uint16 prev)
+{
+    // if set then start loop
+    if ( keys.bit.SET )
+        this->menuState++;
+
+    // if down then next option on menu
+    else if (keys.bit.DOWN)
     {
-        controlPanel->setValue(VALUE_BLANK);
+        this->menuState = next;
+        this->menuSubState = 0;
     }
 
-    controlPanel->refresh();
+    // if up then prev option on menu
+    else if (keys.bit.UP)
+    {
+        this->menuState = prev;
+        this->menuSubState = 0;
+    }
+
+    // if timeout then end menu
+    else if (this->messageTime == 0)
+        this->menuState = kQuitMenu;
 }
+
+
+void UserInterface :: menuLoop( Uint16 currentRpm )
+{
+    switch (this->menuState)
+    {
+    // custom threads
+    case kCustomThread:     // init
+        setMessage(&CUSTOM_THREAD);
+        this-menuState++;
+        break;
+    case kCustomThread+1:   // wait for keypress, either select this option, move to new or timeout
+        cycleOptions(kCustomThread, kCustomThread);  // link any other menu options here
+        break;
+    case kCustomThread+2:   // run loop
+        customThreadLoop(currentRpm);
+        break;
+
+    // further options follow the format above
+
+    // exit setup
+    case kQuitMenu:
+        this->isInMenu = false;
+        break;
+    }
+}
+
+
+void UserInterface :: customThreadLoop( Uint16 currentRpm )
+{
+    switch (this->menuSubState)
+    {
+    // initialise
+    case 0:
+        clearMessage();
+        feedTableFactory->useCustomPitch = true;
+        this->menuSubState = 1;
+        break;
+
+        // edit custom pitch 100's
+    case 1:
+        feedTableFactory->flashCustomDigit(1);
+
+        if( keys.bit.UP )
+            feedTableFactory->incCustomDigit(1);
+        if( keys.bit.DOWN )
+            feedTableFactory->decCustomDigit(1);
+
+        if ( keys.bit.SET )
+            this->menuSubState = 2;
+        break;
+
+        // edit custom pitch 10's
+    case 2:
+        feedTableFactory->flashCustomDigit(2);
+
+        if( keys.bit.UP )
+            feedTableFactory->incCustomDigit(2);
+        if( keys.bit.DOWN )
+            feedTableFactory->decCustomDigit(2);
+
+        if ( keys.bit.SET )
+            this->menuSubState = 3;
+        break;
+
+        // edit custom pitch 1's
+    case 3:
+        feedTableFactory->flashCustomDigit(3);
+
+        if( keys.bit.UP )
+            feedTableFactory->incCustomDigit(3);
+        if( keys.bit.DOWN )
+            feedTableFactory->decCustomDigit(3);
+
+        if ( keys.bit.SET )
+            this->menuSubState = 4;
+        break;
+
+    case 4:
+        feedTableFactory->flashCustomOff();
+        core->setFeed(loadFeedTable());
+
+        this->isInMenu = false;
+        break;
+    }
+}
+

@@ -49,6 +49,10 @@ private:
     bool thread;
     bool reverse;
 
+    bool isInMenu;
+    Uint16 menuState, menuSubState;
+
+
     FeedTable *feedTable;
 
     KEY_REG keys;
@@ -62,10 +66,17 @@ private:
     void overrideMessage( void );
     void clearMessage( void );
 
+    void cycleOptions(Uint16 next, Uint16 prev); // cycle menu options
+
 public:
     UserInterface(ControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory);
 
     void loop( void );
+
+    void mainLoop( Uint16 currentRpm );
+    void menuLoop( Uint16 currentRpm );
+    void beginMenu( void );
+    void customThreadLoop( Uint16 currentRpm );
 
     void panicStepBacklog( void );
 };

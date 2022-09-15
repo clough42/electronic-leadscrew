@@ -207,7 +207,11 @@ const FEED_THREAD metric_feed_table[] =
 };
 
 
+// *entry* for custom feed
+FEED_THREAD custom_feed = { .display = {BLANK, ONE | POINT, ZERO, ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(100) };
 
+// when set overrides table with custom feed
+bool    FeedTableFactory::useCustomPitch;
 
 
 FeedTable::FeedTable(const FEED_THREAD *table, Uint16 numRows, Uint16 defaultSelection)
@@ -219,23 +223,39 @@ FeedTable::FeedTable(const FEED_THREAD *table, Uint16 numRows, Uint16 defaultSel
 
 const FEED_THREAD *FeedTable :: current(void)
 {
-    return &table[selectedRow];
+    // check for custom feed
+    if (FeedTableFactory::useCustomPitch)
+        return &custom_feed;
+    else
+        return &table[selectedRow];
 }
 
 const FEED_THREAD *FeedTable :: next(void)
 {
-    if( this->selectedRow < this->numRows - 1 )
+    // if in custom pitch then first step out
+    if (FeedTableFactory::useCustomPitch)
+        FeedTableFactory::useCustomPitch = false;
+    else
     {
-        this->selectedRow++;
+        if( this->selectedRow < this->numRows - 1 )
+        {
+            this->selectedRow++;
+        }
     }
     return this->current();
 }
 
 const FEED_THREAD *FeedTable :: previous(void)
 {
-    if( this->selectedRow > 0 )
+    // if in custom pitch then first step out
+    if (FeedTableFactory::useCustomPitch)
+        FeedTableFactory::useCustomPitch = false;
+    else
     {
-        this->selectedRow--;
+        if( this->selectedRow > 0 )
+        {
+            this->selectedRow--;
+        }
     }
     return this->current();
 }
@@ -246,6 +266,8 @@ FeedTableFactory::FeedTableFactory(void):
         metricThreads(metric_thread_table, sizeof(metric_thread_table)/sizeof(metric_thread_table[0]), 6),
         metricFeeds(metric_feed_table, sizeof(metric_feed_table)/sizeof(metric_feed_table[0]), 4)
 {
+    this->customPitch = 100;
+    this->useCustomPitch = false;
 }
 
 FeedTable *FeedTableFactory::getFeedTable(bool metric, bool thread)
@@ -272,5 +294,122 @@ FeedTable *FeedTableFactory::getFeedTable(bool metric, bool thread)
             return &this->inchFeeds;
         }
     }
+}
 
+
+// custom pitch code
+
+
+void FeedTableFactory :: setCustomPitch(Uint16 pitch)
+{
+    // calculate the fraction feed
+    custom_feed.numerator = HMM_NUMERATOR(1) * (Uint64) pitch;
+    custom_feed.denominator = HMM_DENOMINATOR(1);
+
+    // fill in the three digits for the display
+    Uint16 digit = pitch / 100;
+    pitch = pitch - (digit * 100);
+    custom_feed.display[1] = valueToDigit(digit) | POINT;
+
+    digit = pitch / 10;
+    pitch = pitch - (digit * 10);
+    custom_feed.display[2] = valueToDigit(digit);
+
+    custom_feed.display[3] = valueToDigit(pitch);
+}
+
+
+// convert a numeric value to a LED digit
+Uint16 FeedTableFactory :: valueToDigit(Uint16 value)
+{
+    switch (value)
+    {
+        case 0: return ZERO;
+        case 1: return ONE;
+        case 2: return TWO;
+        case 3: return THREE;
+        case 4: return FOUR;
+        case 5: return FIVE;
+        case 6: return SIX;
+        case 7: return SEVEN;
+        case 8: return EIGHT;
+        case 9: return NINE;
+        case 10: return LETTER_A;
+        case 11: return LETTER_B;
+        case 12: return LETTER_C;
+        case 13: return LETTER_D;
+        case 14: return LETTER_E;
+        case 15: return LETTER_F;
+
+        default: return BLANK;
+    }
+}
+
+void FeedTableFactory :: incCustomDigit( Uint16 digit )
+{
+    // extract the digits and increment the appropriate one
+    Uint16 pitch = this->customPitch;
+    Uint16 hundreds = pitch / 100;
+    pitch = pitch - (hundreds * 100);
+    Uint16 tens = pitch / 10;
+    Uint16 units = pitch - (tens * 10);
+
+    if (digit == 1 && hundreds < 9)
+        hundreds++;
+    else if (digit == 2 && tens < 9)
+        tens++;
+    else if (digit == 3 && units < 9)
+        units++;
+
+    this->customPitch = hundreds * 100 + tens * 10 + units;
+
+    setCustomPitch(this->customPitch);
+    this->cursorTimer = 0;
+}
+
+void FeedTableFactory :: decCustomDigit( Uint16 digit )
+{
+    // extract the digits and decrement the appropriate one
+    Uint16 pitch = this->customPitch;
+    Uint16 hundreds = pitch / 100;
+    pitch = pitch - (hundreds * 100);
+    Uint16 tens = pitch / 10;
+    Uint16 units = pitch - (tens * 10);
+
+    if (digit == 1 && hundreds > 0)
+        hundreds--;
+    else if (digit == 2 && tens > 0)
+        tens--;
+    else if (digit == 3 && units > 0)
+        units--;
+
+    this->customPitch = hundreds * 100 + tens * 10 + units;
+
+    setCustomPitch(this->customPitch);
+    this->cursorTimer = 0;
+}
+
+
+void FeedTableFactory :: flashCustomDigit( Uint16 digit )
+{
+    this->cursorTimer++;
+
+    if (this->cursorTimer == 0x20)
+    {
+        custom_feed.display[digit] = BLANK;
+        custom_feed.display[1] |= POINT;
+    }
+
+    if (this->cursorTimer == 0x30)
+    {
+        setCustomPitch(this->customPitch);
+        this->cursorTimer = 0;
+    }
+}
+
+
+void FeedTableFactory :: flashCustomOff()
+{
+    setCustomPitch(this->customPitch);
+    this->cursorTimer = 0;
 }

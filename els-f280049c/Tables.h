@@ -67,10 +67,22 @@ private:
     FeedTable metricThreads;
     FeedTable metricFeeds;
 
+    void    setCustomPitch(Uint16 pitch);
+    Uint16  customPitch;
+    Uint16  cursorTimer;
+
 public:
     FeedTableFactory(void);
 
     FeedTable *getFeedTable(bool metric, bool thread);
+
+    // custom feed 'stuff'
+    void flashCustomDigit( Uint16 digit );  // valid values for digit is: 1 (100's), 2 (10's) & 3 (units)
+    void flashCustomOff();
+    void incCustomDigit( Uint16 digit );
+    void decCustomDigit( Uint16 digit );
+    Uint16  valueToDigit(Uint16 value);
+    static bool    useCustomPitch;
 };
 
 
