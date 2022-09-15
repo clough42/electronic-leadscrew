@@ -1,11 +1,16 @@
 ## Added custom thread pitches
-Allows the setting of custom thread pitches from 0.01mm to 9.99mm (as well as a supporting menu system attached to the 'Set' button - currently only one option.
+Allows the setting of custom thread pitches from 0.01mm to 9.99mm (as well as a supporting menu system attached to the 'Set' button - currently only one option).
 
 To use press 'Set' and select 'cust thd' by pressing 'Set' again. (If more than one option the + & - buttons will cycle them.
+
 The display shows the default (or last set) custom thread with the 1st digit flashing.
+
 Change the digit using the + & - buttons and press 'Set' to accept. 
+
 Repeat for the other two digits.
+
 When the final digit is set the ELS will use the value set as the pitch.
+
 To exit simply pick another pitch using the usual buttons (+, - in/mm, feed/thr etc)
 
 # Clough42 Lathe Electronic Leadscrew Controller
