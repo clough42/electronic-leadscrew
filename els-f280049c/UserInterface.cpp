@@ -29,19 +29,85 @@
 const MESSAGE STARTUP_MESSAGE_2 =
 {
   .message = { LETTER_E, LETTER_L, LETTER_S, DASH, ONE | POINT, FIVE | POINT, ZERO, ZERO },
-  .displayTime = UI_REFRESH_RATE_HZ * 1.5
+  .displayTime = UI_REFRESH_RATE_HZ * 0.5
 };
 
 const MESSAGE STARTUP_MESSAGE_1 =
 {
  .message = { LETTER_C, LETTER_L, LETTER_O, LETTER_U, LETTER_G, LETTER_H, FOUR, TWO },
- .displayTime = UI_REFRESH_RATE_HZ * 1.5,
+ .displayTime = UI_REFRESH_RATE_HZ * 0.5,
  .next = &STARTUP_MESSAGE_2
 };
 
 const MESSAGE CUSTOM_THREAD =
 {
  .message = { LETTER_C, LETTER_U, LETTER_S, LETTER_T, BLANK, LETTER_T, LETTER_H, LETTER_D },
+ .displayTime = UI_REFRESH_RATE_HZ * 2.0
+};
+
+const MESSAGE THREAD_TO_SHOULDER =
+{
+ .message = { LETTER_S, LETTER_H, LETTER_O, LETTER_U, LETTER_L, LETTER_D, LETTER_E, LETTER_R },
+ .displayTime = UI_REFRESH_RATE_HZ * 2.0
+};
+
+const MESSAGE END =
+{
+ .message = { LETTER_E, LETTER_N, LETTER_D, BLANK, BLANK, BLANK, BLANK, BLANK },
+ .displayTime = UI_REFRESH_RATE_HZ * 2.0
+};
+
+const MESSAGE STOP =
+{
+ .message = { LETTER_S, LETTER_T, LETTER_O, LETTER_P, BLANK, BLANK, BLANK, BLANK },
+ .displayTime = UI_REFRESH_RATE_HZ * 2.0
+};
+
+const MESSAGE THREAD =
+{
+ .message = { LETTER_T, LETTER_H, LETTER_R, LETTER_E, LETTER_A, LETTER_D, BLANK, BLANK },
+ .displayTime = UI_REFRESH_RATE_HZ * 1.0
+};
+
+const MESSAGE BEGIN =
+{
+ .message = { LETTER_B, LETTER_E, LETTER_G, LETTER_I, LETTER_N, BLANK, BLANK, BLANK },
+ .displayTime = UI_REFRESH_RATE_HZ * 1.0
+};
+
+const MESSAGE GO_SHOULDER =
+{
+ .message = { LETTER_G, LETTER_O, BLANK, LETTER_S, LETTER_H, LETTER_L, LETTER_D, LETTER_R },
+ .displayTime = UI_REFRESH_RATE_HZ * 2.0
+};
+
+const MESSAGE GO_START =
+{
+ .message = { LETTER_G, LETTER_O, BLANK, LETTER_S, LETTER_T, LETTER_A, LETTER_R, LETTER_T },
+ .displayTime = UI_REFRESH_RATE_HZ * 2.0
+};
+
+const MESSAGE GO_END =
+{
+ .message = { LETTER_G, LETTER_O, BLANK, LETTER_E, LETTER_N, LETTER_D, BLANK, BLANK },
+ .displayTime = UI_REFRESH_RATE_HZ * 2.0
+};
+
+const MESSAGE RETRACT =
+{
+ .message = { LETTER_R, LETTER_E, LETTER_T, LETTER_R, LETTER_A, LETTER_C, LETTER_T, BLANK },
+ .displayTime = UI_REFRESH_RATE_HZ * 2.0
+};
+
+const MESSAGE POSITION =
+{
+ .message = { LETTER_P, LETTER_O, LETTER_S, LETTER_I, LETTER_T, LETTER_I, LETTER_O, LETTER_N },
+ .displayTime = UI_REFRESH_RATE_HZ * 2.0
+};
+
+const MESSAGE RPM =
+{
+ .message = { LETTER_R, LETTER_P, LETTER_M, BLANK, BLANK, BLANK, BLANK, BLANK },
  .displayTime = UI_REFRESH_RATE_HZ * 2.0
 };
 
@@ -63,15 +129,17 @@ const MESSAGE BACKLOG_PANIC_MESSAGE_2 =
 
 const Uint16 VALUE_BLANK[4] = { BLANK, BLANK, BLANK, BLANK };
 
-UserInterface :: UserInterface(ControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory)
+UserInterface :: UserInterface(ControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory, Encoder *encoder)
 {
     this->controlPanel = controlPanel;
     this->core = core;
     this->feedTableFactory = feedTableFactory;
+    this->encoder = encoder;
 
     this->metric = true; // start out with metric
     this->thread = false; // start out with feeds
     this->reverse = false; // start out going forward
+    this->showAngle = false; // start out showing RPM
 
     this->feedTable = NULL;
 
@@ -154,6 +222,9 @@ void UserInterface :: loop( void )
     // read the RPM up front so we can use it to make decisions
     Uint16 currentRpm = core->getRPM();
 
+    // read the current spindle position to keep this up to date
+    Uint16 currentSpindleAngle = encoder->getSpindleAngle();
+
     // display an override message, if there is one
     overrideMessage();
 
@@ -170,13 +241,14 @@ void UserInterface :: loop( void )
     controlPanel->setLEDs(calculateLEDs());
     controlPanel->setValue(feedTable->current()->display);
     controlPanel->setRPM(currentRpm);
+    controlPanel->setSpindleAngle(currentSpindleAngle);
 
     if( ! core->isPowerOn() )
     {
         controlPanel->setValue(VALUE_BLANK);
     }
 
-    controlPanel->refresh();
+    controlPanel->refresh(showAngle);
 }
 
 
@@ -251,7 +323,7 @@ void UserInterface :: beginMenu()
 
 
 // 'set' menu states, note spacing to allow for 'sub-states'.
-enum menuStates {kCustomThread = 0, kSomeOtherOption = 0x10,  kQuitMenu = 0x100};
+enum menuStates {kCustomThread = 0, kThreadToShoulder = 0x10, kShowPosition = 0x20,  kQuitMenu = 0x100};
 
 void UserInterface :: cycleOptions(Uint16 next, Uint16 prev)
 {
@@ -283,19 +355,43 @@ void UserInterface :: menuLoop( Uint16 currentRpm )
 {
     switch (this->menuState)
     {
-    // custom threads
+        // custom threads
     case kCustomThread:     // init
         setMessage(&CUSTOM_THREAD);
         this-menuState++;
         break;
     case kCustomThread+1:   // wait for keypress, either select this option, move to new or timeout
-        cycleOptions(kCustomThread, kCustomThread);  // link any other menu options here
+        cycleOptions(kShowPosition, kThreadToShoulder);  // link any other menu options here
         break;
     case kCustomThread+2:   // run loop
         customThreadLoop(currentRpm);
         break;
 
-    // further options follow the format above
+        // Thread to shoulder
+    case kThreadToShoulder:     // init
+        setMessage(&THREAD_TO_SHOULDER);
+        this-menuState++;
+        break;
+    case kThreadToShoulder+1:   // wait for keypress, either select this option, move to new or timeout
+        cycleOptions(kCustomThread, kShowPosition);  // link any other menu options here
+        break;
+    case kThreadToShoulder+2:   // run loop
+        threadToShoulderLoop(currentRpm);
+        break;
+
+        // Spindle position / RPM
+    case kShowPosition:     // init
+        setMessage(showAngle ? &RPM : &POSITION);
+        this-menuState++;
+        break;
+    case kShowPosition+1:   // wait for keypress, either select this option, move to new or timeout
+        cycleOptions(kThreadToShoulder, kCustomThread);  // link any other menu options here
+        break;
+    case kShowPosition+2:   // run loop
+        showAngle = !showAngle;
+        clearMessage();
+        this->menuState = kQuitMenu;
+        break;
 
     // exit setup
     case kQuitMenu:
@@ -364,3 +460,210 @@ void UserInterface :: customThreadLoop( Uint16 currentRpm )
     }
 }
 
+
+MESSAGE DEBUG =
+{
+  .message = { DASH, DASH, DASH, DASH, DASH, DASH, DASH, DASH },
+  .displayTime = UI_REFRESH_RATE_HZ * 1.5
+};
+
+
+void UserInterface :: threadToShoulderLoop( Uint16 currentRpm )
+{
+    int32 dist;
+
+    // check for exit from thread to shoulder
+    if (keys.bit.POWER)
+        this->menuSubState = 10;
+
+    // debug
+    if (keys.bit.IN_MM)
+    {
+        if (this->menuSubState < 22)
+            this->menuSubState = 22;
+        else
+            this->menuSubState = 1;
+    }
+
+    switch (this->menuSubState)
+    {
+        // prompt user to 'go to shoulder'
+    case 0:
+        setMessage(&GO_SHOULDER);
+        if (keys.bit.SET)
+        {
+            core->setShoulder();
+            this->menuSubState = 1;
+        }
+        break;
+
+        // prompt user to 'go to start'
+    case 1:
+        setMessage(&GO_START);
+        if (keys.bit.SET)
+        {
+            core->setStart();
+            core->threadToShoulder(true);
+            setMessage(&BEGIN);
+            this->menuSubState = 2;
+        }
+        break;
+
+        // todo: ask for number of thread starts?
+    case 2:
+        this->menuSubState = 3;
+        break;
+
+        // begin threading
+    case 3:
+        setMessage(&BEGIN);
+        this->menuSubState = 4;
+        break;
+
+        // wait until we reach the shoulder
+    case 4:
+        if (core->isAtShoulder())
+            this->menuSubState = 5;
+        break;
+
+        // at shoulder, wait for user to stop machine
+    case 5:
+        if (currentRpm == 0)
+            this->menuSubState = 6;
+        else
+            setMessage(&STOP);
+        break;
+
+        // stopped wait for retract
+    case 6:
+        setMessage(&RETRACT);
+        if (keys.bit.SET)
+            this->menuSubState = 7;
+
+        if (core->isAtStart())
+        {
+            this->menuSubState = 3;
+        }
+        break;
+
+        // automatically move to start and repeat
+    case 7:
+        this->menuSubState = 3;
+        break;
+
+        // finished so quit
+    case 10:
+        clearMessage();
+        core->threadToShoulder(false);
+        this->isInMenu = false;
+        break;
+
+
+        // debug display
+    case 22:
+        dist = core->getDistance();
+        DEBUG.message[0] = feedTableFactory->valueToDigit(dist >> 28 & 0xf) | POINT;
+        DEBUG.message[1] = feedTableFactory->valueToDigit(dist >> 24 & 0xf);
+        DEBUG.message[2] = feedTableFactory->valueToDigit(dist >> 20 & 0xf);
+        DEBUG.message[3] = feedTableFactory->valueToDigit(dist >> 16 & 0xf);
+        DEBUG.message[4] = feedTableFactory->valueToDigit(dist >> 12 & 0xf);
+        DEBUG.message[5] = feedTableFactory->valueToDigit(dist >> 8 & 0xf);
+        DEBUG.message[6] = feedTableFactory->valueToDigit(dist >> 4 & 0xf);
+        DEBUG.message[7] = feedTableFactory->valueToDigit(dist & 0xf);
+        setMessage(&DEBUG);
+
+        if (keys.bit.DOWN)
+            menuSubState = 2;
+        if (keys.bit.UP)
+            menuSubState = 23;
+        break;
+
+    case 23:
+        dist = core->getSpindle();
+        DEBUG.message[0] = feedTableFactory->valueToDigit(dist >> 28 & 0xf);
+        DEBUG.message[1] = feedTableFactory->valueToDigit(dist >> 24 & 0xf) | POINT;
+        DEBUG.message[2] = feedTableFactory->valueToDigit(dist >> 20 & 0xf);
+        DEBUG.message[3] = feedTableFactory->valueToDigit(dist >> 16 & 0xf);
+        DEBUG.message[4] = feedTableFactory->valueToDigit(dist >> 12 & 0xf);
+        DEBUG.message[5] = feedTableFactory->valueToDigit(dist >> 8 & 0xf);
+        DEBUG.message[6] = feedTableFactory->valueToDigit(dist >> 4 & 0xf);
+        DEBUG.message[7] = feedTableFactory->valueToDigit(dist & 0xf);
+        setMessage(&DEBUG);
+
+        if (keys.bit.UP)
+            menuSubState = 24;
+        if (keys.bit.DOWN)
+            menuSubState = 22;
+        break;
+
+    case 24:
+        dist = core->getShoulder();
+        DEBUG.message[0] = feedTableFactory->valueToDigit(dist >> 28 & 0xf);
+        DEBUG.message[1] = feedTableFactory->valueToDigit(dist >> 24 & 0xf);
+        DEBUG.message[2] = feedTableFactory->valueToDigit(dist >> 20 & 0xf) | POINT;
+        DEBUG.message[3] = feedTableFactory->valueToDigit(dist >> 16 & 0xf);
+        DEBUG.message[4] = feedTableFactory->valueToDigit(dist >> 12 & 0xf);
+        DEBUG.message[5] = feedTableFactory->valueToDigit(dist >> 8 & 0xf);
+        DEBUG.message[6] = feedTableFactory->valueToDigit(dist >> 4 & 0xf);
+        DEBUG.message[7] = feedTableFactory->valueToDigit(dist & 0xf);
+        setMessage(&DEBUG);
+
+        if (keys.bit.UP)
+            menuSubState = 25;
+        if (keys.bit.DOWN)
+            menuSubState = 23;
+        break;
+
+    case 25:
+        dist = core->getPosition();
+        DEBUG.message[0] = feedTableFactory->valueToDigit(dist >> 28 & 0xf);
+        DEBUG.message[1] = feedTableFactory->valueToDigit(dist >> 24 & 0xf);
+        DEBUG.message[2] = feedTableFactory->valueToDigit(dist >> 20 & 0xf);
+        DEBUG.message[3] = feedTableFactory->valueToDigit(dist >> 16 & 0xf) | POINT;
+        DEBUG.message[4] = feedTableFactory->valueToDigit(dist >> 12 & 0xf);
+        DEBUG.message[5] = feedTableFactory->valueToDigit(dist >> 8 & 0xf);
+        DEBUG.message[6] = feedTableFactory->valueToDigit(dist >> 4 & 0xf);
+        DEBUG.message[7] = feedTableFactory->valueToDigit(dist & 0xf);
+        setMessage(&DEBUG);
+
+        if (keys.bit.UP)
+            menuSubState = 26;
+        if (keys.bit.DOWN)
+            menuSubState = 24;
+        break;
+
+    case 26:
+        dist = core->getDesired();
+        DEBUG.message[0] = feedTableFactory->valueToDigit(dist >> 28 & 0xf);
+        DEBUG.message[1] = feedTableFactory->valueToDigit(dist >> 24 & 0xf);
+        DEBUG.message[2] = feedTableFactory->valueToDigit(dist >> 20 & 0xf);
+        DEBUG.message[3] = feedTableFactory->valueToDigit(dist >> 16 & 0xf);
+        DEBUG.message[4] = feedTableFactory->valueToDigit(dist >> 12 & 0xf) | POINT;
+        DEBUG.message[5] = feedTableFactory->valueToDigit(dist >> 8 & 0xf);
+        DEBUG.message[6] = feedTableFactory->valueToDigit(dist >> 4 & 0xf);
+        DEBUG.message[7] = feedTableFactory->valueToDigit(dist & 0xf);
+        setMessage(&DEBUG);
+
+        if (keys.bit.UP)
+            menuSubState = 27;
+        if (keys.bit.DOWN)
+            menuSubState = 25;
+        break;
+
+    case 27:
+        dist = core->getStart();
+        DEBUG.message[0] = feedTableFactory->valueToDigit(dist >> 28 & 0xf);
+        DEBUG.message[1] = feedTableFactory->valueToDigit(dist >> 24 & 0xf);
+        DEBUG.message[2] = feedTableFactory->valueToDigit(dist >> 20 & 0xf);
+        DEBUG.message[3] = feedTableFactory->valueToDigit(dist >> 16 & 0xf);
+        DEBUG.message[4] = feedTableFactory->valueToDigit(dist >> 12 & 0xf);
+        DEBUG.message[5] = feedTableFactory->valueToDigit(dist >> 8 & 0xf) | POINT;
+        DEBUG.message[6] = feedTableFactory->valueToDigit(dist >> 4 & 0xf);
+        DEBUG.message[7] = feedTableFactory->valueToDigit(dist & 0xf);
+        setMessage(&DEBUG);
+
+        if (keys.bit.DOWN)
+            menuSubState = 26;
+        break;
+    }
+}

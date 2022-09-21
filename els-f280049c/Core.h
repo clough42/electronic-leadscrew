@@ -59,6 +59,7 @@ private:
 public:
     Core( Encoder *encoder, StepperDrive *stepperDrive );
 
+    void reset(void);
     void setFeed(const FEED_THREAD *feed);
     void setReverse(bool reverse);
     Uint16 getRPM(void);
@@ -66,6 +67,22 @@ public:
 
     bool isPowerOn();
     void setPowerOn(bool);
+
+    void setShoulder( void );
+    void setStart( void );
+    void threadToShoulder( bool start );
+    bool isAtShoulder( void );
+    bool isAtStart( void );
+
+    // debug
+    void setPosition( Uint32 newPos );
+    Uint32 getEncoder(Uint32 position);
+    int32 getDistance( void );
+    int32 getSpindle( void );
+    int32 getPosition( void );
+    int32 getDesired( void );
+    int32 getShoulder( void );
+    int32 getStart( void );
 
     void ISR( void );
 };
@@ -77,6 +94,11 @@ inline void Core :: setFeed(const FEED_THREAD *feed)
 #else
     this->feed = feed;
 #endif // USE_FLOATING_POINT
+}
+
+inline void Core :: setPosition(Uint32 newPos)
+{
+    encoder->setPosition(newPos);
 }
 
 inline Uint16 Core :: getRPM(void)
@@ -94,6 +116,56 @@ inline bool Core :: isPowerOn()
     return this->powerOn;
 }
 
+inline void Core :: setStart( void )
+{
+    stepperDrive->setStart();
+}
+
+inline void Core :: threadToShoulder(bool start)
+{
+    stepperDrive->threadToShoulder(start);
+}
+
+inline bool Core :: isAtShoulder( void )
+{
+    return stepperDrive->isAtShoulder();
+}
+
+inline bool Core :: isAtStart( void )
+{
+    return stepperDrive->isAtStart();
+}
+
+inline int32 Core :: getDistance()
+{
+    return stepperDrive->getDistance();
+}
+
+inline int32 Core :: getSpindle( void )
+{
+    return encoder->getPosition();
+}
+
+inline int32 Core :: getPosition( void )
+{
+    return stepperDrive->getPosition();
+}
+
+inline int32 Core :: getDesired( void )
+{
+    return stepperDrive->getDesired();
+}
+
+inline int32 Core :: getShoulder( void )
+{
+    return stepperDrive->getShoulder();
+}
+
+inline int32 Core :: getStart( void )
+{
+    return stepperDrive->getStart();
+}
+
 inline int32 Core :: feedRatio(Uint32 count)
 {
 #ifdef USE_FLOATING_POINT
@@ -102,6 +174,21 @@ inline int32 Core :: feedRatio(Uint32 count)
     return ((long long)count) * feed->numerator / feed->denominator * feedDirection;
 #endif // USE_FLOATING_POINT
 }
+
+
+// get an encoder value that matches stepper position (but doesn't alter angular relationship)
+inline Uint32 Core :: getEncoder(Uint32 position)
+{
+    //Uint32 pos = getPosition();
+    //Uint32 frac = pos % ENCODER_RESOLUTION; // normalised 0-360 deg
+
+    return (float) position / feed;
+
+    //int32 desiredSteps = feedRatio(spindlePosition);
+    //stepperDrive->setDesiredPosition(desiredSteps);
+
+}
+
 
 inline void Core :: ISR( void )
 {
@@ -114,10 +201,12 @@ inline void Core :: ISR( void )
         stepperDrive->setDesiredPosition(desiredSteps);
 
         // compensate for encoder overflow/underflow
-        if( spindlePosition < previousSpindlePosition && previousSpindlePosition - spindlePosition > encoder->getMaxCount()/2 ) {
+        if( spindlePosition < previousSpindlePosition && previousSpindlePosition - spindlePosition > encoder->getMaxCount()/2 )
+        {
             stepperDrive->incrementCurrentPosition(-1 * feedRatio(encoder->getMaxCount()));
         }
-        if( spindlePosition > previousSpindlePosition && spindlePosition - previousSpindlePosition > encoder->getMaxCount()/2 ) {
+        if( spindlePosition > previousSpindlePosition && spindlePosition - previousSpindlePosition > encoder->getMaxCount()/2 )
+        {
             stepperDrive->incrementCurrentPosition(feedRatio(encoder->getMaxCount()));
         }
 
@@ -135,6 +224,7 @@ inline void Core :: ISR( void )
         stepperDrive->ISR();
     }
 }
+
 
 
 #endif // __CORE_H

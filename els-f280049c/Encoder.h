@@ -37,20 +37,26 @@
 #define ENCODER_REGS EQep2Regs
 #endif
 
-#define _ENCODER_MAX_COUNT 0x00ffffff
-
+// define _ENCODER_MAX_COUNT as a multiple of ENCODER_RESOLUTION so that any modulo function overflows correctly
+#define _ENCODER_MAX_COUNT (ENCODER_RESOLUTION * 1024UL)
 
 class Encoder
 {
 private:
     Uint32 previous;
     Uint16 rpm;
+    Uint32 spindleAngle;
 
 public:
     Encoder( void );
     void initHardware( void );
 
+    void reset( void );
+
+    void setPosition(Uint32 newPos);
+
     Uint16 getRPM( void );
+    Uint16 getSpindleAngle(void);
     Uint32 getPosition( void );
     Uint32 getMaxCount( void );
 };
@@ -60,6 +66,12 @@ inline Uint32 Encoder :: getPosition(void)
 {
     return ENCODER_REGS.QPOSCNT;
 }
+
+inline void Encoder :: setPosition(Uint32 newPos)
+{
+    ENCODER_REGS.QPOSCNT = newPos;
+}
+
 
 inline Uint32 Encoder :: getMaxCount(void)
 {

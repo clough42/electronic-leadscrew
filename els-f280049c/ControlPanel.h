@@ -127,6 +127,8 @@ private:
 
     // Current RPM value; 4 decimal digits
     Uint16 rpm;
+    // Current spindle angle value
+    Uint16 spindleAngle;
 
     // Current displayed setting value, 4 digits
     const Uint16 *value;
@@ -154,6 +156,7 @@ private:
     Uint16 dummy;
 
     void decomposeRPM(void);
+    void decomposeSpindleAngle(void);
     void decomposeValue(void);
     KEY_REG readKeys(void);
     Uint16 lcd_char(Uint16 x);
@@ -178,6 +181,9 @@ public:
     // set the RPM value to display
     void setRPM(Uint16 rpm);
 
+    // set the spindle angle value to display
+    void setSpindleAngle(Uint16 angle);
+
     // set the value to display
     void setValue(const Uint16 *value);
 
@@ -191,9 +197,13 @@ public:
     void setBrightness(Uint16 brightness);
 
     // refresh the hardware display
-    void refresh(void);
+    void refresh(bool showAngle);
 };
 
+inline void ControlPanel :: setSpindleAngle(Uint16 angle)
+{
+    this->spindleAngle = angle;
+}
 
 inline void ControlPanel :: setRPM(Uint16 rpm)
 {

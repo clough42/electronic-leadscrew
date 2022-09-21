@@ -187,6 +187,21 @@ void ControlPanel :: decomposeRPM()
     }
 }
 
+void ControlPanel :: decomposeSpindleAngle()
+{
+    Uint16 angle = this->spindleAngle;
+    int i;
+
+    for(i=3; i>=0; i--)
+    {
+        if (i == 2 )
+              this->sevenSegmentData[i] = lcd_char(angle % 10) | lcd_char(10);
+        else
+            this->sevenSegmentData[i] = (angle == 0 && i != 3) ? 0 : lcd_char(angle % 10);
+        angle = angle / 10;
+    }
+}
+
 void ControlPanel :: decomposeValue()
 {
     if( this->value != NULL )
@@ -300,11 +315,15 @@ void ControlPanel :: setBrightness( Uint16 brightness )
     this->brightness = brightness;
 }
 
-void ControlPanel :: refresh()
+void ControlPanel :: refresh(bool showAngle)
 {
     configureSpiBus();
 
-    decomposeRPM();
+    if ( showAngle )
+        decomposeSpindleAngle();
+    else
+        decomposeRPM();
+
     decomposeValue();
 
     sendData();

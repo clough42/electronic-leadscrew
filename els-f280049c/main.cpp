@@ -71,7 +71,7 @@ StepperDrive stepperDrive;
 Core core(&encoder, &stepperDrive);
 
 // User interface
-UserInterface userInterface(&controlPanel, &core, &feedTableFactory);
+UserInterface userInterface(&controlPanel, &core, &feedTableFactory, &encoder);
 
 void main(void)
 {
