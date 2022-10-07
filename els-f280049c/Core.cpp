@@ -62,10 +62,5 @@ void Core :: setPowerOn(bool powerOn)
     this->stepperDrive->setEnabled(powerOn);
 }
 
-// current position is the shoulder we want to turn to
-void Core :: setShoulder( void )
-{
-    stepperDrive->setShoulder();
-}
 
 

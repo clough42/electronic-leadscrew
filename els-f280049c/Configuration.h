@@ -40,11 +40,11 @@
 //================================================================================
 
 // For Imperial leadscrews: pitch in Threads Per Inch (TPI)
-#define LEADSCREW_TPI 12
+//#define LEADSCREW_TPI 12
 
 // For metric leadscrews: pitch in hundredths of a millimeter (HMM)
 // Example: 200hmm = 2mm
-//#define LEADSCREW_HMM 200
+#define LEADSCREW_HMM 300
 
 
 
@@ -64,13 +64,13 @@
 //================================================================================
 
 // Steps and microsteps
-#define STEPPER_MICROSTEPS 8
+#define STEPPER_MICROSTEPS 16
 #define STEPPER_RESOLUTION 200
 
 // Separate step and microstep settings for feed rates.  Redefine these if your
 // lathe has a separate feed drive train with a different ratio.
-#define STEPPER_MICROSTEPS_FEED STEPPER_MICROSTEPS
-#define STEPPER_RESOLUTION_FEED STEPPER_RESOLUTION
+#define STEPPER_MICROSTEPS_FEED 16 //STEPPER_MICROSTEPS
+#define STEPPER_RESOLUTION_FEED 2314 // 1162 //STEPPER_RESOLUTION
 
 // Step, direction and enable pins are normally active-high
 // #define INVERT_STEP_PIN true
@@ -96,13 +96,20 @@
 //================================================================================
 
 // Encoder resolution (counts per revolution)
-#define ENCODER_RESOLUTION 4096
+#define ENCODER_RESOLUTION 8000
 
 // Which encoder input to use
 #define ENCODER_USE_EQEP1
 //#define ENCODER_USE_EQEP2
 
 
+//================================================================================
+// backlash value
+// This fixes an issue (which may only apply to me) in that the encoder at certain positions 'dithered' causing the stepper to 'vibrate' resulting in noise when the lathe was stopped.
+// This value effectively adds backlash to the system so that the minimum number of steps have to be issued before the motor will move
+// set to zero if not required.
+//================================================================================
+#define backlash 4
 
 
 //================================================================================

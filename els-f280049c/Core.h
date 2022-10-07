@@ -71,12 +71,13 @@ public:
     void setShoulder( void );
     void setStart( void );
     void threadToShoulder( bool start );
+    void moveToStart( void );
     bool isAtShoulder( void );
     bool isAtStart( void );
+    void setBestPosition( void );
 
     // debug
     void setPosition( Uint32 newPos );
-    Uint32 getEncoder(Uint32 position);
     int32 getDistance( void );
     int32 getSpindle( void );
     int32 getPosition( void );
@@ -166,6 +167,12 @@ inline int32 Core :: getStart( void )
     return stepperDrive->getStart();
 }
 
+// current position is the shoulder we want to turn to
+inline void Core :: setShoulder( void )
+{
+    stepperDrive->setShoulder();
+}
+
 inline int32 Core :: feedRatio(Uint32 count)
 {
 #ifdef USE_FLOATING_POINT
@@ -176,18 +183,18 @@ inline int32 Core :: feedRatio(Uint32 count)
 }
 
 
-// get an encoder value that matches stepper position (but doesn't alter angular relationship)
-inline Uint32 Core :: getEncoder(Uint32 position)
+inline void Core :: setBestPosition( void )
 {
-    //Uint32 pos = getPosition();
-    //Uint32 frac = pos % ENCODER_RESOLUTION; // normalised 0-360 deg
-
-    return (float) position / feed;
-
-    //int32 desiredSteps = feedRatio(spindlePosition);
-    //stepperDrive->setDesiredPosition(desiredSteps);
-
+    float stepsPerUnitPitch = (float) ENCODER_RESOLUTION * this->feed;
+    stepperDrive->setBestPosition(stepsPerUnitPitch);
 }
+
+inline void Core :: moveToStart( void )
+{
+    float stepsPerUnitPitch = (float) ENCODER_RESOLUTION * this->feed;
+    stepperDrive->moveToStart(stepsPerUnitPitch);
+}
+
 
 
 inline void Core :: ISR( void )

@@ -86,10 +86,13 @@ private:
 
     // for when threading to a shoulder
     bool threadingToShoulder;
+    bool movingToStart;
     bool holdAtShoulder;
     int32 shoulderPosition;
     int32 startPosition;
     int32 directionToShoulder;
+
+    Uint32 moveToStartDelay;
 
     //
     // current state-machine state
@@ -107,7 +110,8 @@ public:
     StepperDrive();
     void initHardware( void );
 
-    void threadToShoulder(bool start);
+    void threadToShoulder( bool start );
+    void moveToStart( float stepsPerUnitPitch );
     void setShoulder( void );
     void setStart(void);
     bool isAtShoulder( void );
@@ -116,6 +120,7 @@ public:
     void setDesiredPosition(int32 steps);
     void incrementCurrentPosition(int32 increment);
     void setCurrentPosition(int32 position);
+    void setBestPosition( float stepsPerUnitPitch );
 
     // debug
     int32 getDistance( void );
@@ -155,7 +160,7 @@ inline void StepperDrive :: setCurrentPosition(int32 position)
 
 inline bool StepperDrive :: checkStepBacklog()
 {
-    if (!holdAtShoulder)
+    if (!holdAtShoulder && !movingToStart)
     {
         if( abs(this->desiredPosition - this->currentPosition) > MAX_BUFFERED_STEPS ) {
             setEnabled(false);
@@ -188,9 +193,6 @@ inline bool StepperDrive :: isAlarm()
 
 inline void StepperDrive :: setShoulder()
 {
-//    this->currentPosition = steps;
-//    this->desiredPosition = steps;
-
     this->shoulderPosition = currentPosition;
 }
 
@@ -203,6 +205,7 @@ inline void StepperDrive :: threadToShoulder(bool start)
 {
     this->threadingToShoulder = start;
     this->directionToShoulder = this->currentPosition - this->shoulderPosition;
+    holdAtShoulder = false;
 }
 
 
@@ -210,6 +213,7 @@ inline bool StepperDrive :: isAtShoulder()
 {
     return holdAtShoulder;
 }
+
 
 inline int32 StepperDrive :: getDistance(void)
 {
@@ -237,97 +241,156 @@ inline int32 StepperDrive :: getStart( void )
     return this->startPosition;
 }
 
-
 inline bool StepperDrive :: isAtStart( void )
 {
     if (directionToShoulder > 0)
-        return this->desiredPosition > this->startPosition;
+        return this->currentPosition >= (this->startPosition - backlash);
+//        return this->desiredPosition >= (this->startPosition - backlash);
     else
-        return this->desiredPosition < this->startPosition;
+        return this->currentPosition <= (this->startPosition + backlash);
+//        return this->desiredPosition <= (this->startPosition + backlash);
 }
 
 
-// backlash value
-// This fixes an issue (which may only apply to me) in that the encoder at certain positions 'dithered' causing the stepper to 'vibrate' resulting in noise when the lathe was stopped.
-// This value effectively adds backlash to the system so that the minimum number of steps have to be issued before the motor will move
-// set to zero if not required.
-#define backlash 4
+extern int32 debugVals[];
+
+// we have a desired position that's behind the shoulder, calculate a currentPosition that moves us within 1 thread of the shoulder whilst still maintaining the angular relationship
+inline void StepperDrive :: setBestPosition( float stepsPerUnitPitch )
+{
+    // total steps
+    float diff = (float) (this->desiredPosition - this->currentPosition);
+
+    // number of full threads we need to traverse
+    int32 ival = diff / stepsPerUnitPitch;
+
+    // multiply threads by steps per pitch to get total steps
+    ival = ival * stepsPerUnitPitch;
+
+    this->incrementCurrentPosition(ival);
+}
+
+
+
+inline void StepperDrive :: moveToStart( float stepsPerUnitPitch )
+{
+    movingToStart = true;
+
+    // total steps
+    float diff = (float) (this->desiredPosition - this->startPosition);
+
+    int32 ival = diff / stepsPerUnitPitch;
+    diff -= diff - ((float) ival * stepsPerUnitPitch);
+    diff += diff < 0 ? -stepsPerUnitPitch : stepsPerUnitPitch;
+
+    this->incrementCurrentPosition( diff );
+}
+
 
 
 inline void StepperDrive :: ISR(void)
 {
     int32 diff = this->desiredPosition - this->currentPosition;
 
-    holdAtShoulder = false;
-    if (threadingToShoulder)
-    {
-        int32 dist = getDistance();
+    debugVals[0] = currentPosition - startPosition;
+    debugVals[1] = currentPosition - shoulderPosition;
+    debugVals[2] = desiredPosition;
+    debugVals[3] = currentPosition;
+    debugVals[4] = startPosition;
+    debugVals[5] = shoulderPosition;
 
-        if (directionToShoulder >= 0)
+    // special cases for threading to shoulder and returning to start position
+    // we only need to check this stuff on the beginning of a clock pulse
+    if (this->state < 2)
+    {
+        if (threadingToShoulder)
         {
-            if (dist <= backlash)
+            // if moving to start we need to handle acceleration and max speed
+            if (movingToStart)
             {
-                holdAtShoulder = true;
+                if (this->state < 2)
+                {
+                    moveToStartDelay++;
+                    if (moveToStartDelay > 63)
+                    {
+                        moveToStartDelay = 0;
+
+                        if (isAtStart())
+                            movingToStart = false;
+                    }
+                    else
+                        return;
+                }
+            }
+            else
+            {
+                int32 dist = getDistance();
+
+                if (directionToShoulder >= 0) {
+                    if (dist <= 0) {
+                        holdAtShoulder = true;
+                        return;
+                    }
+                }
+                else
+                {
+                    if (dist >= 0) {
+                        holdAtShoulder = true;
+                        return;
+                    }
+                }
+
+                holdAtShoulder = false;
             }
         }
-        else
-        {
-            if (dist >= backlash)
-            {
-                holdAtShoulder = true;
-            }
-        }
+
     }
 
-
+    // generate step
     if(enabled)
     {
-        if (!holdAtShoulder)
+        switch( this->state )
         {
-            switch( this->state )
+        case 0:
+            // Step = 0; Dir = 0
+            if( diff < -backlash )
             {
-            case 0:
-                // Step = 0; Dir = 0
-                if( diff < -backlash )
-                {
-                    GPIO_SET_STEP;
-                    this->state = 2;
-                }
-                else if( diff > backlash )
-                {
-                    GPIO_SET_DIRECTION;
-                    this->state = 1;
-                }
-                break;
-
-            case 1:
-                // Step = 0; Dir = 1
-                if( diff > backlash )
-                {
-                    GPIO_SET_STEP;
-                    this->state = 3;
-                }
-                else if( diff < -backlash )
-                {
-                    GPIO_CLEAR_DIRECTION;
-                    this->state = 0;
-                }
-                break;
-
-            case 2:
-                // Step = 1; Dir = 0
-                GPIO_CLEAR_STEP;
-                this->currentPosition--;
-                this->state = 0;
-                break;
-
-            case 3:
-                // Step = 1; Dir = 1
-                GPIO_CLEAR_STEP;
-                this->currentPosition++;
-                this->state = 1;
-                break;
+                GPIO_SET_STEP;
+                this->state = 2;
             }
+            else if( diff > backlash )
+            {
+                GPIO_SET_DIRECTION;
+                this->state = 1;
+            }
+            break;
+
+        case 1:
+            // Step = 0; Dir = 1
+            if( diff > backlash )
+            {
+                GPIO_SET_STEP;
+                this->state = 3;
+            }
+            else if( diff < -backlash )
+            {
+                GPIO_CLEAR_DIRECTION;
+                this->state = 0;
+            }
+            break;
+
+        case 2:
+            // Step = 1; Dir = 0
+            GPIO_CLEAR_STEP;
+            this->currentPosition--;
+            this->state = 0;
+            break;
+
+        case 3:
+            // Step = 1; Dir = 1
+            GPIO_CLEAR_STEP;
+            this->currentPosition++;
+            this->state = 1;
+            break;
         }
     }
     else

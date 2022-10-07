@@ -75,6 +75,12 @@ const MESSAGE BEGIN =
  .displayTime = UI_REFRESH_RATE_HZ * 1.0
 };
 
+const MESSAGE WAIT =
+{
+ .message = { LETTER_W, LETTER_A, LETTER_I, LETTER_T, BLANK, BLANK, BLANK, BLANK },
+ .displayTime = UI_REFRESH_RATE_HZ * 1.0
+};
+
 const MESSAGE GO_SHOULDER =
 {
  .message = { LETTER_G, LETTER_O, BLANK, LETTER_S, LETTER_H, LETTER_L, LETTER_D, LETTER_R },
@@ -468,10 +474,11 @@ MESSAGE DEBUG =
 };
 
 
+Uint16 debugIndex;
+int32 debugVals[6];
+
 void UserInterface :: threadToShoulderLoop( Uint16 currentRpm )
 {
-    int32 dist;
-
     // check for exit from thread to shoulder
     if (keys.bit.POWER)
         this->menuSubState = 10;
@@ -529,7 +536,10 @@ void UserInterface :: threadToShoulderLoop( Uint16 currentRpm )
         // at shoulder, wait for user to stop machine
     case 5:
         if (currentRpm == 0)
+        {
+            core->setBestPosition();
             this->menuSubState = 6;
+        }
         else
             setMessage(&STOP);
         break;
@@ -548,7 +558,10 @@ void UserInterface :: threadToShoulderLoop( Uint16 currentRpm )
 
         // automatically move to start and repeat
     case 7:
-        this->menuSubState = 3;
+        setMessage(&WAIT);
+        core->moveToStart();
+        if (core->isAtStart())
+            this->menuSubState = 3;
         break;
 
         // finished so quit
@@ -561,109 +574,23 @@ void UserInterface :: threadToShoulderLoop( Uint16 currentRpm )
 
         // debug display
     case 22:
-        dist = core->getDistance();
-        DEBUG.message[0] = feedTableFactory->valueToDigit(dist >> 28 & 0xf) | POINT;
-        DEBUG.message[1] = feedTableFactory->valueToDigit(dist >> 24 & 0xf);
-        DEBUG.message[2] = feedTableFactory->valueToDigit(dist >> 20 & 0xf);
-        DEBUG.message[3] = feedTableFactory->valueToDigit(dist >> 16 & 0xf);
-        DEBUG.message[4] = feedTableFactory->valueToDigit(dist >> 12 & 0xf);
-        DEBUG.message[5] = feedTableFactory->valueToDigit(dist >> 8 & 0xf);
-        DEBUG.message[6] = feedTableFactory->valueToDigit(dist >> 4 & 0xf);
-        DEBUG.message[7] = feedTableFactory->valueToDigit(dist & 0xf);
+        int32 var = debugVals[debugIndex];
+        DEBUG.message[0] = feedTableFactory->valueToDigit(var >> 28 & 0xf);
+        DEBUG.message[1] = feedTableFactory->valueToDigit(var >> 24 & 0xf);
+        DEBUG.message[2] = feedTableFactory->valueToDigit(var >> 20 & 0xf);
+        DEBUG.message[3] = feedTableFactory->valueToDigit(var >> 16 & 0xf);
+        DEBUG.message[4] = feedTableFactory->valueToDigit(var >> 12 & 0xf);
+        DEBUG.message[5] = feedTableFactory->valueToDigit(var >> 8 & 0xf);
+        DEBUG.message[6] = feedTableFactory->valueToDigit(var >> 4 & 0xf);
+        DEBUG.message[7] = feedTableFactory->valueToDigit(var & 0xf);
+
+        DEBUG.message[debugIndex] |= POINT;
         setMessage(&DEBUG);
 
-        if (keys.bit.DOWN)
-            menuSubState = 2;
-        if (keys.bit.UP)
-            menuSubState = 23;
-        break;
-
-    case 23:
-        dist = core->getSpindle();
-        DEBUG.message[0] = feedTableFactory->valueToDigit(dist >> 28 & 0xf);
-        DEBUG.message[1] = feedTableFactory->valueToDigit(dist >> 24 & 0xf) | POINT;
-        DEBUG.message[2] = feedTableFactory->valueToDigit(dist >> 20 & 0xf);
-        DEBUG.message[3] = feedTableFactory->valueToDigit(dist >> 16 & 0xf);
-        DEBUG.message[4] = feedTableFactory->valueToDigit(dist >> 12 & 0xf);
-        DEBUG.message[5] = feedTableFactory->valueToDigit(dist >> 8 & 0xf);
-        DEBUG.message[6] = feedTableFactory->valueToDigit(dist >> 4 & 0xf);
-        DEBUG.message[7] = feedTableFactory->valueToDigit(dist & 0xf);
-        setMessage(&DEBUG);
-
-        if (keys.bit.UP)
-            menuSubState = 24;
-        if (keys.bit.DOWN)
-            menuSubState = 22;
-        break;
-
-    case 24:
-        dist = core->getShoulder();
-        DEBUG.message[0] = feedTableFactory->valueToDigit(dist >> 28 & 0xf);
-        DEBUG.message[1] = feedTableFactory->valueToDigit(dist >> 24 & 0xf);
-        DEBUG.message[2] = feedTableFactory->valueToDigit(dist >> 20 & 0xf) | POINT;
-        DEBUG.message[3] = feedTableFactory->valueToDigit(dist >> 16 & 0xf);
-        DEBUG.message[4] = feedTableFactory->valueToDigit(dist >> 12 & 0xf);
-        DEBUG.message[5] = feedTableFactory->valueToDigit(dist >> 8 & 0xf);
-        DEBUG.message[6] = feedTableFactory->valueToDigit(dist >> 4 & 0xf);
-        DEBUG.message[7] = feedTableFactory->valueToDigit(dist & 0xf);
-        setMessage(&DEBUG);
-
-        if (keys.bit.UP)
-            menuSubState = 25;
-        if (keys.bit.DOWN)
-            menuSubState = 23;
-        break;
-
-    case 25:
-        dist = core->getPosition();
-        DEBUG.message[0] = feedTableFactory->valueToDigit(dist >> 28 & 0xf);
-        DEBUG.message[1] = feedTableFactory->valueToDigit(dist >> 24 & 0xf);
-        DEBUG.message[2] = feedTableFactory->valueToDigit(dist >> 20 & 0xf);
-        DEBUG.message[3] = feedTableFactory->valueToDigit(dist >> 16 & 0xf) | POINT;
-        DEBUG.message[4] = feedTableFactory->valueToDigit(dist >> 12 & 0xf);
-        DEBUG.message[5] = feedTableFactory->valueToDigit(dist >> 8 & 0xf);
-        DEBUG.message[6] = feedTableFactory->valueToDigit(dist >> 4 & 0xf);
-        DEBUG.message[7] = feedTableFactory->valueToDigit(dist & 0xf);
-        setMessage(&DEBUG);
-
-        if (keys.bit.UP)
-            menuSubState = 26;
-        if (keys.bit.DOWN)
-            menuSubState = 24;
-        break;
-
-    case 26:
-        dist = core->getDesired();
-        DEBUG.message[0] = feedTableFactory->valueToDigit(dist >> 28 & 0xf);
-        DEBUG.message[1] = feedTableFactory->valueToDigit(dist >> 24 & 0xf);
-        DEBUG.message[2] = feedTableFactory->valueToDigit(dist >> 20 & 0xf);
-        DEBUG.message[3] = feedTableFactory->valueToDigit(dist >> 16 & 0xf);
-        DEBUG.message[4] = feedTableFactory->valueToDigit(dist >> 12 & 0xf) | POINT;
-        DEBUG.message[5] = feedTableFactory->valueToDigit(dist >> 8 & 0xf);
-        DEBUG.message[6] = feedTableFactory->valueToDigit(dist >> 4 & 0xf);
-        DEBUG.message[7] = feedTableFactory->valueToDigit(dist & 0xf);
-        setMessage(&DEBUG);
-
-        if (keys.bit.UP)
-            menuSubState = 27;
-        if (keys.bit.DOWN)
-            menuSubState = 25;
-        break;
-
-    case 27:
-        dist = core->getStart();
-        DEBUG.message[0] = feedTableFactory->valueToDigit(dist >> 28 & 0xf);
-        DEBUG.message[1] = feedTableFactory->valueToDigit(dist >> 24 & 0xf);
-        DEBUG.message[2] = feedTableFactory->valueToDigit(dist >> 20 & 0xf);
-        DEBUG.message[3] = feedTableFactory->valueToDigit(dist >> 16 & 0xf);
-        DEBUG.message[4] = feedTableFactory->valueToDigit(dist >> 12 & 0xf);
-        DEBUG.message[5] = feedTableFactory->valueToDigit(dist >> 8 & 0xf) | POINT;
-        DEBUG.message[6] = feedTableFactory->valueToDigit(dist >> 4 & 0xf);
-        DEBUG.message[7] = feedTableFactory->valueToDigit(dist & 0xf);
-        setMessage(&DEBUG);
-
-        if (keys.bit.DOWN)
-            menuSubState = 26;
+        if (keys.bit.DOWN && debugIndex > 0)
+            debugIndex--;
+        if (keys.bit.UP && debugIndex < 5)
+            debugIndex++;
         break;
     }
 }
