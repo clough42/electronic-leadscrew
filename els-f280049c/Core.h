@@ -70,7 +70,7 @@ public:
 
     void setShoulder( void );
     void setStart( void );
-    void threadToShoulder( bool start );
+    void beginThreadToShoulder( bool start );
     void moveToStart( void );
     bool isAtShoulder( void );
     bool isAtStart( void );
@@ -122,9 +122,9 @@ inline void Core :: setStart( void )
     stepperDrive->setStart();
 }
 
-inline void Core :: threadToShoulder(bool start)
+inline void Core :: beginThreadToShoulder(bool start)
 {
-    stepperDrive->threadToShoulder(start);
+    stepperDrive->beginThreadToShoulder(start);
 }
 
 inline bool Core :: isAtShoulder( void )
@@ -192,6 +192,7 @@ inline void Core :: setBestPosition( void )
 inline void Core :: moveToStart( void )
 {
     float stepsPerUnitPitch = (float) ENCODER_RESOLUTION * this->feed;
+    //float stepsPerUnitPitch = STEPPER_RESOLUTION*STEPPER_MICROSTEPS;
     stepperDrive->moveToStart(stepsPerUnitPitch);
 }
 

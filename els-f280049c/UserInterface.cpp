@@ -51,22 +51,10 @@ const MESSAGE THREAD_TO_SHOULDER =
  .displayTime = UI_REFRESH_RATE_HZ * 2.0
 };
 
-const MESSAGE END =
-{
- .message = { LETTER_E, LETTER_N, LETTER_D, BLANK, BLANK, BLANK, BLANK, BLANK },
- .displayTime = UI_REFRESH_RATE_HZ * 2.0
-};
-
 const MESSAGE STOP =
 {
  .message = { LETTER_S, LETTER_T, LETTER_O, LETTER_P, BLANK, BLANK, BLANK, BLANK },
  .displayTime = UI_REFRESH_RATE_HZ * 2.0
-};
-
-const MESSAGE THREAD =
-{
- .message = { LETTER_T, LETTER_H, LETTER_R, LETTER_E, LETTER_A, LETTER_D, BLANK, BLANK },
- .displayTime = UI_REFRESH_RATE_HZ * 1.0
 };
 
 const MESSAGE BEGIN =
@@ -90,12 +78,6 @@ const MESSAGE GO_SHOULDER =
 const MESSAGE GO_START =
 {
  .message = { LETTER_G, LETTER_O, BLANK, LETTER_S, LETTER_T, LETTER_A, LETTER_R, LETTER_T },
- .displayTime = UI_REFRESH_RATE_HZ * 2.0
-};
-
-const MESSAGE GO_END =
-{
- .message = { LETTER_G, LETTER_O, BLANK, LETTER_E, LETTER_N, LETTER_D, BLANK, BLANK },
  .displayTime = UI_REFRESH_RATE_HZ * 2.0
 };
 
@@ -510,7 +492,7 @@ void UserInterface :: threadToShoulderLoop( Uint16 currentRpm )
         if (keys.bit.SET)
         {
             core->setStart();
-            core->threadToShoulder(true);
+            core->beginThreadToShoulder(true);
             setMessage(&BEGIN);
             this->menuSubState = 2;
         }
@@ -548,18 +530,18 @@ void UserInterface :: threadToShoulderLoop( Uint16 currentRpm )
     case 6:
         setMessage(&RETRACT);
         if (keys.bit.SET)
+        {
+            core->moveToStart();
             this->menuSubState = 7;
+        }
 
         if (core->isAtStart())
-        {
             this->menuSubState = 3;
-        }
         break;
 
         // automatically move to start and repeat
     case 7:
         setMessage(&WAIT);
-        core->moveToStart();
         if (core->isAtStart())
             this->menuSubState = 3;
         break;
@@ -567,7 +549,7 @@ void UserInterface :: threadToShoulderLoop( Uint16 currentRpm )
         // finished so quit
     case 10:
         clearMessage();
-        core->threadToShoulder(false);
+        core->beginThreadToShoulder(false);
         this->isInMenu = false;
         break;
 
@@ -589,7 +571,7 @@ void UserInterface :: threadToShoulderLoop( Uint16 currentRpm )
 
         if (keys.bit.DOWN && debugIndex > 0)
             debugIndex--;
-        if (keys.bit.UP && debugIndex < 5)
+        if (keys.bit.UP && debugIndex < 7)
             debugIndex++;
         break;
     }

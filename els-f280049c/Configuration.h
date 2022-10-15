@@ -64,7 +64,7 @@
 //================================================================================
 
 // Steps and microsteps
-#define STEPPER_MICROSTEPS 16
+#define STEPPER_MICROSTEPS 8
 #define STEPPER_RESOLUTION 200
 
 // Separate step and microstep settings for feed rates.  Redefine these if your
@@ -96,7 +96,7 @@
 //================================================================================
 
 // Encoder resolution (counts per revolution)
-#define ENCODER_RESOLUTION 8000
+#define ENCODER_RESOLUTION 4000
 
 // Which encoder input to use
 #define ENCODER_USE_EQEP1
@@ -109,7 +109,7 @@
 // This value effectively adds backlash to the system so that the minimum number of steps have to be issued before the motor will move
 // set to zero if not required.
 //================================================================================
-#define backlash 4
+#define backlash 2
 
 
 //================================================================================

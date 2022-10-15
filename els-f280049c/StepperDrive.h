@@ -110,16 +110,17 @@ public:
     StepperDrive();
     void initHardware( void );
 
-    void threadToShoulder( bool start );
+    bool shoulderISR( int32 diff );
+    void beginThreadToShoulder( bool start );
     void moveToStart( float stepsPerUnitPitch );
     void setShoulder( void );
     void setStart(void);
     bool isAtShoulder( void );
     bool isAtStart( void );
 
-    void setDesiredPosition(int32 steps);
-    void incrementCurrentPosition(int32 increment);
-    void setCurrentPosition(int32 position);
+    void setDesiredPosition( int32 steps );
+    void incrementCurrentPosition( int32 increment );
+    void setCurrentPosition( int32 position );
     void setBestPosition( float stepsPerUnitPitch );
 
     // debug
@@ -141,28 +142,30 @@ public:
 
 
 
-inline void StepperDrive :: setDesiredPosition(int32 steps)
+inline void StepperDrive :: setDesiredPosition( int32 steps )
 {
     this->desiredPosition = steps;
 }
 
-inline void StepperDrive :: incrementCurrentPosition(int32 increment)
+inline void StepperDrive :: incrementCurrentPosition( int32 increment )
 {
     this->startPosition += increment;
     this->currentPosition += increment;
     this->shoulderPosition += increment;
 }
 
-inline void StepperDrive :: setCurrentPosition(int32 position)
+inline void StepperDrive :: setCurrentPosition( int32 position )
 {
     this->currentPosition = position;
 }
 
 inline bool StepperDrive :: checkStepBacklog()
 {
+    // holding and retracting are special cases where the backlog can exceed limits (this shouldn't matter since the motor is either stopped or moving at a safe value).
     if (!holdAtShoulder && !movingToStart)
     {
-        if( abs(this->desiredPosition - this->currentPosition) > MAX_BUFFERED_STEPS ) {
+        if( abs(this->desiredPosition - this->currentPosition) > MAX_BUFFERED_STEPS )
+        {
             setEnabled(false);
             return true;
         }
@@ -201,25 +204,33 @@ inline void StepperDrive :: setStart()
     this->startPosition = this->currentPosition;
 }
 
-inline void StepperDrive :: threadToShoulder(bool start)
-{
-    this->threadingToShoulder = start;
-    this->directionToShoulder = this->currentPosition - this->shoulderPosition;
-    holdAtShoulder = false;
-}
-
-
 inline bool StepperDrive :: isAtShoulder()
 {
-    return holdAtShoulder;
+    // note: when moving to shoulder currentPosition will stop at the shoulder position
+    return (abs(currentPosition - shoulderPosition) <= backlash);
 }
 
+inline bool StepperDrive :: isAtStart( void )
+{
+    // when moving to start we can overshoot it by the time this function is called so need to allow for this
+    if (this->directionToShoulder >= 0)
+        return (this->startPosition - this->desiredPosition) < 0;
+    else
+        return (this->startPosition - this->desiredPosition) >= 0;
+}
+
+
+inline void StepperDrive :: beginThreadToShoulder(bool start)
+{
+    this->threadingToShoulder = start;
+    this->directionToShoulder = this->startPosition - this->shoulderPosition;
+    holdAtShoulder = false;
+}
 
 inline int32 StepperDrive :: getDistance(void)
 {
     return desiredPosition - shoulderPosition;
 }
-
 
 inline int32 StepperDrive :: getPosition( void )
 {
@@ -241,15 +252,6 @@ inline int32 StepperDrive :: getStart( void )
     return this->startPosition;
 }
 
-inline bool StepperDrive :: isAtStart( void )
-{
-    if (directionToShoulder > 0)
-        return this->currentPosition >= (this->startPosition - backlash);
-//        return this->desiredPosition >= (this->startPosition - backlash);
-    else
-        return this->currentPosition <= (this->startPosition + backlash);
-//        return this->desiredPosition <= (this->startPosition + backlash);
-}
 
 
 extern int32 debugVals[];
@@ -257,10 +259,10 @@ extern int32 debugVals[];
 // we have a desired position that's behind the shoulder, calculate a currentPosition that moves us within 1 thread of the shoulder whilst still maintaining the angular relationship
 inline void StepperDrive :: setBestPosition( float stepsPerUnitPitch )
 {
-    // total steps
+    // total steps we've overshot by
     float diff = (float) (this->desiredPosition - this->currentPosition);
 
-    // number of full threads we need to traverse
+    // number of full threads we need to traverse to close up the gap
     int32 ival = diff / stepsPerUnitPitch;
 
     // multiply threads by steps per pitch to get total steps
@@ -270,80 +272,89 @@ inline void StepperDrive :: setBestPosition( float stepsPerUnitPitch )
 }
 
 
-
+// auto retract to start
 inline void StepperDrive :: moveToStart( float stepsPerUnitPitch )
 {
-    movingToStart = true;
-
-    // total steps
+    // total steps from where we think we are to the start
     float diff = (float) (this->desiredPosition - this->startPosition);
 
+    // calculate the number of complete rotations of the leadscrew that will take us to the start (+1 to ensure we pass it)
+    // (we need complete rotations to maintain the phase relationship between the spindle and leadscrew)
     int32 ival = diff / stepsPerUnitPitch;
-    diff -= diff - ((float) ival * stepsPerUnitPitch);
-    diff += diff < 0 ? -stepsPerUnitPitch : stepsPerUnitPitch;
+    ival += diff < 0 ? -1 : +1;
+    diff = ival * stepsPerUnitPitch;
 
     this->incrementCurrentPosition( diff );
+
+    movingToStart = true;
 }
 
-
-
-inline void StepperDrive :: ISR(void)
+// handle the shoulder during the ISR. Returns true to block stepper movement
+inline bool StepperDrive :: shoulderISR(int32 diff)
 {
-    int32 diff = this->desiredPosition - this->currentPosition;
-
-    debugVals[0] = currentPosition - startPosition;
-    debugVals[1] = currentPosition - shoulderPosition;
-    debugVals[2] = desiredPosition;
-    debugVals[3] = currentPosition;
-    debugVals[4] = startPosition;
-    debugVals[5] = shoulderPosition;
-
-    // special cases for threading to shoulder and returning to start position
-    // we only need to check this stuff on the beginning of a clock pulse
-    if (this->state < 2)
+    // handle threading to shoulder (and auto-retraction to start)
+    if (threadingToShoulder)
     {
-        if (threadingToShoulder)
+        // Only do this on the beginning of a clock pulse (allow pulses that have been started to complete)
+        if (this->state < 2)
         {
-            // if moving to start we need to handle acceleration and max speed
+            // if we're auto retracting then accelerate the motor to max speed and flag when we get to the start to allow the state machine to continue
             if (movingToStart)
             {
-                if (this->state < 2)
+                moveToStartDelay++;
+                if (moveToStartDelay > 63)
                 {
-                    moveToStartDelay++;
-                    if (moveToStartDelay > 63)
-                    {
-                        moveToStartDelay = 0;
+                    moveToStartDelay = 0;
 
-                        if (isAtStart())
-                            movingToStart = false;
-                    }
-                    else
-                        return;
+                    // when moving to start we've set the desiredPosition to the start so once currentPosition is the same then we're there.
+                    if (abs(diff) <= backlash)
+                        movingToStart = false;
                 }
+                else
+                    return true;
             }
             else
+            // check if we've reached the shoulder, if so then prevent any further indexing of the stepper
             {
                 int32 dist = getDistance();
 
-                if (directionToShoulder >= 0) {
-                    if (dist <= 0) {
+                if (directionToShoulder >= 0)
+                {
+                    if (dist <= 0)
+                    {
                         holdAtShoulder = true;
-                        return;
+                        return true;
                     }
                 }
                 else
                 {
-                    if (dist >= 0) {
+                    if (dist >= 0)
+                    {
                         holdAtShoulder = true;
-                        return;
+                        return true;
                     }
                 }
 
                 holdAtShoulder = false;
             }
         }
-
     }
+    return false;
+}
+
+
+inline void StepperDrive :: ISR(void)
+{
+    int32 diff = this->desiredPosition - this->currentPosition;
+
+    if (shoulderISR(diff))
+        return;
+
+    debugVals[0] = diff;
+    debugVals[1] = abs(currentPosition - shoulderPosition);     // shoulder
+    debugVals[2] = directionToShoulder;
+    debugVals[3] = this->startPosition - this->desiredPosition;
+
 
     // generate step
     if(enabled)
@@ -352,12 +363,12 @@ inline void StepperDrive :: ISR(void)
         {
         case 0:
             // Step = 0; Dir = 0
-            if( diff < -backlash )
+            if( diff <= -backlash )
             {
                 GPIO_SET_STEP;
                 this->state = 2;
             }
-            else if( diff > backlash )
+            else if( diff >= backlash )
             {
                 GPIO_SET_DIRECTION;
                 this->state = 1;
@@ -366,12 +377,12 @@ inline void StepperDrive :: ISR(void)
 
         case 1:
             // Step = 0; Dir = 1
-            if( diff > backlash )
+            if( diff >= backlash )
             {
                 GPIO_SET_STEP;
                 this->state = 3;
             }
-            else if( diff < -backlash )
+            else if( diff <= -backlash )
             {
                 GPIO_CLEAR_DIRECTION;
                 this->state = 0;
