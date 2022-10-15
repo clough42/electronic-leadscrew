@@ -227,7 +227,7 @@ inline void StepperDrive :: beginThreadToShoulder(bool start)
     holdAtShoulder = false;
 }
 
-inline int32 StepperDrive :: getDistance(void)
+inline int32 StepperDrive :: getDistance( void )
 {
     return desiredPosition - shoulderPosition;
 }
@@ -253,8 +253,6 @@ inline int32 StepperDrive :: getStart( void )
 }
 
 
-
-extern int32 debugVals[];
 
 // we have a desired position that's behind the shoulder, calculate a currentPosition that moves us within 1 thread of the shoulder whilst still maintaining the angular relationship
 inline void StepperDrive :: setBestPosition( float stepsPerUnitPitch )
@@ -349,12 +347,6 @@ inline void StepperDrive :: ISR(void)
 
     if (shoulderISR(diff))
         return;
-
-    debugVals[0] = diff;
-    debugVals[1] = abs(currentPosition - shoulderPosition);     // shoulder
-    debugVals[2] = directionToShoulder;
-    debugVals[3] = this->startPosition - this->desiredPosition;
-
 
     // generate step
     if(enabled)

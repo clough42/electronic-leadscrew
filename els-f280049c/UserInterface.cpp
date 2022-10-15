@@ -449,30 +449,11 @@ void UserInterface :: customThreadLoop( Uint16 currentRpm )
 }
 
 
-MESSAGE DEBUG =
-{
-  .message = { DASH, DASH, DASH, DASH, DASH, DASH, DASH, DASH },
-  .displayTime = UI_REFRESH_RATE_HZ * 1.5
-};
-
-
-Uint16 debugIndex;
-int32 debugVals[6];
-
 void UserInterface :: threadToShoulderLoop( Uint16 currentRpm )
 {
     // check for exit from thread to shoulder
     if (keys.bit.POWER)
         this->menuSubState = 10;
-
-    // debug
-    if (keys.bit.IN_MM)
-    {
-        if (this->menuSubState < 22)
-            this->menuSubState = 22;
-        else
-            this->menuSubState = 1;
-    }
 
     switch (this->menuSubState)
     {
@@ -551,28 +532,6 @@ void UserInterface :: threadToShoulderLoop( Uint16 currentRpm )
         clearMessage();
         core->beginThreadToShoulder(false);
         this->isInMenu = false;
-        break;
-
-
-        // debug display
-    case 22:
-        int32 var = debugVals[debugIndex];
-        DEBUG.message[0] = feedTableFactory->valueToDigit(var >> 28 & 0xf);
-        DEBUG.message[1] = feedTableFactory->valueToDigit(var >> 24 & 0xf);
-        DEBUG.message[2] = feedTableFactory->valueToDigit(var >> 20 & 0xf);
-        DEBUG.message[3] = feedTableFactory->valueToDigit(var >> 16 & 0xf);
-        DEBUG.message[4] = feedTableFactory->valueToDigit(var >> 12 & 0xf);
-        DEBUG.message[5] = feedTableFactory->valueToDigit(var >> 8 & 0xf);
-        DEBUG.message[6] = feedTableFactory->valueToDigit(var >> 4 & 0xf);
-        DEBUG.message[7] = feedTableFactory->valueToDigit(var & 0xf);
-
-        DEBUG.message[debugIndex] |= POINT;
-        setMessage(&DEBUG);
-
-        if (keys.bit.DOWN && debugIndex > 0)
-            debugIndex--;
-        if (keys.bit.UP && debugIndex < 7)
-            debugIndex++;
         break;
     }
 }
