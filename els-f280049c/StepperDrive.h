@@ -146,7 +146,7 @@ inline void StepperDrive :: incrementCurrentPosition( int32 increment )
 inline bool StepperDrive :: checkStepBacklog()
 {
     // holding and retracting are special cases where the backlog can exceed limits (this shouldn't matter since the motor is either stopped or moving at a safe value).
-    if (!holdAtShoulder && !movingToStart)
+    if (!(holdAtShoulder || movingToStart))
     {
         if( abs(this->desiredPosition - this->currentPosition) > MAX_BUFFERED_STEPS )
         {
@@ -182,23 +182,23 @@ inline bool StepperDrive :: isAlarm()
 inline bool StepperDrive :: isAtShoulder()
 {
     // note: when moving to shoulder currentPosition will stop at the shoulder position
-    return (abs(currentPosition - shoulderPosition) <= backlash);
+    return (labs(currentPosition - shoulderPosition) <= backlash);
 }
 
 inline bool StepperDrive :: isAtStart( void )
 {
     // when moving to start we can have overshot it by the time this function is called so need to allow for this
-    if (this->directionToShoulder >= 0)
-        return (this->startPosition - this->desiredPosition) < 0;
+    if (this->directionToShoulder < 0)
+        return (this->currentPosition - this->startPosition) >= -backlash;
     else
-        return (this->startPosition - this->desiredPosition) >= 0;
+        return (this->currentPosition - this->startPosition) <= backlash;
 }
 
 
 inline void StepperDrive :: beginThreadToShoulder(bool start)
 {
     this->threadingToShoulder = start;
-    this->directionToShoulder = this->startPosition - this->shoulderPosition;
+    this->directionToShoulder = this->shoulderPosition - this->startPosition;
     holdAtShoulder = false;
 }
 
@@ -235,6 +235,7 @@ inline void StepperDrive :: moveToStart( float stepsPerUnitPitch )
     movingToStart = true;
 }
 
+
 // handle the shoulder during the ISR. Returns true to block stepper movement
 inline bool StepperDrive :: shoulderISR(int32 diff)
 {
@@ -260,8 +261,7 @@ inline bool StepperDrive :: shoulderISR(int32 diff)
                     moveToStartDelay = 0;
 
                     // when moving to start we've set the desiredPosition to the start so once currentPosition is the same then we're done.
-                    if (abs(diff) <= backlash)
-                        movingToStart = false;
+                    movingToStart = (labs(diff) > backlash);
                 }
                 else
                     return true;
@@ -272,8 +272,8 @@ inline bool StepperDrive :: shoulderISR(int32 diff)
             {
                 int32 dist = getDistanceToShoulder();
 
-                if ((directionToShoulder >= 0 && dist <= 0) ||
-                    (directionToShoulder < 0 && dist >= 0))
+                if ((directionToShoulder >= 0 && dist >= 0) ||
+                    (directionToShoulder < 0 && dist <= 0))
                 {
                     holdAtShoulder = true;
                     return true;
