@@ -69,8 +69,8 @@
 
 // Separate step and microstep settings for feed rates.  Redefine these if your
 // lathe has a separate feed drive train with a different ratio.
-#define STEPPER_MICROSTEPS_FEED 16 //STEPPER_MICROSTEPS
-#define STEPPER_RESOLUTION_FEED 2314 // 1162 //STEPPER_RESOLUTION
+#define STEPPER_MICROSTEPS_FEED STEPPER_MICROSTEPS
+#define STEPPER_RESOLUTION_FEED STEPPER_RESOLUTION
 
 // Step, direction and enable pins are normally active-high
 // #define INVERT_STEP_PIN true
