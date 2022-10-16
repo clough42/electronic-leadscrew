@@ -68,22 +68,13 @@ public:
     bool isPowerOn();
     void setPowerOn(bool);
 
-    void setShoulder( void );
-    void setStart( void );
-    void beginThreadToShoulder( bool start );
+    void setShoulder( void )                    { stepperDrive->setShoulder(); }
+    void setStart( void )                       { stepperDrive->setStart(); }
+    void beginThreadToShoulder( bool start )    { stepperDrive->beginThreadToShoulder(start); }
     void moveToStart( void );
-    bool isAtShoulder( void );
-    bool isAtStart( void );
-    void setBestPosition( void );
-
-    // debug
-    void setPosition( Uint32 newPos );
-    int32 getDistance( void );
-    int32 getSpindle( void );
-    int32 getPosition( void );
-    int32 getDesired( void );
-    int32 getShoulder( void );
-    int32 getStart( void );
+    bool isAtShoulder( void )                   { return stepperDrive->isAtShoulder(); }
+    bool isAtStart( void )                      { return stepperDrive->isAtStart(); }
+    void resetToShoulder( void );
 
     void ISR( void );
 };
@@ -95,11 +86,6 @@ inline void Core :: setFeed(const FEED_THREAD *feed)
 #else
     this->feed = feed;
 #endif // USE_FLOATING_POINT
-}
-
-inline void Core :: setPosition(Uint32 newPos)
-{
-    encoder->setPosition(newPos);
 }
 
 inline Uint16 Core :: getRPM(void)
@@ -117,62 +103,6 @@ inline bool Core :: isPowerOn()
     return this->powerOn;
 }
 
-inline void Core :: setStart( void )
-{
-    stepperDrive->setStart();
-}
-
-inline void Core :: beginThreadToShoulder(bool start)
-{
-    stepperDrive->beginThreadToShoulder(start);
-}
-
-inline bool Core :: isAtShoulder( void )
-{
-    return stepperDrive->isAtShoulder();
-}
-
-inline bool Core :: isAtStart( void )
-{
-    return stepperDrive->isAtStart();
-}
-
-inline int32 Core :: getDistance()
-{
-    return stepperDrive->getDistance();
-}
-
-inline int32 Core :: getSpindle( void )
-{
-    return encoder->getPosition();
-}
-
-inline int32 Core :: getPosition( void )
-{
-    return stepperDrive->getPosition();
-}
-
-inline int32 Core :: getDesired( void )
-{
-    return stepperDrive->getDesired();
-}
-
-inline int32 Core :: getShoulder( void )
-{
-    return stepperDrive->getShoulder();
-}
-
-inline int32 Core :: getStart( void )
-{
-    return stepperDrive->getStart();
-}
-
-// current position is the shoulder we want to turn to
-inline void Core :: setShoulder( void )
-{
-    stepperDrive->setShoulder();
-}
-
 inline int32 Core :: feedRatio(Uint32 count)
 {
 #ifdef USE_FLOATING_POINT
@@ -183,16 +113,16 @@ inline int32 Core :: feedRatio(Uint32 count)
 }
 
 
-inline void Core :: setBestPosition( void )
+inline void Core :: resetToShoulder( void )
 {
     float stepsPerUnitPitch = (float) ENCODER_RESOLUTION * this->feed;
-    stepperDrive->setBestPosition(stepsPerUnitPitch);
+    stepperDrive->resetToShoulder(stepsPerUnitPitch);
 }
 
 inline void Core :: moveToStart( void )
 {
-    float stepsPerUnitPitch = (float) ENCODER_RESOLUTION * this->feed;
-    //float stepsPerUnitPitch = STEPPER_RESOLUTION*STEPPER_MICROSTEPS;
+    //float stepsPerUnitPitch = (float) ENCODER_RESOLUTION * this->feed;
+    float stepsPerUnitPitch = STEPPER_RESOLUTION*STEPPER_MICROSTEPS;
     stepperDrive->moveToStart(stepsPerUnitPitch);
 }
 

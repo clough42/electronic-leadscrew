@@ -105,11 +105,27 @@
 
 //================================================================================
 // backlash value
-// This fixes an issue (which may only apply to me) in that the encoder at certain positions 'dithered' causing the stepper to 'vibrate' resulting in noise when the lathe was stopped.
-// This value effectively adds backlash to the system so that the minimum number of steps have to be issued before the motor will move
+// This fixes an issue (which may only apply to me) in that the encoder at certain
+// positions 'dithered' causing the stepper to 'vibrate' resulting in noise when the
+// lathe was stopped.
+// This value effectively adds backlash to the system so that the minimum number of
+// steps have to be issued before the motor will move
 // set to zero if not required.
 //================================================================================
 #define backlash 2
+
+
+//================================================================================
+// for automatic retraction we can set the maximum rotation rpm and acceleration
+// of the leadscrew.
+// The speed shouldn't be too high since the leadscrew doesn't decelerate plus
+// high speeds could result in missed steps and loss of sync between spindle and leadscrew
+// (slightly odd equation layout to stop it issuing integer overflow warnings)
+//================================================================================
+
+#define leadscrewRPM(rpm) ((200000 * 60) / rpm) / (STEPPER_MICROSTEPS * STEPPER_RESOLUTION);
+// default to 200rpm
+const int32 retractSpeed = leadscrewRPM( 200 );
 
 
 //================================================================================

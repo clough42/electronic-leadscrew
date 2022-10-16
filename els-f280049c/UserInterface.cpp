@@ -500,7 +500,7 @@ void UserInterface :: threadToShoulderLoop( Uint16 currentRpm )
     case 5:
         if (currentRpm == 0)
         {
-            core->setBestPosition();
+            core->resetToShoulder();
             this->menuSubState = 6;
         }
         else
