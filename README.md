@@ -1,17 +1,56 @@
-## Added custom thread pitches
-Allows the setting of custom thread pitches from 0.01mm to 9.99mm (as well as a supporting menu system attached to the 'Set' button - currently only one option).
+## Added thread to shoulder, custom thread pitches and angular position of spindle.
+Allows the threading to shoulder (with retraction to start of thread without requiring the spindle to be rotated).
+Allows the setting of custom thread pitches from 0.01mm to 9.99mm.
+Can display the angular position of the spindle instead of RPM.
 
-To use press 'Set' and select 'cust thd' by pressing 'Set' again. (If more than one option the + & - buttons will cycle them.
+The three modes are accessed via an options menu by pressing "Set".
 
-The display shows the default (or last set) custom thread with the 1st digit flashing.
+You can now cycle between the options using the "+" and "-" buttons.
 
-Change the digit using the + & - buttons and press 'Set' to accept. 
+Press "Set" to select one (options will time out after a few seconds).
 
-Repeat for the other two digits.
 
-When the final digit is set the ELS will use the value set as the pitch.
+#### Custom Thread ("CUSt tHd").
+Left hand display shows "Ct" and the first digit of the pitch will be flashing. 
 
-To exit simply pick another pitch using the usual buttons (+, - in/mm, feed/thr etc)
+Use "+" and "-" to change this, press "Set" to move to the next digit, repeat for all digits.
+
+When the final digit has been entered the display will return to the normal threading display but using the new pitch.
+
+(At any point while "Ct" is displayed pressing the power button will exit the mode).
+
+#### Thread to shoulder ("SHOULdEr").
+
+Display shows Go Shoulder ("GO SHLdr"), move the carriage to the shoulder position (either manually or by engaging the half nuts and driving the spindle).
+
+If you haven't already engage the half nuts - they MUST now remain engaged for the duration of the threading operation.
+
+Press "Set" to mark the shoulder position. Display will now show Go Start ("GO StArt").
+
+Move the carriage by using the spindle to the start position of the thread and press "Set" once there.
+
+You've now marked the shoulder and start positions of the thread so we can cut the thread.
+
+Display momentarily shows Begin ("BEGIN").
+
+Cut one pass, when the carriage reaches the shoulder it will stop and the display will show Stop ("StOP").
+
+Stop the spindle, once it reaches zero rpm the display will show Retract ("rEtrACt").
+You should now retract the tool from the work and press either the "+" button or the "set" button which will cause the carriage to return to the start position.
+Whilst the carriage is moving the display will show Wait ("WAIt")
+
+Display once again shows Begin. Repeat the above until you've cut your thread.
+
+When the spindle is at zero RPM the display will have the prefix "SH" to remind you you're in Cut-to-shoulder mode. 
+Press "Pwr" once to exit.
+
+#### Position ("POSItION").
+
+RPM is replaced by the angular position of the spindle. 
+
+Exit by going back into the menu and selectin RPM.
+
+
 
 # Clough42 Lathe Electronic Leadscrew Controller
 
