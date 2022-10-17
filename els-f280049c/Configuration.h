@@ -82,10 +82,6 @@
 #define USE_ALARM_PIN
 
 
-// power on state when booted
-#define START_POWER_ON  false
-
-
 //================================================================================
 //                                 ENCODER
 //
@@ -106,6 +102,13 @@
 
 
 //================================================================================
+// power on state when booted
+//================================================================================
+
+#define START_POWER_ON  false
+
+
+//================================================================================
 // backlash value
 // This fixes an issue (which may only apply to me) in that the encoder at certain
 // positions 'dithered' causing the stepper to 'vibrate' resulting in noise when the
@@ -114,12 +117,12 @@
 // steps have to be issued before the motor will move
 // set to zero if not required.
 //================================================================================
+
 #define backlash 2
 
 
 //================================================================================
-// for automatic retraction we can set the maximum rotation rpm and acceleration
-// of the leadscrew.
+// for automatic retraction we can set the maximum rpm of the leadscrew.
 // The speed shouldn't be too high since the leadscrew doesn't decelerate plus
 // high speeds could result in missed steps and loss of sync between spindle and leadscrew
 // (slightly odd equation layout to stop it issuing integer overflow warnings)
@@ -139,7 +142,6 @@ const int32 retractSpeed = leadscrewRPM( 200 );
 
 // Use floating-point math for gear ratios
 #define USE_FLOATING_POINT
-
 
 
 

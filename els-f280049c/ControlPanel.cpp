@@ -323,6 +323,18 @@ void ControlPanel :: setBrightness( Uint16 brightness )
     this->brightness = brightness;
 }
 
+void ControlPanel :: incBrightness()
+{
+    if (this->brightness < 8)
+        this->brightness++;
+}
+
+void ControlPanel :: decBrightness()
+{
+    if (this->brightness > 1)
+        this->brightness--;
+}
+
 void ControlPanel :: refresh(bool showAngle)
 {
     configureSpiBus();

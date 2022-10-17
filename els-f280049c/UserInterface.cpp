@@ -296,6 +296,14 @@ void UserInterface :: mainLoop( Uint16 currentRpm )
                 core->setFeed(feedTable->previous());
             }
         }
+        else
+        {
+            // if power off then allow brightness to be changed.
+            if (keys.bit.UP)
+                controlPanel->incBrightness();
+            if (keys.bit.DOWN)
+                controlPanel->decBrightness();
+        }
 
 #ifdef IGNORE_ALL_KEYS_WHEN_RUNNING
     }

@@ -198,6 +198,8 @@ public:
 
     // set a brightness value, 0 (off) to 8 (max)
     void setBrightness(Uint16 brightness);
+    void incBrightness();
+    void decBrightness();
 
     void showCurMode(Uint16 dig1, Uint16 dig2)   {curMode[0] = dig1; curMode[1] = dig2;}
 
