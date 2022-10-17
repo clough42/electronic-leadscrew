@@ -67,7 +67,7 @@ void StepperDrive :: initHardware(void)
     GPIO_CLEAR_DIRECTION;
     EDIS;
 
-    setEnabled(true);
+    setEnabled(START_POWER_ON);
 }
 
 

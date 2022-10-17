@@ -82,6 +82,8 @@
 #define USE_ALARM_PIN
 
 
+// power on state when booted
+#define START_POWER_ON  false
 
 
 //================================================================================
