@@ -185,6 +185,13 @@ void ControlPanel :: decomposeRPM()
         this->sevenSegmentData[i] = (rpm == 0 && i != 3) ? 0 : lcd_char(rpm % 10);
         rpm = rpm / 10;
     }
+
+    // add a 2 char prefix to show mode if rpm is zero
+    if (this->rpm == 0)
+    {
+        this->sevenSegmentData[0] = this->curMode[0];
+        this->sevenSegmentData[1] = this->curMode[1];
+    }
 }
 
 void ControlPanel :: decomposeSpindleAngle()
@@ -213,6 +220,7 @@ void ControlPanel :: decomposeValue()
         }
     }
 }
+
 
 KEY_REG ControlPanel :: readKeys(void)
 {

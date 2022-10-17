@@ -216,10 +216,14 @@ void UserInterface :: loop( void )
     // display an override message, if there is one
     overrideMessage();
 
+    // clear the mode indication
+    controlPanel->showCurMode(BLANK, BLANK);
+
     // read keypresses from the control panel
     keys = controlPanel->getKeys();
 
     // handle appropriate loop
+
     if (isInMenu)
         menuLoop(currentRpm);
     else
@@ -352,6 +356,7 @@ void UserInterface :: menuLoop( Uint16 currentRpm )
         cycleOptions(kShowPosition, kThreadToShoulder);  // link any other menu options here
         break;
     case kCustomThread+2:   // run loop
+        controlPanel->showCurMode(LETTER_C, LETTER_T);
         customThreadLoop(currentRpm);
         break;
 
@@ -364,6 +369,7 @@ void UserInterface :: menuLoop( Uint16 currentRpm )
         cycleOptions(kCustomThread, kShowPosition);  // link any other menu options here
         break;
     case kThreadToShoulder+2:   // run loop
+        controlPanel->showCurMode(LETTER_S, LETTER_H);
         threadToShoulderLoop(currentRpm);
         break;
 
@@ -391,6 +397,10 @@ void UserInterface :: menuLoop( Uint16 currentRpm )
 
 void UserInterface :: customThreadLoop( Uint16 currentRpm )
 {
+    // check for exit from custom thread
+    if (keys.bit.POWER)
+        this->menuSubState = 4;
+
     switch (this->menuSubState)
     {
     // initialise
@@ -510,7 +520,7 @@ void UserInterface :: threadToShoulderLoop( Uint16 currentRpm )
         // stopped wait for retract
     case 6:
         setMessage(&RETRACT);
-        if (keys.bit.SET)
+        if (keys.bit.UP || keys.bit.SET)
         {
             core->moveToStart();
             this->menuSubState = 7;

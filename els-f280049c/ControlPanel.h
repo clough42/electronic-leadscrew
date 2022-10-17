@@ -152,6 +152,9 @@ private:
     // Derived state, calculated internally
     Uint16 sevenSegmentData[8];
 
+    // prefix for mode
+    int curMode[2];
+
     // dummy register, for SPI
     Uint16 dummy;
 
@@ -195,6 +198,8 @@ public:
 
     // set a brightness value, 0 (off) to 8 (max)
     void setBrightness(Uint16 brightness);
+
+    void showCurMode(Uint16 dig1, Uint16 dig2)   {curMode[0] = dig1; curMode[1] = dig2;}
 
     // refresh the hardware display
     void refresh(bool showAngle);
