@@ -130,7 +130,7 @@
 
 #define leadscrewRPM(rpm) ((200000 * 60) / rpm) / (STEPPER_MICROSTEPS * STEPPER_RESOLUTION);
 // default to 200rpm
-const int32 retractSpeed = leadscrewRPM( 200 );
+const int32 retractSpeed = leadscrewRPM( 100 );
 
 
 //================================================================================
