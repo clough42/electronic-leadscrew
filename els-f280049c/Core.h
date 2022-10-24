@@ -68,12 +68,13 @@ public:
     bool isPowerOn();
     void setPowerOn(bool);
 
-    void setShoulder( void )                    { stepperDrive->setShoulder(); }
-    void setStart( void )                       { stepperDrive->setStart(); }
-    void beginThreadToShoulder( bool start )    { stepperDrive->beginThreadToShoulder(start); }
+    void setShoulder( void )                            { stepperDrive->setShoulder(); }
+    void setStart( void )                               { stepperDrive->setStart(); }
+    void setStartOffset( float normalisedAngleOffset );
+    void beginThreadToShoulder( bool start )            { stepperDrive->beginThreadToShoulder(start); }
     void moveToStart( void );
-    bool isAtShoulder( void )                   { return stepperDrive->isAtShoulder(); }
-    bool isAtStart( void )                      { return stepperDrive->isAtStart(); }
+    bool isAtShoulder( void )                           { return stepperDrive->isAtShoulder(); }
+    bool isAtStart( void )                              { return stepperDrive->isAtStart(); }
     void resetToShoulder( void );
 
     void ISR( void );
@@ -119,9 +120,14 @@ inline void Core :: resetToShoulder( void )
     stepperDrive->resetToShoulder(stepsPerUnitPitch);
 }
 
-inline void Core :: moveToStart( void )
+inline void Core :: setStartOffset( float normalisedAngleOffset )
 {
-    //float stepsPerUnitPitch = (float) ENCODER_RESOLUTION * this->feed;
+    int32 offset = ((float) ENCODER_RESOLUTION) * normalisedAngleOffset * this->feed;
+    stepperDrive->setStartOffset(offset);
+}
+
+inline void Core :: moveToStart( )
+{
     float stepsPerUnitPitch = STEPPER_RESOLUTION*STEPPER_MICROSTEPS;
     stepperDrive->moveToStart(stepsPerUnitPitch);
 }

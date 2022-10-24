@@ -57,12 +57,6 @@ const MESSAGE STOP =
  .displayTime = UI_REFRESH_RATE_HZ * 2.0
 };
 
-const MESSAGE BEGIN =
-{
- .message = { LETTER_B, LETTER_E, LETTER_G, LETTER_I, LETTER_N, BLANK, BLANK, BLANK },
- .displayTime = UI_REFRESH_RATE_HZ * 1.0
-};
-
 const MESSAGE WAIT =
 {
  .message = { LETTER_W, LETTER_A, LETTER_I, LETTER_T, BLANK, BLANK, BLANK, BLANK },
@@ -111,6 +105,19 @@ const MESSAGE BACKLOG_PANIC_MESSAGE_2 =
  .message = { BLANK, LETTER_R, LETTER_E, LETTER_S, LETTER_E, LETTER_T, BLANK, BLANK },
  .displayTime = UI_REFRESH_RATE_HZ * .5,
  .next = &BACKLOG_PANIC_MESSAGE_1
+};
+
+// non const messages so we can change the text
+MESSAGE MULTI =
+{
+ .message = { LETTER_M, LETTER_U, LETTER_L, LETTER_T, LETTER_I, BLANK, BLANK, BLANK },
+ .displayTime = UI_REFRESH_RATE_HZ * 0.2
+};
+
+MESSAGE BEGIN =
+{
+ .message = { LETTER_B, LETTER_E, LETTER_G, LETTER_I, LETTER_N, BLANK, BLANK, BLANK },
+ .displayTime = UI_REFRESH_RATE_HZ * 0.2
 };
 
 
@@ -319,6 +326,7 @@ void UserInterface :: beginMenu()
     this->isInMenu = true;
     this->menuState = 0;
     this->menuSubState = 0;
+    this->numStarts = 1;
 }
 
 
@@ -475,37 +483,53 @@ void UserInterface :: threadToShoulderLoop( Uint16 currentRpm )
 
     switch (this->menuSubState)
     {
-        // prompt user to 'go to shoulder'
+    // number of thread 'starts'
     case 0:
+        if (keys.bit.UP && this->numStarts < 9)
+            this->numStarts++;
+        if (keys.bit.DOWN && this->numStarts > 1)
+            this->numStarts--;
+
+        MULTI.message[7] = this->feedTableFactory->valueToDigit(this->numStarts);
+        setMessage(&MULTI);
+
+        if (keys.bit.SET)
+        {
+            this->menuSubState = 1;
+            this->currentStart = 0;
+        }
+        break;
+
+
+        // prompt user to 'go to shoulder'
+    case 1:
         setMessage(&GO_SHOULDER);
         if (keys.bit.SET)
         {
             core->setShoulder();
-            this->menuSubState = 1;
+            this->menuSubState = 2;
         }
         break;
 
         // prompt user to 'go to start'
-    case 1:
+    case 2:
         setMessage(&GO_START);
         if (keys.bit.SET)
         {
             core->setStart();
             core->beginThreadToShoulder(true);
             setMessage(&BEGIN);
-            this->menuSubState = 2;
+            this->menuSubState = 3;
         }
-        break;
-
-        // todo: ask for number of thread starts?
-    case 2:
-        this->menuSubState = 3;
         break;
 
         // begin threading
     case 3:
+        BEGIN.message[6] = this->feedTableFactory->valueToDigit(this->currentStart+1) | POINT;
+        BEGIN.message[7] = this->feedTableFactory->valueToDigit(this->numStarts);
         setMessage(&BEGIN);
-        this->menuSubState = 4;
+        if (currentRpm != 0)
+            this->menuSubState = 4;
         break;
 
         // wait until we reach the shoulder
@@ -519,6 +543,13 @@ void UserInterface :: threadToShoulderLoop( Uint16 currentRpm )
         if (currentRpm == 0)
         {
             core->resetToShoulder();
+
+            // index start
+            this->currentStart++;
+            if (this->currentStart >= this->numStarts)
+                this->currentStart = 0;
+            core->setStartOffset((float) this->currentStart / (float) this->numStarts);
+
             this->menuSubState = 6;
         }
         else

@@ -91,6 +91,7 @@ private:
     int32   shoulderPosition;
     int32   startPosition;
     int32   directionToShoulder;
+    int32   totalOffset;
 
     Uint32  moveToStartDelay;
     Uint32  moveToStartSpeed;
@@ -117,6 +118,7 @@ public:
     void moveToStart( float stepsPerUnitPitch );
     void setShoulder( void )                            { this->shoulderPosition = currentPosition; }
     void setStart(void)                                 { this->startPosition = this->currentPosition; }
+    void setStartOffset( int32 startOffset );
     bool isAtShoulder( void );
     bool isAtStart( void );
     void resetToShoulder( float stepsPerUnitPitch );
@@ -199,6 +201,7 @@ inline void StepperDrive :: beginThreadToShoulder(bool start)
 {
     this->threadingToShoulder = start;
     this->directionToShoulder = this->shoulderPosition - this->startPosition;
+    this->totalOffset = 0;
     holdAtShoulder = false;
 }
 
@@ -216,6 +219,24 @@ inline void StepperDrive :: resetToShoulder( float stepsPerUnitPitch )
     this->incrementCurrentPosition(ival);
 }
 
+inline void StepperDrive :: setStartOffset( int32 startOffset )
+{
+    if (startOffset == 0)
+    {
+        incrementCurrentPosition(-this->totalOffset);
+        //this->startPosition -= this->totalOffset;
+        //this->currentPosition -= this->totalOffset;
+        this->totalOffset = 0;
+    }
+    else
+    {
+        incrementCurrentPosition(startOffset);
+        //this->startPosition += startOffset;
+        //this->currentPosition += startOffset;
+        this->totalOffset += startOffset;
+    }
+}
+
 
 // auto retract to start
 inline void StepperDrive :: moveToStart( float stepsPerUnitPitch )
@@ -231,7 +252,7 @@ inline void StepperDrive :: moveToStart( float stepsPerUnitPitch )
 
     this->incrementCurrentPosition( diff );
 
-    moveToStartSpeed = retractSpeed * 10;   // start at 1/10th max speed
+    moveToStartSpeed = retractSpeed * 5;   // start at 1/5th max speed
     movingToStart = true;
 }
 

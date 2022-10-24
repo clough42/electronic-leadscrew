@@ -54,6 +54,7 @@ private:
     bool isInMenu;
     Uint16 menuState, menuSubState;
 
+    int numStarts, currentStart;
 
     FeedTable *feedTable;
 
