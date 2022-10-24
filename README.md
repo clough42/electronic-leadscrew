@@ -1,3 +1,5 @@
+## Added multistart threads (see below)
+To function this adds one extra step to the shoulder operation to select the number of starts.
 ## Added thread to shoulder, custom thread pitches and angular position of spindle.
 Allows the threading to shoulder (with retraction to start of thread without requiring the spindle to be rotated).
 Allows the setting of custom thread pitches from 0.01mm to 9.99mm.
@@ -20,6 +22,8 @@ When the final digit has been entered the display will return to the normal thre
 (At any point while "Ct" is displayed pressing the power button will exit the mode).
 
 #### Thread to shoulder ("SHOULdEr").
+Display shows Multi 1 ("MULtI 1") this is the number of starts the thread has, use the + & - keys to change this value and press Set to accept.
+(A value of '1' is a normal single start thread)
 
 Display shows Go Shoulder ("GO SHLdr"), move the carriage to the shoulder position (either manually or by engaging the half nuts and driving the spindle).
 
@@ -31,7 +35,8 @@ Move the carriage by using the spindle to the start position of the thread and p
 
 You've now marked the shoulder and start positions of the thread so we can cut the thread.
 
-Display momentarily shows Begin ("BEGIN").
+Display shows Begin ("BEGIN n.x") until the spindle starts to rotate, where 'n' is the start number and x is the number of starts. For normal single start threads this will show "1.1".
+Each subsequent loop will increment the 'n' value and the thread will start at the new position. When all starts have been machined n will loop back to 1 and the process can be repeated. 
 
 Cut one pass, when the carriage reaches the shoulder it will stop and the display will show Stop ("StOP").
 
@@ -48,8 +53,13 @@ Press "Pwr" once to exit.
 
 RPM is replaced by the angular position of the spindle. 
 
-Exit by going back into the menu and selectin RPM.
+Exit by going back into the menu and selecting RPM.
 
+
+# Notes
+Retraction speed is set in configuration.h "retractSpeed" - currently set to 100rpm.
+
+Display brightness can be changed when in "powered off" mode using the + & - buttons.
 
 
 # Clough42 Lathe Electronic Leadscrew Controller
