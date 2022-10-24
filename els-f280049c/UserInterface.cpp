@@ -548,7 +548,9 @@ void UserInterface :: threadToShoulderLoop( Uint16 currentRpm )
             this->currentStart++;
             if (this->currentStart >= this->numStarts)
                 this->currentStart = 0;
-            core->setStartOffset((float) this->currentStart / (float) this->numStarts);
+
+            if (this->numStarts > 1)
+                core->setStartOffset(1.0f / (float) this->numStarts);
 
             this->menuSubState = 6;
         }

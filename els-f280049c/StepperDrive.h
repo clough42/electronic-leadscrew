@@ -91,7 +91,6 @@ private:
     int32   shoulderPosition;
     int32   startPosition;
     int32   directionToShoulder;
-    int32   totalOffset;
 
     Uint32  moveToStartDelay;
     Uint32  moveToStartSpeed;
@@ -201,7 +200,6 @@ inline void StepperDrive :: beginThreadToShoulder(bool start)
 {
     this->threadingToShoulder = start;
     this->directionToShoulder = this->shoulderPosition - this->startPosition;
-    this->totalOffset = 0;
     holdAtShoulder = false;
 }
 
@@ -221,20 +219,10 @@ inline void StepperDrive :: resetToShoulder( float stepsPerUnitPitch )
 
 inline void StepperDrive :: setStartOffset( int32 startOffset )
 {
-    if (startOffset == 0)
-    {
-        incrementCurrentPosition(-this->totalOffset);
-        //this->startPosition -= this->totalOffset;
-        //this->currentPosition -= this->totalOffset;
-        this->totalOffset = 0;
-    }
-    else
-    {
-        incrementCurrentPosition(startOffset);
-        //this->startPosition += startOffset;
-        //this->currentPosition += startOffset;
-        this->totalOffset += startOffset;
-    }
+    if (this->directionToShoulder > 0)
+        startOffset = -startOffset;
+
+    incrementCurrentPosition(startOffset);
 }
 
 
