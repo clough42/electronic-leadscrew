@@ -257,11 +257,22 @@ inline bool StepperDrive :: shoulderISR(int32 diff)
             // if we're auto retracting then accelerate the motor to max speed and flag when we get to the start to allow the state machine to continue
             if (movingToStart)
             {
-                // accelerate to max speed
-                if (!(++accelTime & 0xff))  // rate of acceleration
+                int32 dist = labs(diff);
+
+                // rate of acceleration/deceleration
+                if (!(++accelTime & 0x1ff))
                 {
-                    if (moveToStartSpeed > retractSpeed)
-                        moveToStartSpeed--;
+                    // if we're nearly at the start then start decelerating
+                    if (dist < (STEPPER_MICROSTEPS * STEPPER_RESOLUTION / 3))
+                    {
+                        if (moveToStartSpeed < retractSpeed * 10)
+                            moveToStartSpeed++;
+                    }
+                    else
+                    {
+                        if (moveToStartSpeed > retractSpeed)
+                            moveToStartSpeed--;
+                    }
                 }
 
                 // index motor at preset rate
@@ -270,7 +281,7 @@ inline bool StepperDrive :: shoulderISR(int32 diff)
                     moveToStartDelay = 0;
 
                     // when moving to start we've set the desiredPosition to the start so once currentPosition is the same then we're done.
-                    movingToStart = (labs(diff) > backlash);
+                    movingToStart = (dist > backlash);
                 }
                 else
                     return true;
