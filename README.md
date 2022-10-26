@@ -1,3 +1,6 @@
+## Update.
+Fixed a bug I introduced earlier that causes the auto retract to lose sync on some threads (never edit code when you're tired).
+Added deceleration to end of auto retract.
 ## Added multistart threads (see below)
 To function this adds one extra step to the shoulder operation to select the number of starts.
 ## Added thread to shoulder, custom thread pitches and angular position of spindle.
