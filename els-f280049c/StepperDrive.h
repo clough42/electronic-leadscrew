@@ -114,7 +114,7 @@ public:
 
     bool shoulderISR( int32 diff );
     void beginThreadToShoulder( bool start );
-    void moveToStart( float stepsPerUnitPitch );
+    void moveToStart( int32 stepsPerUnitPitch );
     void setShoulder( void )                            { this->shoulderPosition = currentPosition; }
     void setStart(void)                                 { this->startPosition = this->currentPosition; }
     void setStartOffset( int32 startOffset );
@@ -225,15 +225,11 @@ inline void StepperDrive :: setStartOffset( int32 startOffset )
     incrementCurrentPosition(startOffset);
 }
 
-
 // auto retract to start
-inline void StepperDrive :: moveToStart( float stepsPerUnitPitch )
+inline void StepperDrive :: moveToStart( int32 stepsPerUnitPitch )
 {
-    // total steps from where we think we are to the start
-    float diff = (float) (this->desiredPosition - this->startPosition);
+    int32 diff = this->desiredPosition - this->startPosition;
 
-    // calculate the number of complete rotations of the leadscrew that will take us to the start (+1 to ensure we pass it)
-    // (we need complete rotations to maintain the phase relationship between the spindle and leadscrew)
     int32 ival = diff / stepsPerUnitPitch;
     ival += diff < 0 ? -1 : +1;
     diff = ival * stepsPerUnitPitch;
@@ -243,7 +239,6 @@ inline void StepperDrive :: moveToStart( float stepsPerUnitPitch )
     moveToStartSpeed = retractSpeed * 5;   // start at 1/5th max speed
     movingToStart = true;
 }
-
 
 // handle the shoulder during the ISR. Returns true to block stepper movement
 inline bool StepperDrive :: shoulderISR(int32 diff)

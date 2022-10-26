@@ -128,7 +128,7 @@ inline void Core :: setStartOffset( float normalisedAngleOffset )
 
 inline void Core :: moveToStart( )
 {
-    float stepsPerUnitPitch = STEPPER_RESOLUTION*STEPPER_MICROSTEPS;
+    int32 stepsPerUnitPitch = (float) ENCODER_RESOLUTION * this->feed;
     stepperDrive->moveToStart(stepsPerUnitPitch);
 }
 
