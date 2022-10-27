@@ -200,6 +200,11 @@ inline void StepperDrive :: beginThreadToShoulder(bool start)
 {
     this->threadingToShoulder = start;
     this->directionToShoulder = this->shoulderPosition - this->startPosition;
+
+    // quitting? If so reset current position.
+    if (!start)
+        this->currentPosition = this->desiredPosition;
+
     holdAtShoulder = false;
 }
 
