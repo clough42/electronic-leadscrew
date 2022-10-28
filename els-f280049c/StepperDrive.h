@@ -292,8 +292,8 @@ inline bool StepperDrive :: shoulderISR(int32 diff)
             {
                 int32 dist = getDistanceToShoulder();
 
-                if ((directionToShoulder >= 0 && dist >= 0) ||
-                    (directionToShoulder < 0 && dist <= 0))
+                if ((directionToShoulder >= 0 && dist > 0) ||
+                    (directionToShoulder < 0 && dist < 0))
                 {
                     holdAtShoulder = true;
                     return true;
