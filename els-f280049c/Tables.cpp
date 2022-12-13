@@ -137,30 +137,30 @@ const FEED_THREAD inch_feed_table[] =
 
 const FEED_THREAD metric_thread_table[] =
 {
- { .display = {BLANK, POINT,         TWO,   BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(20) },
- { .display = {BLANK, POINT,         TWO,   FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(25) },
- { .display = {BLANK, POINT,         THREE, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(30) },
- { .display = {BLANK, POINT,         THREE, FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(35) },
- { .display = {BLANK, POINT,         FOUR,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(40) },
- { .display = {BLANK, POINT,         FOUR,  FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(45) },
- { .display = {BLANK, POINT,         FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(50) },
- { .display = {BLANK, POINT,         SIX,   BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(60) },
- { .display = {BLANK, POINT,         SEVEN, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(70) },
- { .display = {BLANK, POINT,         SEVEN, FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(75) },
- { .display = {BLANK, POINT,         EIGHT, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(80) },
- { .display = {BLANK, ONE,           BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(100) },
- { .display = {BLANK, ONE | POINT,   TWO,   FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(125) },
- { .display = {BLANK, ONE | POINT,   FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(150) },
- { .display = {BLANK, ONE | POINT,   SEVEN, FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(175) },
- { .display = {BLANK, TWO,           BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(200) },
- { .display = {BLANK, TWO | POINT,   FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(250) },
- { .display = {BLANK, THREE,         BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(300) },
- { .display = {BLANK, THREE | POINT, FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(350) },
- { .display = {BLANK, FOUR,          BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(400) },
- { .display = {BLANK, FOUR | POINT,  FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(450) },
- { .display = {BLANK, FIVE,          BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(500) },
- { .display = {BLANK, FIVE | POINT,  FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(550) },
- { .display = {BLANK, SIX,           BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(600) },
+ { .display = {BLANK, ZERO  | POINT, TWO,   ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(20) },
+ { .display = {BLANK, ZERO  | POINT, TWO,   FIVE}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(25) },
+ { .display = {BLANK, ZERO  | POINT, THREE, ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(30) },
+ { .display = {BLANK, ZERO  | POINT, THREE, FIVE}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(35) },
+ { .display = {BLANK, ZERO  | POINT, FOUR,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(40) },
+ { .display = {BLANK, ZERO  | POINT, FOUR,  FIVE}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(45) },
+ { .display = {BLANK, ZERO  | POINT, FIVE,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(50) },
+ { .display = {BLANK, ZERO  | POINT, SIX,   ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(60) },
+ { .display = {BLANK, ZERO  | POINT, SEVEN, ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(70) },
+ { .display = {BLANK, ZERO  | POINT, SEVEN, FIVE}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(75) },
+ { .display = {BLANK, ZERO  | POINT, EIGHT, ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(80) },
+ { .display = {BLANK, ONE   | POINT, ZERO,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(100) },
+ { .display = {BLANK, ONE   | POINT, TWO,   FIVE}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(125) },
+ { .display = {BLANK, ONE   | POINT, FIVE,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(150) },
+ { .display = {BLANK, ONE   | POINT, SEVEN, FIVE}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(175) },
+ { .display = {BLANK, TWO   | POINT, ZERO,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(200) },
+ { .display = {BLANK, TWO   | POINT, FIVE,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(250) },
+ { .display = {BLANK, THREE | POINT, ZERO,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(300) },
+ { .display = {BLANK, THREE | POINT, FIVE,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(350) },
+ { .display = {BLANK, FOUR  | POINT, ZERO,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(400) },
+ { .display = {BLANK, FOUR  | POINT, FIVE,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(450) },
+ { .display = {BLANK, FIVE  | POINT, ZERO,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(500) },
+ { .display = {BLANK, FIVE  | POINT, FIVE,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(550) },
+ { .display = {BLANK, SIX   | POINT, ZERO,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(600) },
 };
 
 
@@ -183,31 +183,35 @@ const FEED_THREAD metric_thread_table[] =
 
 const FEED_THREAD metric_feed_table[] =
 {
- { .display = {BLANK, POINT,       ZERO,  TWO},   .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(2) },
- { .display = {BLANK, POINT,       ZERO,  FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(5) },
- { .display = {BLANK, POINT,       ZERO,  SEVEN}, .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(7) },
- { .display = {BLANK, POINT,       ONE,   ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(10) },
- { .display = {BLANK, POINT,       ONE,   TWO},   .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(12) },
- { .display = {BLANK, POINT,       ONE,   FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(15) },
- { .display = {BLANK, POINT,       ONE,   SEVEN}, .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(17) },
- { .display = {BLANK, POINT,       TWO,   ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(20) },
- { .display = {BLANK, POINT,       TWO,   TWO},   .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(22) },
- { .display = {BLANK, POINT,       TWO,   FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(25) },
- { .display = {BLANK, POINT,       TWO,   SEVEN}, .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(27) },
- { .display = {BLANK, POINT,       THREE, ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(30) },
- { .display = {BLANK, POINT,       THREE, FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(35) },
- { .display = {BLANK, POINT,       FOUR,  ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(40) },
- { .display = {BLANK, POINT,       FOUR,  FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(45) },
- { .display = {BLANK, POINT,       FIVE,  ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(50) },
- { .display = {BLANK, POINT,       FIVE,  FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(55) },
- { .display = {BLANK, POINT,       SIX,   ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(60) },
- { .display = {BLANK, POINT,       SEVEN, ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(70) },
- { .display = {BLANK, POINT,       EIGHT, FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(85) },
- { .display = {BLANK, ONE | POINT, ZERO,  ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(100) },
+ { .display = {BLANK, ZERO | POINT, ZERO,  TWO},   .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(2) },
+ { .display = {BLANK, ZERO | POINT, ZERO,  FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(5) },
+ { .display = {BLANK, ZERO | POINT, ZERO,  SEVEN}, .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(7) },
+ { .display = {BLANK, ZERO | POINT, ONE,   ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(10) },
+ { .display = {BLANK, ZERO | POINT, ONE,   TWO},   .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(12) },
+ { .display = {BLANK, ZERO | POINT, ONE,   FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(15) },
+ { .display = {BLANK, ZERO | POINT, ONE,   SEVEN}, .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(17) },
+ { .display = {BLANK, ZERO | POINT, TWO,   ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(20) },
+ { .display = {BLANK, ZERO | POINT, TWO,   TWO},   .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(22) },
+ { .display = {BLANK, ZERO | POINT, TWO,   FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(25) },
+ { .display = {BLANK, ZERO | POINT, TWO,   SEVEN}, .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(27) },
+ { .display = {BLANK, ZERO | POINT, THREE, ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(30) },
+ { .display = {BLANK, ZERO | POINT, THREE, FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(35) },
+ { .display = {BLANK, ZERO | POINT, FOUR,  ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(40) },
+ { .display = {BLANK, ZERO | POINT, FOUR,  FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(45) },
+ { .display = {BLANK, ZERO | POINT, FIVE,  ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(50) },
+ { .display = {BLANK, ZERO | POINT, FIVE,  FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(55) },
+ { .display = {BLANK, ZERO | POINT, SIX,   ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(60) },
+ { .display = {BLANK, ZERO | POINT, SEVEN, ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(70) },
+ { .display = {BLANK, ZERO | POINT, EIGHT, FIVE},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(85) },
+ { .display = {BLANK, ONE | POINT,  ZERO,  ZERO},  .leds = LED_FEED | LED_MM, HMM_FRACTION_FEED(100) },
 };
 
 
+// *entry* for custom feed
+FEED_THREAD custom_feed = { .display = {BLANK, ONE | POINT, ZERO, ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(100) };
 
+// when set overrides table with custom feed
+bool    FeedTableFactory::useCustomPitch;
 
 
 FeedTable::FeedTable(const FEED_THREAD *table, Uint16 numRows, Uint16 defaultSelection)
@@ -219,23 +223,39 @@ FeedTable::FeedTable(const FEED_THREAD *table, Uint16 numRows, Uint16 defaultSel
 
 const FEED_THREAD *FeedTable :: current(void)
 {
-    return &table[selectedRow];
+    // check for custom feed
+    if (FeedTableFactory::useCustomPitch)
+        return &custom_feed;
+    else
+        return &table[selectedRow];
 }
 
 const FEED_THREAD *FeedTable :: next(void)
 {
-    if( this->selectedRow < this->numRows - 1 )
+    // if in custom pitch then first step out
+    if (FeedTableFactory::useCustomPitch)
+        FeedTableFactory::useCustomPitch = false;
+    else
     {
-        this->selectedRow++;
+        if( this->selectedRow < this->numRows - 1 )
+        {
+            this->selectedRow++;
+        }
     }
     return this->current();
 }
 
 const FEED_THREAD *FeedTable :: previous(void)
 {
-    if( this->selectedRow > 0 )
+    // if in custom pitch then first step out
+    if (FeedTableFactory::useCustomPitch)
+        FeedTableFactory::useCustomPitch = false;
+    else
     {
-        this->selectedRow--;
+        if( this->selectedRow > 0 )
+        {
+            this->selectedRow--;
+        }
     }
     return this->current();
 }
@@ -246,6 +266,8 @@ FeedTableFactory::FeedTableFactory(void):
         metricThreads(metric_thread_table, sizeof(metric_thread_table)/sizeof(metric_thread_table[0]), 6),
         metricFeeds(metric_feed_table, sizeof(metric_feed_table)/sizeof(metric_feed_table[0]), 4)
 {
+    this->customPitch = 100;
+    this->useCustomPitch = false;
 }
 
 FeedTable *FeedTableFactory::getFeedTable(bool metric, bool thread)
@@ -272,5 +294,122 @@ FeedTable *FeedTableFactory::getFeedTable(bool metric, bool thread)
             return &this->inchFeeds;
         }
     }
+}
 
+
+// custom pitch code
+
+
+void FeedTableFactory :: setCustomPitch(Uint16 pitch)
+{
+    // calculate the fraction feed
+    custom_feed.numerator = HMM_NUMERATOR(1) * (Uint64) pitch;
+    custom_feed.denominator = HMM_DENOMINATOR(1);
+
+    // fill in the three digits for the display
+    Uint16 digit = pitch / 100;
+    pitch = pitch - (digit * 100);
+    custom_feed.display[1] = valueToDigit(digit) | POINT;
+
+    digit = pitch / 10;
+    pitch = pitch - (digit * 10);
+    custom_feed.display[2] = valueToDigit(digit);
+
+    custom_feed.display[3] = valueToDigit(pitch);
+}
+
+
+// convert a numeric value to a LED digit
+Uint16 FeedTableFactory :: valueToDigit(Uint16 value)
+{
+    switch (value)
+    {
+        case 0: return ZERO;
+        case 1: return ONE;
+        case 2: return TWO;
+        case 3: return THREE;
+        case 4: return FOUR;
+        case 5: return FIVE;
+        case 6: return SIX;
+        case 7: return SEVEN;
+        case 8: return EIGHT;
+        case 9: return NINE;
+        case 10: return LETTER_A;
+        case 11: return LETTER_B;
+        case 12: return LETTER_C;
+        case 13: return LETTER_D;
+        case 14: return LETTER_E;
+        case 15: return LETTER_F;
+
+        default: return BLANK;
+    }
+}
+
+void FeedTableFactory :: incCustomDigit( Uint16 digit )
+{
+    // extract the digits and increment the appropriate one
+    Uint16 pitch = this->customPitch;
+    Uint16 hundreds = pitch / 100;
+    pitch = pitch - (hundreds * 100);
+    Uint16 tens = pitch / 10;
+    Uint16 units = pitch - (tens * 10);
+
+    if (digit == 1 && hundreds < 9)
+        hundreds++;
+    else if (digit == 2 && tens < 9)
+        tens++;
+    else if (digit == 3 && units < 9)
+        units++;
+
+    this->customPitch = hundreds * 100 + tens * 10 + units;
+
+    setCustomPitch(this->customPitch);
+    this->cursorTimer = 0;
+}
+
+void FeedTableFactory :: decCustomDigit( Uint16 digit )
+{
+    // extract the digits and decrement the appropriate one
+    Uint16 pitch = this->customPitch;
+    Uint16 hundreds = pitch / 100;
+    pitch = pitch - (hundreds * 100);
+    Uint16 tens = pitch / 10;
+    Uint16 units = pitch - (tens * 10);
+
+    if (digit == 1 && hundreds > 0)
+        hundreds--;
+    else if (digit == 2 && tens > 0)
+        tens--;
+    else if (digit == 3 && units > 0)
+        units--;
+
+    this->customPitch = hundreds * 100 + tens * 10 + units;
+
+    setCustomPitch(this->customPitch);
+    this->cursorTimer = 0;
+}
+
+
+void FeedTableFactory :: flashCustomDigit( Uint16 digit )
+{
+    this->cursorTimer++;
+
+    if (this->cursorTimer == 0x20)
+    {
+        custom_feed.display[digit] = BLANK;
+        custom_feed.display[1] |= POINT;
+    }
+
+    if (this->cursorTimer == 0x30)
+    {
+        setCustomPitch(this->customPitch);
+        this->cursorTimer = 0;
+    }
+}
+
+
+void FeedTableFactory :: flashCustomOff()
+{
+    setCustomPitch(this->customPitch);
+    this->cursorTimer = 0;
 }

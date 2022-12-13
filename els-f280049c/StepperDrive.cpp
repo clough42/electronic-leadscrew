@@ -34,12 +34,14 @@ StepperDrive :: StepperDrive(void)
     //
     this->currentPosition = 0;
     this->desiredPosition = 0;
+    this->threadingToShoulder = false;
 
     //
     // State machine starts at state zero
     //
     this->state = 0;
 }
+
 
 void StepperDrive :: initHardware(void)
 {
@@ -65,7 +67,7 @@ void StepperDrive :: initHardware(void)
     GPIO_CLEAR_DIRECTION;
     EDIS;
 
-    setEnabled(true);
+    setEnabled(START_POWER_ON);
 }
 
 
