@@ -35,3 +35,7 @@
 .jxbrowser-data
 RemoteSystemsTempFiles
 
+# Per-User ignores
+els-f280049c/Configuration_overrides.h
+.project
+.vscode
