@@ -38,45 +38,63 @@ void Encoder :: initHardware(void)
 {
     EALLOW;
 
-    GpioCtrlRegs.GPBPUD.bit.GPIO35 = 0;     // Enable pull-up on GPIO20 (EQEP1A)
-    GpioCtrlRegs.GPBPUD.bit.GPIO37 = 0;     // Enable pull-up on GPIO21 (EQEP1B)
-    GpioCtrlRegs.GPBPUD.bit.GPIO59 = 0;     // Enable pull-up on GPIO23 (EQEP1I)
+#ifdef ENCODER_USE_EQEP1
+    GpioCtrlRegs.GPBPUD.bit.GPIO35 = 0;     // Enable pull-up on GPIO35 (EQEP1A)
+    GpioCtrlRegs.GPBPUD.bit.GPIO37 = 0;     // Enable pull-up on GPIO371 (EQEP1B)
+    GpioCtrlRegs.GPBPUD.bit.GPIO59 = 0;     // Enable pull-up on GPIO59 (EQEP1I)
 
-    GpioCtrlRegs.GPBQSEL1.bit.GPIO35 = 0;   // Sync to SYSCLKOUT GPIO20 (EQEP1A)
-    GpioCtrlRegs.GPBQSEL1.bit.GPIO37 = 0;   // Sync to SYSCLKOUT GPIO21 (EQEP1B)
-    GpioCtrlRegs.GPBQSEL2.bit.GPIO59 = 0;   // Sync to SYSCLKOUT GPIO23 (EQEP1I)
+    GpioCtrlRegs.GPBQSEL1.bit.GPIO35 = 0;   // Sync to SYSCLKOUT GPIO35 (EQEP1A)
+    GpioCtrlRegs.GPBQSEL1.bit.GPIO37 = 0;   // Sync to SYSCLKOUT GPIO37 (EQEP1B)
+    GpioCtrlRegs.GPBQSEL2.bit.GPIO59 = 0;   // Sync to SYSCLKOUT GPIO59 (EQEP1I)
 
-    GpioCtrlRegs.GPBMUX1.bit.GPIO35 = 1;    // Configure GPIO20 as EQEP1A
+    GpioCtrlRegs.GPBMUX1.bit.GPIO35 = 1;    // Configure GPIO35 as EQEP1A
     GpioCtrlRegs.GPBGMUX1.bit.GPIO35 = 2;
-    GpioCtrlRegs.GPBMUX1.bit.GPIO37 = 1;    // Configure GPIO20 as EQEP1A
+    GpioCtrlRegs.GPBMUX1.bit.GPIO37 = 1;    // Configure GPIO37 as EQEP1B
     GpioCtrlRegs.GPBGMUX1.bit.GPIO37 = 2;
-    GpioCtrlRegs.GPBMUX2.bit.GPIO59 = 3;    // Configure GPIO20 as EQEP1A
+    GpioCtrlRegs.GPBMUX2.bit.GPIO59 = 3;    // Configure GPIO59 as EQEP1I
     GpioCtrlRegs.GPBGMUX2.bit.GPIO59 = 2;
+#endif
+#ifdef ENCODER_USE_EQEP2
+    GpioCtrlRegs.GPAPUD.bit.GPIO14 = 0;     // Enable pull-up on GPIO14 (EQEP2A)
+    GpioCtrlRegs.GPAPUD.bit.GPIO15 = 0;     // Enable pull-up on GPIO15 (EQEP2B)
+    GpioCtrlRegs.GPAPUD.bit.GPIO26 = 0;     // Enable pull-up on GPIO26 (EQEP2I)
+
+    GpioCtrlRegs.GPAQSEL1.bit.GPIO14 = 0;   // Sync to SYSCLKOUT GPIO14 (EQEP2A)
+    GpioCtrlRegs.GPAQSEL1.bit.GPIO15 = 0;   // Sync to SYSCLKOUT GPIO15 (EQEP2B)
+    GpioCtrlRegs.GPAQSEL2.bit.GPIO26 = 0;   // Sync to SYSCLKOUT GPIO26 (EQEP2I)
+
+    GpioCtrlRegs.GPAMUX1.bit.GPIO14 = 2;    // Configure GPIO14 as EQEP2A
+    GpioCtrlRegs.GPAGMUX1.bit.GPIO14 = 2;
+    GpioCtrlRegs.GPAMUX1.bit.GPIO15 = 2;    // Configure GPIO15 as EQEP2B
+    GpioCtrlRegs.GPAGMUX1.bit.GPIO15 = 2;
+    GpioCtrlRegs.GPAMUX2.bit.GPIO26 = 2;    // Configure GPIO26 as EQEP2I
+    GpioCtrlRegs.GPAGMUX2.bit.GPIO26 = 0;
+#endif
 
     EDIS;
 
-    EQep1Regs.QDECCTL.bit.QSRC = 0;         // QEP quadrature count mode
-    EQep1Regs.QDECCTL.bit.IGATE = 1;        // gate the index pin
-    EQep1Regs.QDECCTL.bit.QAP = 1;          // invert A input
-    EQep1Regs.QDECCTL.bit.QBP = 1;          // invert B input
-    EQep1Regs.QDECCTL.bit.QIP = 1;          // invert index input
-    EQep1Regs.QEPCTL.bit.FREE_SOFT = 2;     // unaffected by emulation suspend
-    EQep1Regs.QEPCTL.bit.PCRM = 1;          // position count reset on maximum position
-    EQep1Regs.QPOSMAX = _ENCODER_MAX_COUNT;  // Max position count
+    ENCODER_REGS.QDECCTL.bit.QSRC = 0;         // QEP quadrature count mode
+    ENCODER_REGS.QDECCTL.bit.IGATE = 1;        // gate the index pin
+    ENCODER_REGS.QDECCTL.bit.QAP = 1;          // invert A input
+    ENCODER_REGS.QDECCTL.bit.QBP = 1;          // invert B input
+    ENCODER_REGS.QDECCTL.bit.QIP = 1;          // invert index input
+    ENCODER_REGS.QEPCTL.bit.FREE_SOFT = 2;     // unaffected by emulation suspend
+    ENCODER_REGS.QEPCTL.bit.PCRM = 1;          // position count reset on maximum position
+    ENCODER_REGS.QPOSMAX = _ENCODER_MAX_COUNT;  // Max position count
 
-    EQep1Regs.QUPRD = CPU_CLOCK_HZ / RPM_CALC_RATE_HZ; // Unit Timer latch at RPM_CALC_RATE_HZ Hz
-    EQep1Regs.QEPCTL.bit.UTE=1;             // Unit Timeout Enable
-    EQep1Regs.QEPCTL.bit.QCLM=1;            // Latch on unit time out
+    ENCODER_REGS.QUPRD = CPU_CLOCK_HZ / RPM_CALC_RATE_HZ; // Unit Timer latch at RPM_CALC_RATE_HZ Hz
+    ENCODER_REGS.QEPCTL.bit.UTE=1;             // Unit Timeout Enable
+    ENCODER_REGS.QEPCTL.bit.QCLM=1;            // Latch on unit time out
 
-    EQep1Regs.QEPCTL.bit.QPEN=1;            // QEP enable
+    ENCODER_REGS.QEPCTL.bit.QPEN=1;            // QEP enable
 
 }
 
 Uint16 Encoder :: getRPM(void)
 {
-    if(EQep1Regs.QFLG.bit.UTO==1)       // If unit timeout (one 10Hz period)
+    if(ENCODER_REGS.QFLG.bit.UTO==1)       // If unit timeout (one 10Hz period)
     {
-        Uint32 current = EQep1Regs.QPOSLAT;
+        Uint32 current = ENCODER_REGS.QPOSLAT;
         Uint32 count = (current > previous) ? current - previous : previous - current;
 
         // deal with over/underflow
@@ -87,7 +105,7 @@ Uint16 Encoder :: getRPM(void)
         rpm = count * 60 * RPM_CALC_RATE_HZ / ENCODER_RESOLUTION;
 
         previous = current;
-        EQep1Regs.QCLR.bit.UTO=1;       // Clear interrupt flag
+        ENCODER_REGS.QCLR.bit.UTO=1;       // Clear interrupt flag
     }
 
     return rpm;
