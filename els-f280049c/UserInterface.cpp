@@ -76,16 +76,17 @@ UserInterface :: UserInterface(ControlPanel *controlPanel, Core *core, FeedTable
     this->core = core;
     this->feedTableFactory = feedTableFactory;
 
-    this->metric = false; // start out with imperial
-    this->thread = false; // start out with feeds
-    this->reverse = false; // start out going forward
+    this->state.metric = false; // start out with imperial
+    this->state.thread = false; // start out with feeds
+    this->state.reverse = false; // start out going forward
+    this->stateHasChanged = false;
 
     this->feedTable = NULL;
 
     this->keys.all = 0xff;
 
     // initialize the core so we start up correctly
-    core->setReverse(this->reverse);
+    core->setReverse(this->state.reverse);
     core->setFeed(loadFeedTable());
 
     setMessage(&STARTUP_MESSAGE_1);
@@ -93,8 +94,31 @@ UserInterface :: UserInterface(ControlPanel *controlPanel, Core *core, FeedTable
 
 const FEED_THREAD *UserInterface::loadFeedTable()
 {
-    this->feedTable = this->feedTableFactory->getFeedTable(this->metric, this->thread);
+    this->feedTable = this->feedTableFactory->getFeedTable(this->state.metric, this->state.thread);
     return this->feedTable->current();
+}
+
+void UserInterface :: setStateChanged()
+{
+    this->stateHasChanged = true;
+}
+
+bool UserInterface::stateChanged() {
+    bool changed = this->stateHasChanged;
+    this->stateHasChanged = false;
+    return changed;
+}
+
+UIState UserInterface::getState() {
+    return this->state;
+}
+
+void UserInterface::setState(UIState newState) {
+    this->state.metric = newState.metric;
+    this->state.thread = newState.thread;
+    this->state.reverse = newState.reverse;
+    this->core->setReverse(state.reverse);
+    this->core->setFeed(loadFeedTable());
 }
 
 LED_REG UserInterface::calculateLEDs()
@@ -106,8 +130,8 @@ LED_REG UserInterface::calculateLEDs()
     {
         // and add a few of our own
         leds.bit.POWER = 1;
-        leds.bit.REVERSE = this->reverse;
-        leds.bit.FORWARD = ! this->reverse;
+        leds.bit.REVERSE = this->state.reverse;
+        leds.bit.FORWARD = ! this->state.reverse;
     }
     else
     {
@@ -172,24 +196,28 @@ void UserInterface :: loop( void )
         if( keys.bit.POWER ) {
             this->core->setPowerOn(!this->core->isPowerOn());
             clearMessage();
+            setStateChanged();
         }
 
         // these should only work when the power is on
         if( this->core->isPowerOn() ) {
             if( keys.bit.IN_MM )
             {
-                this->metric = ! this->metric;
+                this->state.metric = ! this->state.metric;
                 core->setFeed(loadFeedTable());
+                setStateChanged();
             }
             if( keys.bit.FEED_THREAD )
             {
-                this->thread = ! this->thread;
+                this->state.thread = ! this->state.thread;
                 core->setFeed(loadFeedTable());
+                setStateChanged();
             }
             if( keys.bit.FWD_REV )
             {
-                this->reverse = ! this->reverse;
-                core->setReverse(this->reverse);
+                this->state.reverse = ! this->state.reverse;
+                core->setReverse(this->state.reverse);
+                setStateChanged();
             }
             if( keys.bit.SET )
             {
@@ -209,10 +237,12 @@ void UserInterface :: loop( void )
             if( keys.bit.UP )
             {
                 core->setFeed(feedTable->next());
+                setStateChanged();
             }
             if( keys.bit.DOWN )
             {
                 core->setFeed(feedTable->previous());
+                setStateChanged();
             }
         }
 

@@ -28,6 +28,16 @@
 #define __DEBUG_H
 
 #include "F28x_Project.h"
+#include "Configuration.h"
+
+#ifdef TARGET_F28004X
+#define DEBUG1 GPIO2
+#define DEBUG2 GPIO3
+#endif
+#ifdef TARGET_F2806X
+#define DEBUG1 GPIO10
+#define DEBUG2 GPIO11
+#endif
 
 class Debug
 {
@@ -47,22 +57,22 @@ public:
 
 inline void Debug :: begin1( void )
 {
-    GpioDataRegs.GPASET.bit.GPIO2 = 1;
+    GpioDataRegs.GPASET.bit.DEBUG1 = 1;
 }
 
 inline void Debug :: end1( void )
 {
-    GpioDataRegs.GPACLEAR.bit.GPIO2 = 1;
+    GpioDataRegs.GPACLEAR.bit.DEBUG1 = 1;
 }
 
 inline void Debug :: begin2( void )
 {
-    GpioDataRegs.GPASET.bit.GPIO3 = 1;
+    GpioDataRegs.GPASET.bit.DEBUG2 = 1;
 }
 
 inline void Debug :: end2( void )
 {
-    GpioDataRegs.GPACLEAR.bit.GPIO3 = 1;
+    GpioDataRegs.GPACLEAR.bit.DEBUG2 = 1;
 }
 
 

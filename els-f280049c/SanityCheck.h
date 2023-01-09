@@ -28,6 +28,14 @@
 
 // Sanity checks to check for common configuration errors
 
+#if defined(TARGET_F28004X) && defined(TARGET_F2806X)
+#error Only one of TARGET_F28004X or TARGET_F2806X should be defined
+#endif
+
+#if !defined(TARGET_F28004X) && !defined(TARGET_F2806X)
+#error One of TARGET_F28004X or TARGET_F2806X needs to be defined
+#endif
+
 #if STEPPER_CYCLE_US < 5 || STEPPER_CYCLE_US > 100
 #error STEPPER_CYCLE_US must be between 5ms and 100ms
 #endif

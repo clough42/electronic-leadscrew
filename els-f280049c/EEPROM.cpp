@@ -27,10 +27,10 @@
 #include "EEPROM.h"
 
 // Raise the EEPROM CS line
-#define CS_RELEASE GpioDataRegs.GPBSET.bit.GPIO34 = 1
+#define CS_RELEASE GpioDataRegs.GPBSET.bit.EEPROM_CS = 1
 
 // Lower the EEPROM CS line
-#define CS_ASSERT GpioDataRegs.GPBCLEAR.bit.GPIO34 = 1
+#define CS_ASSERT GpioDataRegs.GPBCLEAR.bit.EEPROM_CS = 1
 
 // enough time for the CS line to rise and be deteted
 #define CS_RISE_TIME_US 5
@@ -44,9 +44,14 @@ void EEPROM :: initHardware(void)
 {
     EALLOW;
 
-    // use GPIO34 as the chip select
-    GpioCtrlRegs.GPBMUX1.bit.GPIO34 = 0x0;      // SELECT GPIO34
-    GpioCtrlRegs.GPBDIR.bit.GPIO34 = 1;         // output
+    // use GPIO as the chip select
+#ifdef TARGET_F28004X
+    GpioCtrlRegs.GPBMUX1.bit.EEPROM_CS = 0x0;      // SELECT GPIO
+#endif
+#ifdef TARGET_F2806X
+    GpioCtrlRegs.GPBMUX2.bit.EEPROM_CS = 0x0;      // SELECT GPIO
+#endif
+    GpioCtrlRegs.GPBDIR.bit.EEPROM_CS = 1;         // output
     CS_RELEASE;                                 // set it to high
 
     EDIS;

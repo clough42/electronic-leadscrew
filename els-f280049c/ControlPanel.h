@@ -29,7 +29,14 @@
 
 #include "F28x_Project.h"
 #include "SPIBus.h"
+#include "Configuration.h"
 
+#ifdef TARGET_F28004X
+#define DISPLAY_CS GPIO33
+#endif
+#ifdef TARGET_F2806X
+#define DISPLAY_CS GPIO52
+#endif
 
 #define ZERO    0b1111110000000000 // 0
 #define ONE     0b0110000000000000 // 1

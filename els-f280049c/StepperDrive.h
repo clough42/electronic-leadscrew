@@ -30,11 +30,19 @@
 #include "F28x_Project.h"
 #include "Configuration.h"
 
-
+#ifdef TARGET_F28004X
 #define STEP_PIN GPIO0
 #define DIRECTION_PIN GPIO1
 #define ENABLE_PIN GPIO6
 #define ALARM_PIN GPIO7
+#endif
+
+#ifdef TARGET_F2806X
+#define STEP_PIN GPIO6
+#define DIRECTION_PIN GPIO7
+#define ENABLE_PIN GPIO8
+#define ALARM_PIN GPIO9
+#endif
 
 #define GPIO_SET(pin) GpioDataRegs.GPASET.bit.pin = 1
 #define GPIO_CLEAR(pin) GpioDataRegs.GPACLEAR.bit.pin = 1

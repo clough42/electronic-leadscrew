@@ -209,7 +209,6 @@ const FEED_THREAD metric_feed_table[] =
 
 
 
-
 FeedTable::FeedTable(const FEED_THREAD *table, Uint16 numRows, Uint16 defaultSelection)
 {
     this->table = table;
@@ -240,12 +239,42 @@ const FEED_THREAD *FeedTable :: previous(void)
     return this->current();
 }
 
+Uint16 FeedTable::getSelectedRow()
+{
+    return this->selectedRow;
+}
+
+void FeedTable::setSelectedRow(Uint16 newSelection)
+{
+    this->selectedRow = newSelection;
+}
+
+
 FeedTableFactory::FeedTableFactory(void):
         inchThreads(inch_thread_table, sizeof(inch_thread_table)/sizeof(inch_thread_table[0]), 12),
         inchFeeds(inch_feed_table, sizeof(inch_feed_table)/sizeof(inch_feed_table[0]), 4),
         metricThreads(metric_thread_table, sizeof(metric_thread_table)/sizeof(metric_thread_table[0]), 6),
         metricFeeds(metric_feed_table, sizeof(metric_feed_table)/sizeof(metric_feed_table[0]), 4)
 {
+}
+
+TableState FeedTableFactory::getState()
+{
+    TableState state;
+
+    state.inchFeedRow = inchFeeds.getSelectedRow();
+    state.inchThreadRow = inchThreads.getSelectedRow();
+    state.metricFeedRow = metricFeeds.getSelectedRow();
+    state.metricThreadRow = metricThreads.getSelectedRow();
+    return state;
+}
+
+void FeedTableFactory::setState(TableState newState)
+{
+    inchFeeds.setSelectedRow(newState.inchFeedRow);
+    inchThreads.setSelectedRow(newState.inchThreadRow);
+    metricFeeds.setSelectedRow(newState.metricFeedRow);
+    metricThreads.setSelectedRow(newState.metricThreadRow);
 }
 
 FeedTable *FeedTableFactory::getFeedTable(bool metric, bool thread)
