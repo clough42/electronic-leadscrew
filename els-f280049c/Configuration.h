@@ -40,11 +40,11 @@
 //================================================================================
 
 // For Imperial leadscrews: pitch in Threads Per Inch (TPI)
-//#define LEADSCREW_TPI 12
+#define LEADSCREW_TPI 8
 
 // For metric leadscrews: pitch in hundredths of a millimeter (HMM)
 // Example: 200hmm = 2mm
-#define LEADSCREW_HMM 300
+//#define LEADSCREW_HMM 300
 
 
 
@@ -64,17 +64,26 @@
 //================================================================================
 
 // Steps and microsteps
-#define STEPPER_MICROSTEPS 8
-#define STEPPER_RESOLUTION 200
+#define STEPPER_MICROSTEPS 1
+// ASW8
+//  6:1 servo:input
+//  275:144 input:output
+//  python -c 'print(str([z for z in [(i, i*6*275/144) for i in range(100, 500)] if z[1]%1 < .01 and z[1] < 2001]))'
+//  168 steps/rev (choose largest for integer result <= 2000, program into servo)
+//  168*6*275/144 = 1925
+#define STEPPER_RESOLUTION 1925
 
 // Separate step and microstep settings for feed rates.  Redefine these if your
 // lathe has a separate feed drive train with a different ratio.
 #define STEPPER_MICROSTEPS_FEED STEPPER_MICROSTEPS
-#define STEPPER_RESOLUTION_FEED STEPPER_RESOLUTION
+// Choose Z feed rate, X is approximately 1/4 of Z
+// This is relative to the leadscrew TPI, choose nearest integer, not exact
+//  STEPPER_RESOLUTION/factor 1925/0.4152 ~= 4636
+#define STEPPER_RESOLUTION_FEED 4636
 
 // Step, direction and enable pins are normally active-high
 // #define INVERT_STEP_PIN true
-// #define INVERT_DIRECTION_PIN true
+#define INVERT_DIRECTION_PIN true
 #define INVERT_ENABLE_PIN true
 #define INVERT_ALARM_PIN true
 
@@ -94,7 +103,7 @@
 //================================================================================
 
 // Encoder resolution (counts per revolution)
-#define ENCODER_RESOLUTION 4000
+#define ENCODER_RESOLUTION 4096
 
 // Which encoder input to use
 #define ENCODER_USE_EQEP1
@@ -105,7 +114,7 @@
 // power on state when booted
 //================================================================================
 
-#define START_POWER_ON  false
+#define START_POWER_ON  true
 
 
 //================================================================================
@@ -130,7 +139,7 @@
 
 #define leadscrewRPM(rpm) ((200000 * 60) / rpm) / (STEPPER_MICROSTEPS * STEPPER_RESOLUTION);
 // default to 200rpm
-const int32 retractSpeed = leadscrewRPM( 100 );
+const int32 retractSpeed = leadscrewRPM( 200 );
 
 //================================================================================
 //                               DEFAULTS
@@ -141,8 +150,8 @@ const int32 retractSpeed = leadscrewRPM( 100 );
 // values, but also make you click "up" and "down" more to get to the thread
 // you want. See the definitions in Table.cpp
 //================================================================================
-//#define EXTENDED_INCH_THREADS
-//#define EXTENDED_METRIC_THREADS
+#define EXTENDED_INCH_THREADS
+#define EXTENDED_METRIC_THREADS
 
 #ifdef EXTENDED_INCH_THREADS
 #define INITIAL_INCH_THREAD_INDEX 23 // 24TPI
