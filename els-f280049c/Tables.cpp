@@ -31,45 +31,77 @@
 // INCH THREAD DEFINITIONS
 //
 // Each row in the table defines a standard imperial thread, with the display data,
-// LED indicator states and gear ratio fraction to use.
+// LED indicator states and gear ratio fraction to use. The units for TPI_FRACTION
+// are threads per 100 inches.
 //
 #if defined(LEADSCREW_TPI)
-#define TPI_NUMERATOR(tpi) ((Uint64)LEADSCREW_TPI*STEPPER_RESOLUTION*STEPPER_MICROSTEPS*10)
+#define TPI_NUMERATOR(tpi) ((Uint64)LEADSCREW_TPI*STEPPER_RESOLUTION*STEPPER_MICROSTEPS*100)
 #define TPI_DENOMINATOR(tpi) ((Uint64)tpi*ENCODER_RESOLUTION)
 #endif
 #if defined(LEADSCREW_HMM)
-#define TPI_NUMERATOR(tpi) ((Uint64)254*100*STEPPER_RESOLUTION*STEPPER_MICROSTEPS)
+#define TPI_NUMERATOR(tpi) ((Uint64)254*1000*STEPPER_RESOLUTION*STEPPER_MICROSTEPS)
 #define TPI_DENOMINATOR(tpi) ((Uint64)tpi*ENCODER_RESOLUTION*LEADSCREW_HMM)
 #endif
 #define TPI_FRACTION(tpi) .numerator = TPI_NUMERATOR(tpi), .denominator = TPI_DENOMINATOR(tpi)
 
 const FEED_THREAD inch_thread_table[] =
 {
- { .display = {BLANK, BLANK, BLANK, EIGHT}, .leds = LED_THREAD | LED_TPI, TPI_FRACTION(80) },
- { .display = {BLANK, BLANK, BLANK, NINE},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(90) },
- { .display = {BLANK, BLANK, ONE,   ZERO},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(100) },
- { .display = {BLANK, BLANK, ONE,   ONE},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(110) },
- { .display = {BLANK, ONE, ONE|POINT,FIVE}, .leds = LED_THREAD | LED_TPI, TPI_FRACTION(115) },
- { .display = {BLANK, BLANK, ONE,   TWO},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(120) },
- { .display = {BLANK, BLANK, ONE,   THREE}, .leds = LED_THREAD | LED_TPI, TPI_FRACTION(130) },
- { .display = {BLANK, BLANK, ONE,   FOUR},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(140) },
- { .display = {BLANK, BLANK, ONE,   SIX},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(160) },
- { .display = {BLANK, BLANK, ONE,   EIGHT}, .leds = LED_THREAD | LED_TPI, TPI_FRACTION(180) },
- { .display = {BLANK, BLANK, ONE,   NINE},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(190) },
- { .display = {BLANK, BLANK, TWO,   ZERO},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(200) },
- { .display = {BLANK, BLANK, TWO,   FOUR},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(240) },
- { .display = {BLANK, BLANK, TWO,   SIX},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(260) },
- { .display = {BLANK, BLANK, TWO,   SEVEN}, .leds = LED_THREAD | LED_TPI, TPI_FRACTION(270) },
- { .display = {BLANK, BLANK, TWO,   EIGHT}, .leds = LED_THREAD | LED_TPI, TPI_FRACTION(280) },
- { .display = {BLANK, BLANK, THREE, TWO},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(320) },
- { .display = {BLANK, BLANK, THREE, SIX},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(360) },
- { .display = {BLANK, BLANK, FOUR,  ZERO},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(400) },
- { .display = {BLANK, BLANK, FOUR,  FOUR},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(440) },
- { .display = {BLANK, BLANK, FOUR,  EIGHT}, .leds = LED_THREAD | LED_TPI, TPI_FRACTION(480) },
- { .display = {BLANK, BLANK, FIVE,  SIX},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(560) },
- { .display = {BLANK, BLANK, SIX,   FOUR},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(640) },
- { .display = {BLANK, BLANK, SEVEN, TWO},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(720) },
- { .display = {BLANK, BLANK, EIGHT, ZERO},  .leds = LED_THREAD | LED_TPI, TPI_FRACTION(800) },
+#ifdef EXTENDED_INCH_THREADS
+ { .display = {BLANK, FOUR,       BLANK, BLANK},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(400) },
+ { .display = {BLANK, FOUR|POINT, FIVE,  BLANK},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(450) },
+ { .display = {BLANK, FIVE,       BLANK, BLANK},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(500) },
+ { .display = {BLANK, FIVE|POINT, FIVE,  BLANK},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(550) },
+ { .display = {BLANK, FIVE|POINT, SEVEN, FIVE},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(575) },
+ { .display = {BLANK, SIX,        BLANK, BLANK},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(600) },
+ { .display = {BLANK, SIX|POINT,  FIVE,  BLANK},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(650) },
+ { .display = {BLANK, SEVEN,      BLANK, BLANK},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(700) },
+#endif
+ { .display = {BLANK, EIGHT,      BLANK, BLANK},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(800) },
+ { .display = {BLANK, NINE,       BLANK, BLANK},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(900) },
+#ifdef EXTENDED_INCH_THREADS
+ { .display = {BLANK, NINE|POINT, FIVE,  BLANK},   .leds = LED_THREAD | LED_TPI, TPI_FRACTION(950) },
+#endif
+ { .display = {BLANK, ONE,   ZERO,      BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(1000) },
+ { .display = {BLANK, ONE,   ONE,       BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(1100) },
+ { .display = {BLANK, ONE,   ONE|POINT, FIVE},     .leds = LED_THREAD | LED_TPI, TPI_FRACTION(1150) },
+ { .display = {BLANK, ONE,   TWO,       BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(1200) },
+ { .display = {BLANK, ONE,   THREE,     BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(1300) },
+ { .display = {BLANK, ONE,   FOUR,      BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(1400) },
+ { .display = {BLANK, ONE,   SIX,       BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(1600) },
+ { .display = {BLANK, ONE,   EIGHT,     BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(1800) },
+ { .display = {BLANK, ONE,   NINE,      BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(1900) },
+ { .display = {BLANK, TWO,   ZERO,      BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(2000) },
+#ifdef EXTENDED_INCH_THREADS
+ { .display = {BLANK, TWO,   TWO,       BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(2200) },
+ { .display = {BLANK, TWO,   THREE,     BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(2300) },
+#endif
+ { .display = {BLANK, TWO,   FOUR,      BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(2400) },
+ { .display = {BLANK, TWO,   SIX,       BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(2600) },
+ { .display = {BLANK, TWO,   SEVEN,     BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(2700) },
+ { .display = {BLANK, TWO,   EIGHT,     BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(2800) },
+ { .display = {BLANK, THREE, TWO,       BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(3200) },
+ { .display = {BLANK, THREE, SIX,       BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(3600) },
+#ifdef EXTENDED_INCH_THREADS
+ { .display = {BLANK, THREE, EIGHT,     BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(3800) },
+#endif
+ { .display = {BLANK, FOUR,  ZERO,      BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(4000) },
+ { .display = {BLANK, FOUR,  FOUR,      BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(4400) },
+#ifdef EXTENDED_INCH_THREADS
+ { .display = {BLANK, FOUR,  SIX,       BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(4600) },
+#endif
+ { .display = {BLANK, FOUR,  EIGHT,     BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(4800) },
+ { .display = {BLANK, FIVE,  SIX,       BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(5600) },
+ { .display = {BLANK, SIX,   FOUR,      BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(6400) },
+ { .display = {BLANK, SEVEN, TWO,       BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(7200) },
+ { .display = {BLANK, EIGHT, ZERO,      BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(8000) },
+#ifdef EXTENDED_INCH_THREADS
+ { .display = {BLANK, EIGHT, EIGHT,     BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(8800) },
+ { .display = {BLANK, NINE,  TWO,       BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(9200) },
+ { .display = {BLANK, NINE,  SIX,       BLANK},    .leds = LED_THREAD | LED_TPI, TPI_FRACTION(9600) },
+// shift the display to keep an initial BLANK to avoid running into RPM
+ { .display = {BLANK, ONE,   ZERO,      FOUR},     .leds = LED_THREAD | LED_TPI, TPI_FRACTION(10400) },
+ { .display = {BLANK, ONE,   ONE,       TWO},      .leds = LED_THREAD | LED_TPI, TPI_FRACTION(11200) },
+#endif
 };
 
 
@@ -126,41 +158,89 @@ const FEED_THREAD inch_feed_table[] =
 // LED indicator states and gear ratio fraction to use.
 //
 #if defined(LEADSCREW_TPI)
-#define HMM_NUMERATOR(hmm) ((Uint64)hmm*10*LEADSCREW_TPI*STEPPER_RESOLUTION*STEPPER_MICROSTEPS)
+#define HMM_NUMERATOR(hmm) ((Uint64)hmm*LEADSCREW_TPI*STEPPER_RESOLUTION*STEPPER_MICROSTEPS)
 #define HMM_DENOMINATOR(hmm) ((Uint64)ENCODER_RESOLUTION*254*100)
 #endif
 #if defined(LEADSCREW_HMM)
 #define HMM_NUMERATOR(hmm) ((Uint64)hmm*STEPPER_RESOLUTION*STEPPER_MICROSTEPS)
-#define HMM_DENOMINATOR(hmm) ((Uint64)ENCODER_RESOLUTION*LEADSCREW_HMM)
+#define HMM_DENOMINATOR(hmm) ((Uint64)ENCODER_RESOLUTION*LEADSCREW_HMM*10)
 #endif
 #define HMM_FRACTION(hmm) .numerator = HMM_NUMERATOR(hmm), .denominator = HMM_DENOMINATOR(hmm)
 
 const FEED_THREAD metric_thread_table[] =
 {
- { .display = {BLANK, ZERO  | POINT, TWO,   ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(20) },
- { .display = {BLANK, ZERO  | POINT, TWO,   FIVE}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(25) },
- { .display = {BLANK, ZERO  | POINT, THREE, ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(30) },
- { .display = {BLANK, ZERO  | POINT, THREE, FIVE}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(35) },
- { .display = {BLANK, ZERO  | POINT, FOUR,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(40) },
- { .display = {BLANK, ZERO  | POINT, FOUR,  FIVE}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(45) },
- { .display = {BLANK, ZERO  | POINT, FIVE,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(50) },
- { .display = {BLANK, ZERO  | POINT, SIX,   ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(60) },
- { .display = {BLANK, ZERO  | POINT, SEVEN, ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(70) },
- { .display = {BLANK, ZERO  | POINT, SEVEN, FIVE}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(75) },
- { .display = {BLANK, ZERO  | POINT, EIGHT, ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(80) },
- { .display = {BLANK, ONE   | POINT, ZERO,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(100) },
- { .display = {BLANK, ONE   | POINT, TWO,   FIVE}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(125) },
- { .display = {BLANK, ONE   | POINT, FIVE,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(150) },
- { .display = {BLANK, ONE   | POINT, SEVEN, FIVE}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(175) },
- { .display = {BLANK, TWO   | POINT, ZERO,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(200) },
- { .display = {BLANK, TWO   | POINT, FIVE,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(250) },
- { .display = {BLANK, THREE | POINT, ZERO,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(300) },
- { .display = {BLANK, THREE | POINT, FIVE,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(350) },
- { .display = {BLANK, FOUR  | POINT, ZERO,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(400) },
- { .display = {BLANK, FOUR  | POINT, FIVE,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(450) },
- { .display = {BLANK, FIVE  | POINT, ZERO,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(500) },
- { .display = {BLANK, FIVE  | POINT, FIVE,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(550) },
- { .display = {BLANK, SIX   | POINT, ZERO,  ZERO}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(600) },
+#ifdef EXTENDED_METRIC_THREADS
+ { .display = {POINT,  ONE,   BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(100) },
+ { .display = {POINT,  ONE,   TWO,   FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(125) },
+ { .display = {POINT,  ONE,   FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(150) },
+#endif
+ { .display = {POINT,  TWO,   BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(200) },
+#ifdef EXTENDED_METRIC_THREADS
+ { .display = {POINT,  TWO,   TWO,   FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(225) },
+#endif
+ { .display = {POINT,  TWO,   FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(250) },
+ { .display = {POINT,  THREE, BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(300) },
+ { .display = {POINT,  THREE, FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(350) },
+ { .display = {POINT,  FOUR,  BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(400) },
+ { .display = {POINT,  FOUR,  FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(450) },
+ { .display = {POINT,  FIVE,  BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(500) },
+#ifdef EXTENDED_METRIC_THREADS
+ { .display = {POINT,  FIVE,  FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(550) },
+#endif
+ { .display = {POINT,  SIX,   BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(600) },
+#ifdef EXTENDED_METRIC_THREADS
+ { .display = {POINT,  SIX,   FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(650) },
+#endif
+ { .display = {POINT,  SEVEN, BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(700) },
+ { .display = {POINT,  SEVEN, FIVE, BLANK},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(750) },
+ { .display = {POINT,  EIGHT, BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(800) },
+#ifdef EXTENDED_METRIC_THREADS
+ { .display = {POINT,  EIGHT, SEVEN, FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(875) },
+ { .display = {POINT,  NINE,  BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(900) },
+#endif
+ { .display = {BLANK, ONE,           BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(1000) },
+#ifdef EXTENDED_METRIC_THREADS
+ { .display = {BLANK, ONE | POINT,   ONE,   BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(1100) },
+ { .display = {BLANK, ONE | POINT,   TWO,   BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(1200) },
+#endif
+ { .display = {BLANK, ONE | POINT,   TWO,   FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(1250) },
+#ifdef EXTENDED_METRIC_THREADS
+ { .display = {BLANK, ONE | POINT,   THREE, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(1300) },
+ { .display = {BLANK, ONE | POINT,   FOUR,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(1400) },
+#endif
+ { .display = {BLANK, ONE | POINT,   FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(1500) },
+#ifdef EXTENDED_METRIC_THREADS
+ { .display = {BLANK, ONE | POINT,   SIX,   BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(1600) },
+#endif
+ { .display = {BLANK, ONE | POINT,   SEVEN, FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(1750) },
+#ifdef EXTENDED_METRIC_THREADS
+ { .display = {BLANK, ONE | POINT,   EIGHT, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(1800) },
+#endif
+ { .display = {BLANK, TWO,           BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(2000) },
+#ifdef EXTENDED_METRIC_THREADS
+ { .display = {BLANK, TWO | POINT,   TWO,   FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(2250) },
+#endif
+ { .display = {BLANK, TWO | POINT,   FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(2500) },
+#ifdef EXTENDED_METRIC_THREADS
+ { .display = {BLANK, TWO | POINT,   SEVEN, FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(2750) },
+#endif
+ { .display = {BLANK, THREE,         BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(3000) },
+#ifdef EXTENDED_METRIC_THREADS
+ { .display = {BLANK, THREE | POINT, TWO,   FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(3250) },
+#endif
+ { .display = {BLANK, THREE | POINT, FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(3500) },
+ { .display = {BLANK, FOUR,          BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(4000) },
+ { .display = {BLANK, FOUR | POINT,  FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(4500) },
+ { .display = {BLANK, FIVE,          BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(5000) },
+ { .display = {BLANK, FIVE | POINT,  FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(5500) },
+#ifdef EXTENDED_METRIC_THREADS
+ { .display = {BLANK, FIVE | POINT,  SEVEN, FIVE},  .leds = LED_THREAD | LED_MM, HMM_FRACTION(5750) },
+#endif
+ { .display = {BLANK, SIX,           BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(6000) },
+#ifdef EXTENDED_METRIC_THREADS
+ { .display = {BLANK, SIX | POINT,   FIVE,  BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(6500) },
+ { .display = {BLANK, SEVEN,         BLANK, BLANK}, .leds = LED_THREAD | LED_MM, HMM_FRACTION(7000) },
+#endif
 };
 
 
@@ -261,10 +341,10 @@ const FEED_THREAD *FeedTable :: previous(void)
 }
 
 FeedTableFactory::FeedTableFactory(void):
-        inchThreads(inch_thread_table, sizeof(inch_thread_table)/sizeof(inch_thread_table[0]), 12),
-        inchFeeds(inch_feed_table, sizeof(inch_feed_table)/sizeof(inch_feed_table[0]), 4),
-        metricThreads(metric_thread_table, sizeof(metric_thread_table)/sizeof(metric_thread_table[0]), 6),
-        metricFeeds(metric_feed_table, sizeof(metric_feed_table)/sizeof(metric_feed_table[0]), 4)
+        inchThreads(inch_thread_table, sizeof(inch_thread_table)/sizeof(inch_thread_table[0]), INITIAL_INCH_THREAD_INDEX),
+        inchFeeds(inch_feed_table, sizeof(inch_feed_table)/sizeof(inch_feed_table[0]), INITIAL_INCH_FEED_INDEX),
+        metricThreads(metric_thread_table, sizeof(metric_thread_table)/sizeof(metric_thread_table[0]), INITIAL_METRIC_THREAD_INDEX),
+        metricFeeds(metric_feed_table, sizeof(metric_feed_table)/sizeof(metric_feed_table[0]), INITIAL_METRIC_FEED_INDEX)
 {
     this->customPitch = 100;
     this->useCustomPitch = false;

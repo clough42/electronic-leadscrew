@@ -132,6 +132,36 @@
 // default to 200rpm
 const int32 retractSpeed = leadscrewRPM( 100 );
 
+//================================================================================
+//                               DEFAULTS
+//
+// Choose initial startup values to values close to what you typically use,
+// to reduce scrolling through values you seldom need, and choose the sets
+// of values you wish to include. The extended sets of threads give you more
+// values, but also make you click "up" and "down" more to get to the thread
+// you want. See the definitions in Table.cpp
+//================================================================================
+//#define EXTENDED_INCH_THREADS
+//#define EXTENDED_METRIC_THREADS
+
+#ifdef EXTENDED_INCH_THREADS
+#define INITIAL_INCH_THREAD_INDEX 23 // 24TPI
+#else
+#define INITIAL_INCH_THREAD_INDEX 12 // 24TPI
+#endif
+#ifdef EXTENDED_METRIC_THREADS
+#define INITIAL_METRIC_THREAD_INDEX 10 // 0.5mm
+#else
+#define INITIAL_METRIC_THREAD_INDEX 6  // 0.5mm
+#endif
+
+
+#define INITIAL_INCH_FEED_INDEX 4
+#define INITIAL_METRIC_FEED_INDEX 4
+
+
+
+
 
 //================================================================================
 //                               CALCULATIONS
