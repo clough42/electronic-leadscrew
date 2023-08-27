@@ -1,3 +1,70 @@
+## Update.
+Fixed a bug I introduced earlier that causes the auto retract to lose sync on some threads (never edit code when you're tired).
+Added deceleration to end of auto retract.
+## Added multistart threads (see below)
+To function this adds one extra step to the shoulder operation to select the number of starts.
+## Added thread to shoulder, custom thread pitches and angular position of spindle.
+Allows the threading to shoulder (with retraction to start of thread without requiring the spindle to be rotated).
+Allows the setting of custom thread pitches from 0.01mm to 9.99mm.
+Can display the angular position of the spindle instead of RPM.
+
+The three modes are accessed via an options menu by pressing "Set".
+
+You can now cycle between the options using the "+" and "-" buttons.
+
+Press "Set" to select one (options will time out after a few seconds).
+
+
+#### Custom Thread ("CUSt tHd").
+Left hand display shows "Ct" and the first digit of the pitch will be flashing. 
+
+Use "+" and "-" to change this, press "Set" to move to the next digit, repeat for all digits.
+
+When the final digit has been entered the display will return to the normal threading display but using the new pitch.
+
+(At any point while "Ct" is displayed pressing the power button will exit the mode).
+
+#### Thread to shoulder ("SHOULdEr").
+Display shows Multi 1 ("MULtI 1") this is the number of starts the thread has, use the + & - keys to change this value and press Set to accept.
+(A value of '1' is a normal single start thread)
+
+Display shows Go Shoulder ("GO SHLdr"), move the carriage to the shoulder position (either manually or by engaging the half nuts and driving the spindle).
+
+If you haven't already engage the half nuts - they MUST now remain engaged for the duration of the threading operation.
+
+Press "Set" to mark the shoulder position. Display will now show Go Start ("GO StArt").
+
+Move the carriage by using the spindle to the start position of the thread and press "Set" once there.
+
+You've now marked the shoulder and start positions of the thread so we can cut the thread.
+
+Display shows Begin ("BEGIN n.x") until the spindle starts to rotate, where 'n' is the start number and x is the number of starts. For normal single start threads this will show "1.1".
+Each subsequent loop will increment the 'n' value and the thread will start at the new position. When all starts have been machined n will loop back to 1 and the process can be repeated. 
+
+Cut one pass, when the carriage reaches the shoulder it will stop and the display will show Stop ("StOP").
+
+Stop the spindle, once it reaches zero rpm the display will show Retract ("rEtrACt").
+You should now retract the tool from the work and press either the "+" button or the "set" button which will cause the carriage to return to the start position.
+Whilst the carriage is moving the display will show Wait ("WAIt")
+
+Display once again shows Begin. Repeat the above until you've cut your thread.
+
+When the spindle is at zero RPM the display will have the prefix "SH" to remind you you're in Cut-to-shoulder mode. 
+Press "Pwr" once to exit.
+
+#### Position ("POSItION").
+
+RPM is replaced by the angular position of the spindle. 
+
+Exit by going back into the menu and selecting RPM.
+
+
+# Notes
+Retraction speed is set in configuration.h "retractSpeed" - currently set to 100rpm.
+
+Display brightness can be changed when in "powered off" mode using the + & - buttons.
+
+
 # Clough42 Lathe Electronic Leadscrew Controller
 
 This is the firmware for a lathe electronic leadscrew controller.  The goal is to replace the change

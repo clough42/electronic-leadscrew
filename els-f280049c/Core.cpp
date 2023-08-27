@@ -41,7 +41,7 @@ Core :: Core( Encoder *encoder, StepperDrive *stepperDrive )
     this->previousFeedDirection = 0;
     this->previousFeed = NULL;
 
-    this->powerOn = true; // default to power on
+    setPowerOn(START_POWER_ON);  // initial power on state
 }
 
 void Core :: setReverse(bool reverse)
@@ -61,9 +61,6 @@ void Core :: setPowerOn(bool powerOn)
     this->powerOn = powerOn;
     this->stepperDrive->setEnabled(powerOn);
 }
-
-
-
 
 
 

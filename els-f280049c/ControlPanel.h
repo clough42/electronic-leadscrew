@@ -127,6 +127,8 @@ private:
 
     // Current RPM value; 4 decimal digits
     Uint16 rpm;
+    // Current spindle angle value
+    Uint16 spindleAngle;
 
     // Current displayed setting value, 4 digits
     const Uint16 *value;
@@ -150,10 +152,14 @@ private:
     // Derived state, calculated internally
     Uint16 sevenSegmentData[8];
 
+    // prefix for mode
+    int curMode[2];
+
     // dummy register, for SPI
     Uint16 dummy;
 
     void decomposeRPM(void);
+    void decomposeSpindleAngle(void);
     void decomposeValue(void);
     KEY_REG readKeys(void);
     Uint16 lcd_char(Uint16 x);
@@ -178,6 +184,9 @@ public:
     // set the RPM value to display
     void setRPM(Uint16 rpm);
 
+    // set the spindle angle value to display
+    void setSpindleAngle(Uint16 angle);
+
     // set the value to display
     void setValue(const Uint16 *value);
 
@@ -189,11 +198,19 @@ public:
 
     // set a brightness value, 0 (off) to 8 (max)
     void setBrightness(Uint16 brightness);
+    void incBrightness();
+    void decBrightness();
+
+    void showCurMode(Uint16 dig1, Uint16 dig2)   {curMode[0] = dig1; curMode[1] = dig2;}
 
     // refresh the hardware display
-    void refresh(void);
+    void refresh(bool showAngle);
 };
 
+inline void ControlPanel :: setSpindleAngle(Uint16 angle)
+{
+    this->spindleAngle = angle;
+}
 
 inline void ControlPanel :: setRPM(Uint16 rpm)
 {
