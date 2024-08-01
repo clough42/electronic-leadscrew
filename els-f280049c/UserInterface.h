@@ -43,11 +43,18 @@ class UserInterface
 private:
     ControlPanel *controlPanel;
     Core *core;
+    Encoder *encoder;
     FeedTableFactory *feedTableFactory;
 
     bool metric;
     bool thread;
     bool reverse;
+    bool showAngle;
+
+    bool isInMenu;
+    Uint16 menuState, menuSubState;
+
+    int numStarts, currentStart;
 
     FeedTable *feedTable;
 
@@ -62,10 +69,18 @@ private:
     void overrideMessage( void );
     void clearMessage( void );
 
+    void cycleOptions(Uint16 next, Uint16 prev); // cycle menu options
+
 public:
-    UserInterface(ControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory);
+    UserInterface(ControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory, Encoder *encoder);
 
     void loop( void );
+
+    void mainLoop( Uint16 currentRpm );
+    void menuLoop( Uint16 currentRpm );
+    void beginMenu( void );
+    void customThreadLoop( Uint16 currentRpm );
+    void threadToShoulderLoop( Uint16 currentRpm );
 
     void panicStepBacklog( void );
 };
