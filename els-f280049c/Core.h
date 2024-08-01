@@ -54,6 +54,8 @@ private:
 
     int32 feedRatio(Uint32 count);
 
+    bool powerOn;
+
 public:
     Core( Encoder *encoder, StepperDrive *stepperDrive );
 
@@ -61,6 +63,9 @@ public:
     void setReverse(bool reverse);
     Uint16 getRPM(void);
     bool isAlarm();
+
+    bool isPowerOn();
+    void setPowerOn(bool);
 
     void ISR( void );
 };
@@ -82,6 +87,11 @@ inline Uint16 Core :: getRPM(void)
 inline bool Core :: isAlarm()
 {
     return this->stepperDrive->isAlarm();
+}
+
+inline bool Core :: isPowerOn()
+{
+    return this->powerOn;
 }
 
 inline int32 Core :: feedRatio(Uint32 count)

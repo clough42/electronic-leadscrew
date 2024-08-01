@@ -55,11 +55,22 @@
 // Define the number of steps and microsteps for your stepper motor, the pin
 // polarity of the driver, and whether to use additional features, like servo
 // alarm feedback.
+//
+// NOTE: If you are using a servo drive with something other than a 1:1 drive
+// ratio, you can use the STEPPER_MICROSTEPS to compensate.  For example, if you
+// have a servo configured for 1000 steps/revolution and it drives the leadscrew
+// through a 3:1 reduction, you can set STEPPER_RESOLUTION to 1000 and
+// STEPPER_MICROSTEPS to 3.
 //================================================================================
 
 // Steps and microsteps
 #define STEPPER_MICROSTEPS 8
 #define STEPPER_RESOLUTION 200
+
+// Separate step and microstep settings for feed rates.  Redefine these if your
+// lathe has a separate feed drive train with a different ratio.
+#define STEPPER_MICROSTEPS_FEED STEPPER_MICROSTEPS
+#define STEPPER_RESOLUTION_FEED STEPPER_RESOLUTION
 
 // Step, direction and enable pins are normally active-high
 // #define INVERT_STEP_PIN true
@@ -78,8 +89,18 @@
 //
 // Define the type of encoder you are using on the spindle.  The firmware assumes
 // the encoder is turning at a 1:1 ratio with the spindle.
+//
+// NOTE: the firmware is concerned with the quadrature edge count, which is
+// four times the number of pulses.  For example, if you have a 1024 P/R
+// encoder, you need to enter 4096 here.
 //================================================================================
+
+// Encoder resolution (counts per revolution)
 #define ENCODER_RESOLUTION 4096
+
+// Which encoder input to use
+#define ENCODER_USE_EQEP1
+//#define ENCODER_USE_EQEP2
 
 
 
@@ -98,6 +119,47 @@
 
 
 //================================================================================
+//                                HARDWARE
+//
+// Define which hardware you're using:
+//
+//  1 - LaunchXL F280049C with ELS BoostXL v1
+//  2 - LaunchXL F280049C with ELS BoostXL v2
+//================================================================================
+
+// See hardware version table above
+#define HARDWARE_VERSION 2
+
+
+
+
+//================================================================================
+//                                FEATURES
+//
+// Additional features that can be enabled for your configuration.
+//================================================================================
+
+// Ignore all key presses when the machine is running.  Normally, only the mode
+// and direction keys are ignored.
+//#define IGNORE_ALL_KEYS_WHEN_RUNNING
+
+
+
+
+//================================================================================
+//                              VALIDATION/TRIP
+//
+// Validation thresholds and automatic trip behavior.
+//================================================================================
+
+// Maximum number of buffered steps
+// The ELS can only output steps at approximately 100KHz.  If you ask the ELS to
+// output steps faster than this, it will get behind and will stop automatically
+// when the buffered step count exceeds this value.
+#define MAX_BUFFERED_STEPS 100
+
+
+//================================================================================
 //                               CPU / TIMING
 //
 // Define the CPU clock, interrupt, and refresh timing.  Most users will not need
@@ -112,13 +174,11 @@
 #define UI_REFRESH_RATE_HZ 100
 
 // RPM recalculation rate, in Hz
-#define RPM_CALC_RATE_HZ 10
+#define RPM_CALC_RATE_HZ 2
 
 // Microprocessor system clock
 #define CPU_CLOCK_MHZ 100
 #define CPU_CLOCK_HZ (CPU_CLOCK_MHZ * 1000000)
-
-
 
 
 #endif // __CONFIGURATION_H

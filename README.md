@@ -1,35 +1,74 @@
 # Clough42 Lathe Electronic Leadscrew Controller
 
-This is the firmware for an experimental lathe electronic leadscrew controller.  The goal is to replace the change
+This is the firmware for a lathe electronic leadscrew controller.  The goal is to replace the change
 gears or gearbox on a metalworking lathe with a stepper motor controlled electronically based on an encoder on the
 lathe spindle.  The electronic controller allows setting different virtual gear ratios for feeds and threading.
 
+![Silkscreened Control Panel](https://raw.githubusercontent.com/clough42/electronic-leadscrew/master/docs/images/CPKit.jpg)
+
+## License and Disclaimer
+
+This software is distributed under the terms of the MIT license.  Read the entire
+license statement [here](https://github.com/clough42/electronic-leadscrew/blob/master/LICENSE).
+
+**Machine tools can be dangerous.**  This is especially true of machine tools that can move by themselves
+under the control of electronics and software.  You are responsible for your own safety.  Always assume
+that something could fail and cause the machine to move unexpectedly.  Keep clear of pinch points and 
+be ready to kill the power in an emergency.
+
+## Latest Version
+
+Version 1.4.00 adds the following features and fixes:
+* Automatically detect if the ELS hits its max 100KHz step rate and fail safe
+* Change the memory map to allow more thread and feed definitions
+
+Version 1.3.01 added the following features and fixes:
+* Fix phantom control panel button presses
+* Add power button support
+* Fix integer overflow for large metric threads
+* Prevent mode and direction changes while running
+* Smooth tachometer display
+* Add support for lathes with separate feed and thread gearing
+
+[DOWNLOAD HERE](https://github.com/clough42/electronic-leadscrew/releases)
+
 ## Project Status
-Design and prototyping.
+Beta.
 
-**NOTE: This is still a work in progress and is subject to change.  Many people have expressed interest in buying parts
-and following along with the build.  That's great!  Just be aware that this hasn't been tested and refined end-to-end yet, so
-things like stepper motors, servos, drivers, display boards are likely to change as the project progresses.**
+**NOTE: This is still a work in progress and is subject to change.  Hundreds of people all over the world have purchased parts
+and built their own.  That's great!  I have had great success with mine, as have others.  Building an ELS
+for your lathe does require require basic electronics and troubleshooting skills, so keep that in mind if you decide to build one
+yourself.**
 
-## Current Concept
-The project is still in the early stages of development.  The current hardware looks like this:
+## Documentation
+For documentation, please [**VISIT THE PROJECT WIKI**](https://github.com/clough42/electronic-leadscrew/wiki).
+
+## Concept
+The project is still in active development.  The current hardware looks like this:
 * Use a TI F280049C Piccolo microcontroller on a LaunchXL prototyping board
 * Use an inexpensive SPI "LED&Key" import display and keypad for the user interface
-* Read the spindle position using a rotary encoder with a 3D-printed gear
-* Use a standard stepper motor and driver on the lathe leadscrew
+* Read the spindle position using a rotary encoder with a 3D-printed gear or belt drive
+* Use a standard stepper motor (or servo) and driver on the lathe leadscrew
 * Make as few modifications to the lathe as possible:
   * Use the original leadscrew and halfnuts without machining
   * Drive the leadscrew through the factory input shaft
   * Drive the encoder from the factory spindle gear train
   * Make it easy to restore the lathe to the original change gear configuration  
 
-The current plan is to support the following operations:
-* Multiple feeds in thousandths of an inch per revolution
-* Multiple feeds in hundredths of a millimeter per revolution
-* Multiple imperial thread pitches (in threads-per-inch)
-* Multiple metric thread pitches (in millimeters)
+The ELS firmware currently supports the following:
+* Feeds in thousandths of an inch per revolution
+* Feeds in hundredths of a millimeter per revolution
+* Imperial thread pitches (in threads-per-inch)
+* Metric thread pitches (in millimeters)
+* Imperial and Metric lead screws
+* Support for powering down the leadscrew while leaving the tachometer active
+* Tachometer averaging (stabilization)
 
-## Future Goals
+Items on the short list for future development:
+* Support for dual-shaft lathes that have different drive ratios for feeding and threading
+* Leadscrew speed limit warnings
+
+## Possible Future Goals
 While this project is starting out as a simple gearbox replacement, some features seem attractive, even for
 that simple case:
 * Threading/feeding up to a hard shoulder with automatic stop
@@ -42,7 +81,8 @@ set to almost any ratio.  The lathe will continue to operate normally, with the 
 the half-nuts to control feeding and threading.
 
 ## Hardware Configuration
-If you want to get this running on your own LaunchXL-F280049C board, here are the settings you will need:
+If you want to get this running on your own LaunchXL-F280049C board, here are the settings you will need.
+See the documentation at the link above for more details.
 
 ### Physical Switches
 The LaunchXL-F280049C has a number of switches on the board to configure the GPIO and peripheral signal routing.
