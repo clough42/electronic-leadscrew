@@ -29,7 +29,6 @@
 
 
 
-
 //================================================================================
 //                                  LEADSCREW
 //
@@ -123,12 +122,18 @@
 //
 // Define which hardware you're using:
 //
-//  1 - LaunchXL F280049C with ELS BoostXL v1
-//  2 - LaunchXL F280049C with ELS BoostXL v2
+//  1 - ELS BoostXL v1
+//  2 - ELS BoostXL v2
+//  3 - ELS BoostXL v2.1 (with SPIClk Modification)
 //================================================================================
 
 // See hardware version table above
-#define HARDWARE_VERSION 2
+#define HARDWARE_VERSION 3
+
+//Configure which LauchPad board we are targeting
+//  Preference is to set these in Build Configuration Predefined Symbols
+//#define TARGET_F28004X
+//#define TARGET_F2806X
 
 
 
@@ -142,6 +147,9 @@
 // Ignore all key presses when the machine is running.  Normally, only the mode
 // and direction keys are ignored.
 //#define IGNORE_ALL_KEYS_WHEN_RUNNING
+
+// Store the state of the machine in EEPROM and restore on power up
+#define ENABLE_STORED_STATE
 
 
 
@@ -177,7 +185,12 @@
 #define RPM_CALC_RATE_HZ 2
 
 // Microprocessor system clock
+#ifdef TARGET_F28004X
 #define CPU_CLOCK_MHZ 100
+#endif
+#ifdef TARGET_F2806X
+#define CPU_CLOCK_MHZ 90
+#endif
 #define CPU_CLOCK_HZ (CPU_CLOCK_MHZ * 1000000)
 
 

@@ -38,6 +38,13 @@ typedef struct MESSAGE
     const MESSAGE *next;
 } MESSAGE;
 
+typedef struct UIState
+{
+    bool metric;
+    bool thread;
+    bool reverse;
+} UIState;
+
 class UserInterface
 {
 private:
@@ -45,9 +52,8 @@ private:
     Core *core;
     FeedTableFactory *feedTableFactory;
 
-    bool metric;
-    bool thread;
-    bool reverse;
+    UIState state;
+    bool stateHasChanged;
 
     FeedTable *feedTable;
 
@@ -61,6 +67,7 @@ private:
     void setMessage(const MESSAGE *message);
     void overrideMessage( void );
     void clearMessage( void );
+    void setStateChanged();
 
 public:
     UserInterface(ControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory);
@@ -68,6 +75,10 @@ public:
     void loop( void );
 
     void panicStepBacklog( void );
+
+    bool stateChanged();
+    UIState getState();
+    void setState(UIState newState);
 };
 
 #endif // __USERINTERFACE_H

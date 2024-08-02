@@ -51,15 +51,15 @@ void StepperDrive :: initHardware(void)
     // GPIO
     //
     EALLOW;
-    GpioCtrlRegs.GPAMUX1.bit.GPIO0 = 0;
-    GpioCtrlRegs.GPAMUX1.bit.GPIO1 = 0;
-    GpioCtrlRegs.GPAMUX1.bit.GPIO6 = 0;
-    GpioCtrlRegs.GPAMUX1.bit.GPIO7 = 0;
+    GpioCtrlRegs.GPAMUX1.bit.STEP_PIN = 0;
+    GpioCtrlRegs.GPAMUX1.bit.DIRECTION_PIN = 0;
+    GpioCtrlRegs.GPAMUX1.bit.ENABLE_PIN = 0;
+    GpioCtrlRegs.GPAMUX1.bit.ALARM_PIN = 0;
 
-    GpioCtrlRegs.GPADIR.bit.GPIO0 = 1;
-    GpioCtrlRegs.GPADIR.bit.GPIO1 = 1;
-    GpioCtrlRegs.GPADIR.bit.GPIO6 = 1;
-    GpioCtrlRegs.GPADIR.bit.GPIO7 = 0; // input
+    GpioCtrlRegs.GPADIR.bit.STEP_PIN = 1;
+    GpioCtrlRegs.GPADIR.bit.DIRECTION_PIN = 1;
+    GpioCtrlRegs.GPADIR.bit.ENABLE_PIN = 1;
+    GpioCtrlRegs.GPADIR.bit.ALARM_PIN = 0; // input
 
     GPIO_CLEAR_STEP;
     GPIO_CLEAR_DIRECTION;
