@@ -59,6 +59,7 @@ private:
 public:
     Core( Encoder *encoder, StepperDrive *stepperDrive );
 
+    void reset(void);
     void setFeed(const FEED_THREAD *feed);
     void setReverse(bool reverse);
     Uint16 getRPM(void);
@@ -66,6 +67,15 @@ public:
 
     bool isPowerOn();
     void setPowerOn(bool);
+
+    void setShoulder( void )                            { stepperDrive->setShoulder(); }
+    void setStart( void )                               { stepperDrive->setStart(); }
+    void setStartOffset( float normalisedAngleOffset );
+    void beginThreadToShoulder( bool start )            { stepperDrive->beginThreadToShoulder(start); }
+    void moveToStart( void );
+    bool isAtShoulder( void )                           { return stepperDrive->isAtShoulder(); }
+    bool isAtStart( void )                              { return stepperDrive->isAtStart(); }
+    void resetToShoulder( void );
 
     void ISR( void );
 };
@@ -103,6 +113,27 @@ inline int32 Core :: feedRatio(Uint32 count)
 #endif // USE_FLOATING_POINT
 }
 
+
+inline void Core :: resetToShoulder( void )
+{
+    float stepsPerUnitPitch = (float) ENCODER_RESOLUTION * this->feed;
+    stepperDrive->resetToShoulder(stepsPerUnitPitch);
+}
+
+inline void Core :: setStartOffset( float normalisedAngleOffset )
+{
+    int32 offset = ((float) ENCODER_RESOLUTION) * normalisedAngleOffset * this->feed;
+    stepperDrive->setStartOffset(offset);
+}
+
+inline void Core :: moveToStart( )
+{
+    int32 stepsPerUnitPitch = (float) ENCODER_RESOLUTION * this->feed;
+    stepperDrive->moveToStart(stepsPerUnitPitch);
+}
+
+
+
 inline void Core :: ISR( void )
 {
     if( this->feed != NULL ) {
@@ -114,10 +145,12 @@ inline void Core :: ISR( void )
         stepperDrive->setDesiredPosition(desiredSteps);
 
         // compensate for encoder overflow/underflow
-        if( spindlePosition < previousSpindlePosition && previousSpindlePosition - spindlePosition > encoder->getMaxCount()/2 ) {
+        if( spindlePosition < previousSpindlePosition && previousSpindlePosition - spindlePosition > encoder->getMaxCount()/2 )
+        {
             stepperDrive->incrementCurrentPosition(-1 * feedRatio(encoder->getMaxCount()));
         }
-        if( spindlePosition > previousSpindlePosition && spindlePosition - previousSpindlePosition > encoder->getMaxCount()/2 ) {
+        if( spindlePosition > previousSpindlePosition && spindlePosition - previousSpindlePosition > encoder->getMaxCount()/2 )
+        {
             stepperDrive->incrementCurrentPosition(feedRatio(encoder->getMaxCount()));
         }
 
@@ -135,6 +168,7 @@ inline void Core :: ISR( void )
         stepperDrive->ISR();
     }
 }
+
 
 
 #endif // __CORE_H
