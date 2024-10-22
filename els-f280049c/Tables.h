@@ -41,7 +41,13 @@ typedef struct FEED_THREAD
     Uint64 denominator;
 } FEED_THREAD;
 
-
+typedef struct TableState
+{
+    Uint16 inchThreadRow;
+    Uint16 inchFeedRow;
+    Uint16 metricThreadRow;
+    Uint16 metricFeedRow;
+} TableState;
 
 class FeedTable
 {
@@ -56,6 +62,9 @@ public:
     const FEED_THREAD *current(void);
     const FEED_THREAD *next(void);
     const FEED_THREAD *previous(void);
+
+    Uint16 getSelectedRow();
+    void setSelectedRow(Uint16 newSelection);
 };
 
 
@@ -71,6 +80,9 @@ public:
     FeedTableFactory(void);
 
     FeedTable *getFeedTable(bool metric, bool thread);
+
+    TableState getState();
+    void setState(TableState newState);
 };
 
 

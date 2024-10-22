@@ -7,11 +7,12 @@
 	<deviceEndianness value="little"/>
 	<codegenToolVersion value="18.12.1.LTS"/>
 	<isElfFormat value="false"/>
-	<connection value="common/targetdb/connections/TIXDS110_Connection.xml"/>
+	<connection value="common/targetdb/connections/TIXDS100v2_Connection.xml"/>
 	<linkerCommandFile value="280049C_RAM_lnk.cmd"/>
 	<rts value="libc.a"/>
 	<createSlaveProjects value=""/>
 	<templateProperties value="id=com.ti.common.project.core.emptyProjectWithMainTemplate"/>
 	<filesToOpen value="main.c"/>
 	<isTargetManual value="false"/>
+	<sourceLookupPath value=""/>
 </projectOptions>

@@ -33,12 +33,18 @@
 
 #if HARDWARE_VERSION == 1
 #  define EEPROM_CHIP_25AA040A
-#elif HARDWARE_VERSION == 2
+#elif (HARDWARE_VERSION == 2) || (HARDWARE_VERSION == 3)
 #  define EEPROM_CHIP_AT25080B
 #else
 #  error Must define a valid HARDWARE_VERSION
 #endif
 
+#ifdef TARGET_F28004X
+#define EEPROM_CS GPIO34
+#endif
+#ifdef TARGET_F2806X
+#define EEPROM_CS GPIO53
+#endif
 
 
 #define EEPROM_PAGE_SIZE 8 // 2-byte words
