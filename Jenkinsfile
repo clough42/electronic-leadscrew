@@ -6,6 +6,7 @@ pipeline {
 		stage('Import Projects') {
 			steps {
 				sh 'ccstudio -noSplash -data . -application com.ti.ccstudio.apps.projectImport -ccs.location els-f280049c || true'
+				sh 'ccstudio -noSplash -data . -application com.ti.ccstudio.apps.projectImport -ccs.location testfixture-f280049c || true'
 			}
 		}
 		

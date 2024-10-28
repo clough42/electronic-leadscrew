@@ -57,14 +57,17 @@ private:
     Uint16 messageTime;
 
     const FEED_THREAD *loadFeedTable();
-    LED_REG calculateLEDs(const FEED_THREAD *selectedFeed);
+    LED_REG calculateLEDs();
     void setMessage(const MESSAGE *message);
     void overrideMessage( void );
+    void clearMessage( void );
 
 public:
     UserInterface(ControlPanel *controlPanel, Core *core, FeedTableFactory *feedTableFactory);
 
     void loop( void );
+
+    void panicStepBacklog( void );
 };
 
 #endif // __USERINTERFACE_H
